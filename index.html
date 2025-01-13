@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Winding</title>
+
+		<link rel="stylesheet" href="index.css">
+
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@v0.163.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@v0.163.0/examples/jsm/"
+        }
+      }
+    </script>
+	</head>
+	<body>
+    <div id="heading">
+      <h1>Filament winding</h1>
+      <div class="border"></div>
+    </div>
+    <div id="progress-container">
+      <div id="progress">Loading...</div>
+    </div>
+    <div id="load-file">
+      <h2>Загрузите CSV файл</h2>
+      <input type="file" id="fileInput" accept=".csv" />
+    </div>
+
+    <script type="module" src="./main.js"></script>
+
+	</body>
+</html>

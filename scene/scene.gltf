@@ -1,0 +1,111 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "Python GLTF Exporter"
+  },
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0
+          },
+          "indices": 1,
+          "material": 0,
+          "mode": 4
+        },
+        {
+          "attributes": {
+            "POSITION": 0
+          },
+          "indices": 2,
+          "material": 0,
+          "mode": 1
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.4,
+          0.8,
+          0.4,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 1.0
+      }
+    }
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 39225,
+      "type": "VEC3",
+      "min": [
+        -69.1839012930861,
+        -69.21003727492604,
+        1.03281
+      ],
+      "max": [
+        41.16136563101798,
+        68.94309279628243,
+        485.2376800215924
+      ]
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5123,
+      "count": 224532,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5123,
+      "count": 2648,
+      "type": "SCALAR"
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 470700,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 470700,
+      "byteLength": 449064,
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 919764,
+      "byteLength": 5296,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "scene.bin",
+      "byteLength": 925060
+    }
+  ]
+}
