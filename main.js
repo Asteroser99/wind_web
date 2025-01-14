@@ -216,17 +216,42 @@ window.addEventListener('resize', () => {
 
 let vessel = {};
 
-document.getElementById('fileInput').addEventListener('change', function(event) {
+// document.getElementById('fileInput').addEventListener('change', function(event) {
+//     const file = event.target.files[0];
+//     if (file) {
+//         const reader = new FileReader();
+//         reader.onload = function(e) {
+//             const csvText = e.target.result;
+//             parseCSVToMandrel(csvText);
+//             DrawMandrel();
+//         };
+//         reader.readAsText(file);
+//     }
+// });
+
+const fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const csvText = e.target.result;
-            parseCSVToMandrel(csvText);
-            DrawMandrel();
+            parseCSVToMandrel(csvText); // Ваша функция для обработки CSV
+            DrawMandrel(); // Ваша функция для отрисовки
         };
         reader.readAsText(file);
     }
+});
+
+const uploadButton = document.getElementById('upload-forming');
+uploadButton.addEventListener('click', () => {
+    fileInput.click();
+});
+
+
+const generateButton = document.getElementById('generate-coil');
+generateButton.addEventListener('click', () => {
+  DrawCoil();
 });
 
 
@@ -256,7 +281,7 @@ function lambda_Call(name, param) {
   return axios.post(path + name, JSON.stringify(param));
 }
 
-function Mandrel(r, x) {
+function CalcMandrel(r, x) {
   return lambda_Call("Mandrel", [r, x])
       .then(response => {
           const data = response.data;
@@ -264,19 +289,46 @@ function Mandrel(r, x) {
           return data; // Возвращаем данные из then
       })
       .catch(error => {
-        console.error("Error in Mandrel:", error);
+        console.error("Error in CalcMandrel:", error);
       });
 }
 
 function DrawMandrel() {
   const { r, x } = vessel["mandrel"];
-  
-  Mandrel(r, x)
+
+  CalcMandrel(r, x)
       .then(res => {
           const mesh = model(res["Points"], res["Faces"]);
-          console.log("Mesh created:", mesh);
+          // console.log("Mesh created:", mesh);
       })
       .catch(error => {
           console.error("Error in DrawMandrel:", error);
+      });
+}
+
+
+function CalcCoil(r, x) {
+  console.log("CalcCoil");
+  return lambda_Call("vitok", [x, r, 10., 10.])
+      .then(response => {
+          const data = response.data;
+          console.log("resp:", data);
+          return data; // Возвращаем данные из then
+      })
+      .catch(error => {
+        console.error("Error in CalcMandrel:", error);
+      });
+}
+
+function DrawCoil() {
+  const { r, x } = vessel["mandrel"];
+  console.log("DrawCoil");
+  CalcCoil(r, x)
+      .then(vitok => {
+          // const mesh = model(res["Points"], res["Faces"]);
+          console.log("vitok:", vitok);
+      })
+      .catch(error => {
+          console.error("Error in DrawCoil:", error);
       });
 }

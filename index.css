@@ -55,3 +55,36 @@ h2 {
   justify-content: right;
   align-items: center;
 }
+
+/* Панель управления */
+#control-panel {
+  position: fixed;
+  top: 20%;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Кнопки */
+.action-button {
+  background: linear-gradient(90deg, #555, #999);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1.2em;
+  font-family: 'Courier New';
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  background: linear-gradient(90deg, #777, #bbb);
+  transform: scale(1.05);
+}
+
+.action-button:active {
+  background: linear-gradient(90deg, #333, #666);
+  transform: scale(1);
+}
