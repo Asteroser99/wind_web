@@ -2,75 +2,103 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x000000);
-renderer.setPixelRatio(window.devicePixelRatio);
+let vessel = {};
+let scaleFactor = 1;
 
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-document.body.appendChild(renderer.domElement);
-
-const scene = new THREE.Scene();
-
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(4, 5, 11);
-
-const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 0.22, 1);
-spotLight.position.set(0, 25, 0);
-spotLight.castShadow = true;
-spotLight.shadow.bias = -0.0001;
-scene.add(spotLight);
-
-// const spotLight = new THREE.SpotLight(0xff11ff, 3000, 100, 0.22, 1);
-// spotLight.position.set(-20, 25, 0);
-// spotLight.castShadow = true;
-// spotLight.shadow.bias = -0.0001;
-// scene.add(spotLight);
-
-// const spotLight1 = new THREE.SpotLight(0xffff11, 3000, 100, 0.22, 1);
-// spotLight1.position.set(20, 25, 0);
-// spotLight1.castShadow = true;
-// spotLight1.shadow.bias = -0.0001;
-// scene.add(spotLight1);
-
-//const light = new THREE.DirectionalLight(0xffffff, 1);
-//light.position.set(5, 10, 7);
-//scene.add(light);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.minDistance = 5;
-controls.maxDistance = 20;
-controls.minPolarAngle = 0.5;
-controls.maxPolarAngle = 1.5;
-controls.autoRotate = true;
-controls.target = new THREE.Vector3(0, 1, 0);
-controls.update();
+let renderer = null;
+let scene    = null;
+let camera   = null;
+let controls = null;
 
 
+function loaded(){
+  document.getElementById('progress-container').style.display = 'none';
+}
 
-const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
-groundGeometry.rotateX(-Math.PI / 2);
-const groundMaterial = new THREE.MeshStandardMaterial({
-  color: 0x555555,
-  side: THREE.DoubleSide
-});
-const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-groundMesh.castShadow = false;
-groundMesh.receiveShadow = true;
-scene.add(groundMesh);
+function loading(){
+  document.getElementById('progress-container').style.display = '';
+}
 
+loading()
+
+function setupScene(){
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  document.body.appendChild(renderer.domElement);
+
+  scene = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+  camera.position.set(4, 5, 11);
+
+  const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 0.22, 1);
+  spotLight.position.set(0, 25, 0);
+  spotLight.castShadow = true;
+  spotLight.shadow.bias = -0.0001;
+  scene.add(spotLight);
+
+  // const spotLight = new THREE.SpotLight(0xff11ff, 3000, 100, 0.22, 1);
+  // spotLight.position.set(-20, 25, 0);
+  // spotLight.castShadow = true;
+  // spotLight.shadow.bias = -0.0001;
+  // scene.add(spotLight);
+
+  // const spotLight1 = new THREE.SpotLight(0xffff11, 3000, 100, 0.22, 1);
+  // spotLight1.position.set(20, 25, 0);
+  // spotLight1.castShadow = true;
+  // spotLight1.shadow.bias = -0.0001;
+  // scene.add(spotLight1);
+
+  //const light = new THREE.DirectionalLight(0xffffff, 1);
+  //light.position.set(5, 10, 7);
+  //scene.add(light);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.enablePan = false;
+  controls.minDistance = 5;
+  controls.maxDistance = 20;
+  controls.minPolarAngle = 0.5;
+  controls.maxPolarAngle = 1.5;
+  controls.autoRotate = true;
+  controls.target = new THREE.Vector3(0, 1, 0);
+  controls.update();
+
+  const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
+  groundGeometry.rotateX(-Math.PI / 2);
+  const groundMaterial = new THREE.MeshStandardMaterial({
+    color: 0x556655,
+    side: THREE.DoubleSide
+  });
+  const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+  groundMesh.castShadow = false;
+  groundMesh.receiveShadow = true;
+  scene.add(groundMesh);
+}
 
 function resize(mesh){
-  const box = new THREE.Box3().setFromObject(mesh);
-  const size = box.getSize(new THREE.Vector3());
-  const scaleFactor = 5 / Math.max(size.x, size.y, size.z);
   mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 }
+
+function calcScaleFactor(mesh){
+  const box = new THREE.Box3().setFromObject(mesh);
+  const size = box.getSize(new THREE.Vector3());
+  scaleFactor = 5 / Math.max(size.x, size.y, size.z);
+
+  resize(mesh);
+}
+
+
+setupScene()
+
+
 
 function fromfile() {
   const loader = new GLTFLoader().setPath('scene/');
@@ -89,8 +117,6 @@ function fromfile() {
     mesh.receiveShadow = true;
 
     scene.add(mesh);
-
-    document.getElementById('progress-container').style.display = 'none';
   }, (xhr) => {
     console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
   }, (error) => {
@@ -105,28 +131,11 @@ function box() {
   cube.castShadow = true;
   cube.receiveShadow = true;
   cube.position.set(3, 2.0, -1);
+
+  resize(cube);
+
   scene.add(cube);
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
 }
-
-
-const vertices = [
-  0.0, 0.0, 0.0,
-  1.0, 0.0, 0.0,
-  0.0, 1.0, 0.0,
-  0.0, 0.0, 1.0
-];
-const indices = [
-  0, 1, 2,
-  0, 2, 3,
-  0, 1, 3,
-  1, 2, 3
-];
 
 function model(vertices, indices) {
   const geometry1 = new THREE.BufferGeometry();
@@ -137,7 +146,7 @@ function model(vertices, indices) {
   const material1 = new THREE.MeshStandardMaterial({ color: 0x00ff00, flatShading: true });
 
   const mesh = new THREE.Mesh(geometry1, material1);
-  mesh.position.set(-3, 1.05, -1);
+  mesh.position.set(0, 2.0, 0);
 
   mesh.castShadow = true;
   mesh.receiveShadow = true;
@@ -149,21 +158,6 @@ function model(vertices, indices) {
   return mesh
 }
 
-// const mesh = model(vertices, indices);
-
-const vertices2 = [
-    0.0, 0.0, 2.0,
-    1.0, 0.0, 0.0,
-    0.0, 1.0, 0.0,
-    0.0, 0.0, 1.0
-  ];
-  const indices2 = [
-    1, 2,
-    2, 3,
-    1, 3,
-    2, 3
-  ];
-  
 function line(vertices, indices) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
@@ -172,7 +166,7 @@ function line(vertices, indices) {
   const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
 
   const lines = new THREE.LineSegments(geometry, material);
-  lines.position.set(-1, 2.0, -3);
+  lines.position.set(0, 2.0, 0);
   scene.add(lines);
 
   resize(lines);
@@ -180,9 +174,7 @@ function line(vertices, indices) {
   return lines
 }
 
-// const lines = line(vertices2, indices2)
-
-document.getElementById('progress-container').style.display = 'none';
+loaded();
 
 function animate() {
   requestAnimationFrame(animate);
@@ -190,17 +182,13 @@ function animate() {
   // cube.rotation.x += 0.01;
   // cube.rotation.y += 0.01;
 
-  // mesh.rotation.x += 0.01;
-  // mesh.rotation.y += 0.01;
-
-  // lines.rotation.x -= 0.01;
-  // lines.rotation.y -= 0.01;
-
   controls.update();
   renderer.render(scene, camera);
 }
 
+
 animate();
+
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -209,24 +197,7 @@ window.addEventListener('resize', () => {
 });
 
 
-
-
 // csv
-
-let vessel = {};
-
-// document.getElementById('fileInput').addEventListener('change', function(event) {
-//     const file = event.target.files[0];
-//     if (file) {
-//         const reader = new FileReader();
-//         reader.onload = function(e) {
-//             const csvText = e.target.result;
-//             parseCSVToMandrel(csvText);
-//             DrawMandrel();
-//         };
-//         reader.readAsText(file);
-//     }
-// });
 
 const fileInput = document.getElementById('fileInput');
 fileInput.addEventListener('change', function(event) {
@@ -234,28 +205,25 @@ fileInput.addEventListener('change', function(event) {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const csvText = e.target.result;
-            parseCSVToMandrel(csvText); // Ваша функция для обработки CSV
-            DrawMandrel(); // Ваша функция для отрисовки
+          loading();
+          const csvText = e.target.result;
+          parseCSVToMandrel(csvText); // Ваша функция для обработки CSV
+          DrawMandrel(); // Ваша функция для отрисовки
         };
         reader.readAsText(file);
     }
 });
 
 const uploadButton = document.getElementById('upload-forming');
-uploadButton.addEventListener('click', () => {
-    fileInput.click();
-});
-
+uploadButton.addEventListener('click', () => {fileInput.click();});
 
 const generateButton = document.getElementById('generate-coil');
-generateButton.addEventListener('click', () => {
-  DrawCoil();
-});
+generateButton.addEventListener('click', () => {DrawCoil();});
 
 
 // Функция для получения массивов x и r
 function parseCSVToMandrel(csvText) {
+  loading();
   const lines = csvText.trim().split("\n");
   const headers = lines[0].split(",");
   
@@ -272,6 +240,7 @@ function parseCSVToMandrel(csvText) {
 
   vessel["mandrel"] = { r, x }
 
+  loaded();
   return { r, x };
 }
 
@@ -284,8 +253,7 @@ function CalcMandrel(r, x) {
   return lambda_Call("Mandrel", [r, x])
       .then(response => {
           const data = response.data;
-          console.log("resp:", data);
-          return data; // Возвращаем данные из then
+          return data;
       })
       .catch(error => {
         console.error("Error in CalcMandrel:", error);
@@ -294,11 +262,13 @@ function CalcMandrel(r, x) {
 
 function DrawMandrel() {
   const { r, x } = vessel["mandrel"];
+  loading();
 
   CalcMandrel(r, x)
       .then(res => {
           const mesh = model(res["Points"], res["Faces"]);
-          // console.log("Mesh created:", mesh);
+          calcScaleFactor(mesh);
+          loaded();
       })
       .catch(error => {
           console.error("Error in DrawMandrel:", error);
@@ -329,6 +299,45 @@ function coilRender(fi, xx, rr) {
   return [vertices, indices];
 }
 
+function mandrelRender(r0, x0) {
+  const resolution = 100;
+  const indices = [];
+  const points  = [];
+
+  for (let i = 0; i < r0.length; i++) {
+      const r = r0[i];
+      const h = x0[i];
+      const theta = Array.from({ length: resolution }, (_, j) => (2 * Math.PI * j) / resolution);
+      const row = [];
+
+      for (const angle of theta) {
+          const x = r * Math.cos(angle);
+          const y = r * Math.sin(angle);
+          const z = h;
+          points.push(x, y, z);
+          row.push(points.length / 3 - 1);
+      }
+      indices.push(row);
+  }
+
+  const faces = [];
+  for (let i = 0; i < indices.length - 1; i++) {
+      for (let j = 0; j < indices[i].length - 1; j++) {
+          const p1 = indices[i][j];
+          const p2 = indices[i][j + 1];
+          const p3 = indices[i + 1][j];
+          const p4 = indices[i + 1][j + 1];
+          faces.push(p1, p2, p4);
+          faces.push(p1, p4, p3);
+      }
+  }
+
+  return {
+      Points: points,
+      Faces: faces
+  };
+}
+
 function CalcCoil(r, x) {
   console.log("CalcCoil");
   return lambda_Call("vitok", [x, r, 10., 10.])
@@ -344,13 +353,14 @@ function CalcCoil(r, x) {
 
 function DrawCoil() {
   const { r, x } = vessel["mandrel"];
-  console.log("DrawCoil");
+  loading();
   CalcCoil(r, x)
       .then(([cfi, cx, calfa, cr]) => {
           console.log("vitok:", [cfi, cx, calfa, cr]);
           const [vertices, indices] = coilRender(cfi, cx, cr);
           console.log("render:", vertices, indices);
           const mesh = line(vertices, indices);
+          loaded();
         })
       .catch(error => {
           console.error("Error in DrawCoil:", error);
