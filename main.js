@@ -99,6 +99,14 @@ function calcScaleFactor(mesh){
 setupScene()
 
 
+function lambda_Call(name, param) { 
+  const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
+  return axios.post(path + name, JSON.stringify(param));
+}
+
+
+
+// models
 
 function fromfile() {
   const loader = new GLTFLoader().setPath('scene/');
@@ -186,8 +194,8 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-
 animate();
+
 
 
 window.addEventListener('resize', () => {
@@ -197,31 +205,25 @@ window.addEventListener('resize', () => {
 });
 
 
-// csv
+// mandrel
 
 const fileInput = document.getElementById('fileInput');
-fileInput.addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          loading();
-          const csvText = e.target.result;
-          parseCSVToMandrel(csvText); // Ваша функция для обработки CSV
-          DrawMandrel(); // Ваша функция для отрисовки
-        };
-        reader.readAsText(file);
-    }
-});
+fileInput.addEventListener('change', function(event) { loadCSVDrawMandrel(event) });
 
-const uploadButton = document.getElementById('upload-forming');
-uploadButton.addEventListener('click', () => {fileInput.click();});
+function loadCSVDrawMandrel(event) {
+  const file = event.target.files[0];
+  if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        loading();
+        const csvText = e.target.result;
+        parseCSVToMandrel(csvText);
+        DrawMandrel();
+      };
+      reader.readAsText(file);
+  }
+}
 
-const generateButton = document.getElementById('generate-coil');
-generateButton.addEventListener('click', () => {DrawCoil();});
-
-
-// Функция для получения массивов x и r
 function parseCSVToMandrel(csvText) {
   loading();
   const lines = csvText.trim().split("\n");
@@ -242,61 +244,6 @@ function parseCSVToMandrel(csvText) {
 
   loaded();
   return { r, x };
-}
-
-function lambda_Call(name, param) { 
-  const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
-  return axios.post(path + name, JSON.stringify(param));
-}
-
-function CalcMandrel(r, x) {
-  return lambda_Call("Mandrel", [r, x])
-      .then(response => {
-          const data = response.data;
-          return data;
-      })
-      .catch(error => {
-        console.error("Error in CalcMandrel:", error);
-      });
-}
-
-function DrawMandrel() {
-  const { r, x } = vessel["mandrel"];
-  loading();
-
-  CalcMandrel(r, x)
-      .then(res => {
-          const mesh = model(res["Points"], res["Faces"]);
-          calcScaleFactor(mesh);
-          loaded();
-      })
-      .catch(error => {
-          console.error("Error in DrawMandrel:", error);
-      });
-}
-
-
-function coilRender(fi, xx, rr) {
-  const vertices = [];
-  const indices  = [];
-
-  for (let i = 0; i < xx.length; i++) {
-      const fii = fi[i];
-      const xi = xx[i];
-      const yi = rr[i] * Math.sin(fii);
-      const zi = rr[i] * Math.cos(fii);
-
-      vertices.push(xi);
-      vertices.push(yi);
-      vertices.push(zi);
-
-      if (i > 0) {
-        indices.push(i - 1);
-        indices.push(i);
-      }
-  }
-
-  return [vertices, indices];
 }
 
 function mandrelRender(r0, x0) {
@@ -336,6 +283,124 @@ function mandrelRender(r0, x0) {
       Points: points,
       Faces: faces
   };
+}
+
+
+
+function mandrelRender1(rr, xx) {
+  const resolution = 100;
+  const indices = [];
+  const points  = [];
+
+  for (let i = 0; i < rr.length; i++) {
+      const theta = Array.from({ length: resolution }, (_, j) => (2 * Math.PI * j) / resolution);
+      const row = [];
+
+      for (const fii of theta) {
+          const x = xx[i];
+          const y = rr[i] * Math.sin(fii);
+          const z = rr[i] * Math.cos(fii);
+
+          points.push(x, y, z);
+          row.push(points.length / 3 - 1);
+      }
+      indices.push(row);
+  }
+
+  const faces = [];
+  for (let i = 0; i < indices.length - 1; i++) {
+      for (let j = 0; j < indices[i].length - 1; j++) {
+          const p1 = indices[i][j];
+          const p2 = indices[i][j + 1];
+          const p3 = indices[i + 1][j];
+          const p4 = indices[i + 1][j + 1];
+          faces.push(p1, p2, p4);
+          faces.push(p1, p4, p3);
+      }
+  }
+
+  return {
+      Points: points,
+      Faces: faces
+  };
+}
+
+// function CalcMandrel(r, x) {
+//   // return lambda_Call("Mandrel", [r, x])
+//   //     .then(response => {
+//   //         const data = response.data;
+//   //         return data;
+//   //     })
+//   //     .catch(error => {
+//   //       console.error("Error in CalcMandrel:", error);
+//   //     });
+//   return mandrelRender(r, x);
+// }
+
+function DrawMandrel() {
+  loading();
+
+  const { r, x } = vessel["mandrel"];
+
+  // CalcMandrel(r, x)
+  //     .then(res => {
+  //         const mesh = model(res["Points"], res["Faces"]);
+  //         calcScaleFactor(mesh);
+  //         loaded();
+  //     })
+  //     .catch(error => {
+  //         console.error("Error in DrawMandrel:", error);
+  //     });
+
+
+  try {
+    // Синхронно вызываем CalcMandrel
+    const res = mandrelRender(r, x);
+
+    // Генерируем модель на основе результата
+    const mesh = model(res["Points"], res["Faces"]);
+
+    // Рассчитываем масштаб
+    calcScaleFactor(mesh);
+
+  } catch (error) {
+      console.error("Error in DrawMandrel:", error);
+  }
+
+  loaded();
+}
+
+
+
+const uploadButton = document.getElementById('upload-forming');
+uploadButton.addEventListener('click', () => {fileInput.click();});
+
+
+// coil
+
+const generateButton = document.getElementById('generate-coil');
+generateButton.addEventListener('click', () => {DrawCoil();});
+
+
+function coilRender(fi, xx, rr) {
+  const vertices = [];
+  const indices  = [];
+
+  for (let i = 0; i < xx.length; i++) {
+      const fii = fi[i];
+      const x = rr[i] * Math.cos(fii);
+      const y = rr[i] * Math.sin(fii);
+      const z = xx[i];
+
+      vertices.push(x, y, z);
+
+      if (i > 0) {
+        indices.push(i - 1);
+        indices.push(i);
+      }
+  }
+
+  return [vertices, indices];
 }
 
 function CalcCoil(r, x) {
