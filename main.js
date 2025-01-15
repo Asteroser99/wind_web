@@ -145,7 +145,7 @@ function box() {
   scene.add(cube);
 }
 
-function model(vertices, indices) {
+function model([vertices, indices]) {
   const geometry1 = new THREE.BufferGeometry();
   geometry1.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry1.setIndex(indices);
@@ -166,7 +166,7 @@ function model(vertices, indices) {
   return mesh
 }
 
-function line(vertices, indices) {
+function line([vertices, indices]) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.setIndex(indices);
@@ -278,48 +278,17 @@ function mandrelRender(rr, xx) {
       }
   }
 
-  return {
-      Points: points,
-      Faces: faces
-  };
+  return [points, faces]
 }
-
-// function CalcMandrel(r, x) {
-//   // return lambda_Call("Mandrel", [r, x])
-//   //     .then(response => {
-//   //         const data = response.data;
-//   //         return data;
-//   //     })
-//   //     .catch(error => {
-//   //       console.error("Error in CalcMandrel:", error);
-//   //     });
-//   return mandrelRender(r, x);
-// }
 
 function DrawMandrel() {
   loading();
 
   const { r, x } = vessel["mandrel"];
 
-  // CalcMandrel(r, x)
-  //     .then(res => {
-  //         const mesh = model(res["Points"], res["Faces"]);
-  //         calcScaleFactor(mesh);
-  //         loaded();
-  //     })
-  //     .catch(error => {
-  //         console.error("Error in DrawMandrel:", error);
-  //     });
-
-
   try {
-    // Синхронно вызываем CalcMandrel
-    const res = mandrelRender(r, x);
+    const mesh = model(mandrelRender(r, x));
 
-    // Генерируем модель на основе результата
-    const mesh = model(res["Points"], res["Faces"]);
-
-    // Рассчитываем масштаб
     calcScaleFactor(mesh);
 
   } catch (error) {
@@ -380,10 +349,8 @@ function DrawCoil() {
   loading();
   CalcCoil(r, x)
       .then(([cfi, cx, calfa, cr]) => {
-          console.log("vitok:", [cfi, cx, calfa, cr]);
-          const [vertices, indices] = coilRender(cfi, cx, cr);
-          console.log("render:", vertices, indices);
-          const mesh = line(vertices, indices);
+          // console.log("vitok:", [cfi, cx, calfa, cr]);
+          const mesh = line(coilRender(cfi, cx, cr));
           loaded();
         })
       .catch(error => {
