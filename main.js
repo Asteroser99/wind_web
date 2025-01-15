@@ -246,48 +246,7 @@ function parseCSVToMandrel(csvText) {
   return { r, x };
 }
 
-function mandrelRender(r0, x0) {
-  const resolution = 100;
-  const indices = [];
-  const points  = [];
-
-  for (let i = 0; i < r0.length; i++) {
-      const r = r0[i];
-      const h = x0[i];
-      const theta = Array.from({ length: resolution }, (_, j) => (2 * Math.PI * j) / resolution);
-      const row = [];
-
-      for (const angle of theta) {
-          const x = r * Math.cos(angle);
-          const y = r * Math.sin(angle);
-          const z = h;
-          points.push(x, y, z);
-          row.push(points.length / 3 - 1);
-      }
-      indices.push(row);
-  }
-
-  const faces = [];
-  for (let i = 0; i < indices.length - 1; i++) {
-      for (let j = 0; j < indices[i].length - 1; j++) {
-          const p1 = indices[i][j];
-          const p2 = indices[i][j + 1];
-          const p3 = indices[i + 1][j];
-          const p4 = indices[i + 1][j + 1];
-          faces.push(p1, p2, p4);
-          faces.push(p1, p4, p3);
-      }
-  }
-
-  return {
-      Points: points,
-      Faces: faces
-  };
-}
-
-
-
-function mandrelRender1(rr, xx) {
+function mandrelRender(rr, xx) {
   const resolution = 100;
   const indices = [];
   const points  = [];
@@ -297,9 +256,9 @@ function mandrelRender1(rr, xx) {
       const row = [];
 
       for (const fii of theta) {
-          const x = xx[i];
+          const x = rr[i] * Math.cos(fii);
           const y = rr[i] * Math.sin(fii);
-          const z = rr[i] * Math.cos(fii);
+          const z = xx[i];
 
           points.push(x, y, z);
           row.push(points.length / 3 - 1);
