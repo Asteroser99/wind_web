@@ -165,18 +165,17 @@ const vertices2 = [
   ];
   
 function line(vertices, indices) {
-  // Создаем геометрию линий
-  const geometry2 = new THREE.BufferGeometry();
-  geometry2.setAttribute('position', new THREE.Float32BufferAttribute(vertices2, 3));
-  geometry2.setIndex(indices2);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
 
-  // Создаем материал для линий
-  const material2 = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
 
-  // Создаем объект линий
-  const lines = new THREE.LineSegments(geometry2, material2);
+  const lines = new THREE.LineSegments(geometry, material);
   lines.position.set(-1, 2.0, -3);
   scene.add(lines);
+
+  resize(lines);
 
   return lines
 }
@@ -307,16 +306,39 @@ function DrawMandrel() {
 }
 
 
+function coilRender(fi, xx, rr) {
+  const vertices = [];
+  const indices  = [];
+
+  for (let i = 0; i < xx.length; i++) {
+      const fii = fi[i];
+      const xi = xx[i];
+      const yi = rr[i] * Math.sin(fii);
+      const zi = rr[i] * Math.cos(fii);
+
+      vertices.push(xi);
+      vertices.push(yi);
+      vertices.push(zi);
+
+      if (i > 0) {
+        indices.push(i - 1);
+        indices.push(i);
+      }
+  }
+
+  return [vertices, indices];
+}
+
 function CalcCoil(r, x) {
   console.log("CalcCoil");
   return lambda_Call("vitok", [x, r, 10., 10.])
-      .then(response => {
-          const data = response.data;
-          console.log("resp:", data);
-          return data; // Возвращаем данные из then
+      .then(resp => {
+        console.log("CalcCoil:", resp.data);
+        const [cfi, cx, calfa, cr] = resp.data
+        return [cfi, cx, calfa, cr];
       })
       .catch(error => {
-        console.error("Error in CalcMandrel:", error);
+        console.error("Error in CalcCoil:", error);
       });
 }
 
@@ -324,10 +346,12 @@ function DrawCoil() {
   const { r, x } = vessel["mandrel"];
   console.log("DrawCoil");
   CalcCoil(r, x)
-      .then(vitok => {
-          // const mesh = model(res["Points"], res["Faces"]);
-          console.log("vitok:", vitok);
-      })
+      .then(([cfi, cx, calfa, cr]) => {
+          console.log("vitok:", [cfi, cx, calfa, cr]);
+          const [vertices, indices] = coilRender(cfi, cx, cr);
+          console.log("render:", vertices, indices);
+          const mesh = line(vertices, indices);
+        })
       .catch(error => {
           console.error("Error in DrawCoil:", error);
       });
