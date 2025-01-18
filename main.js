@@ -99,12 +99,20 @@ function calcScaleFactor(mesh){
 setupScene()
 
 
-function lambda_Call(name, param) { 
-  const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
-  return axios.post(path + name, JSON.stringify(param));
-}
+// const accessToken = localStorage.getItem('accessToken');
 
-
+// axios
+//   .get('https://YOUR_API_ENDPOINT', {
+//     headers: {
+//       Authorization: `Bearer ${accessToken}`, // Используйте Bearer токен
+//     },
+//   })
+//   .then((response) => {
+//     console.log('API Response:', response.data);
+//   })
+//   .catch((error) => {
+//     console.error('API Error:', error);
+//   });
 
 // models
 
@@ -134,7 +142,40 @@ function fromfile() {
 
 function box() {
   const geometry = new THREE.BoxGeometry(2, 2, 2);
-  const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+  // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+
+  const textureLoader = new THREE.TextureLoader();
+
+  const colorTexture     = textureLoader.load('Pic.jpg');
+  // const normalTexture    = textureLoader.load('./texture/Fabric004/NormalDX.png');
+  // const roughnessTexture = textureLoader.load('./texture/Fabric004/Roughness.png');
+  
+  colorTexture.wrapS = THREE.RepeatWrapping;
+  colorTexture.wrapT = THREE.RepeatWrapping;
+  colorTexture.repeat.set(2, 2);
+
+  // normalTexture.wrapS = THREE.RepeatWrapping;
+  // normalTexture.wrapT = THREE.RepeatWrapping;
+  // normalTexture.repeat.set(4, 4);
+
+  // roughnessTexture.wrapS = THREE.RepeatWrapping;
+  // roughnessTexture.wrapT = THREE.RepeatWrapping;
+  // roughnessTexture.repeat.set(4, 4);
+
+  const material = new THREE.MeshStandardMaterial({
+    map: colorTexture,
+    // normalMap: normalTexture,
+    // roughnessMap: roughnessTexture,
+    roughness: 0.3, // Подстройка уровня шероховатости
+    metalness: 0.5, // Придаёт металлический блеск
+  });  
+
+  // const material = new THREE.MeshPhongMaterial({
+  //   color: new THREE.Color(0.5,0.5,0.5),
+  //   emissive: new THREE.Color(0.05,0.05,0.05)
+  // })  
+
   const cube = new THREE.Mesh(geometry, material);
   cube.castShadow = true;
   cube.receiveShadow = true;
@@ -145,15 +186,59 @@ function box() {
   scene.add(cube);
 }
 
+// box()
+
 function model([vertices, indices]) {
-  const geometry1 = new THREE.BufferGeometry();
-  geometry1.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  geometry1.setIndex(indices);
-  geometry1.computeVertexNormals();
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
 
-  const material1 = new THREE.MeshStandardMaterial({ color: 0x00ff00, flatShading: true });
 
-  const mesh = new THREE.Mesh(geometry1, material1);
+
+  var quad_uvs =
+  [
+  0.0, 0.0,
+  1.0, 0.0,
+  1.0, 1.0,
+  0.0, 1.0
+  ];
+  var uvs = new Float32Array(quad_uvs);
+  geometry.setAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
+
+
+
+  // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, flatShading: true });
+  
+  const textureLoader = new THREE.TextureLoader();
+
+  // Загрузка текстур
+  const colorTexture     = textureLoader.load('Color.jpg');
+  // const normalTexture    = textureLoader.load('./texture/Fabric004/NormalDX.png');
+  // const roughnessTexture = textureLoader.load('./texture/Fabric004/Roughness.png');
+  
+  colorTexture.wrapS = THREE.RepeatWrapping;
+  colorTexture.wrapT = THREE.RepeatWrapping;
+  colorTexture.repeat.set(1.0, 1.0);
+
+  // normalTexture.wrapS = THREE.RepeatWrapping;
+  // normalTexture.wrapT = THREE.RepeatWrapping;
+  // normalTexture.repeat.set(4, 4);
+
+  // roughnessTexture.wrapS = THREE.RepeatWrapping;
+  // roughnessTexture.wrapT = THREE.RepeatWrapping;
+  // roughnessTexture.repeat.set(4, 4);
+
+// Создание материала
+  const material = new THREE.MeshStandardMaterial({
+    map: colorTexture,
+    // normalMap: normalTexture,
+    // roughnessMap: roughnessTexture,
+    roughness: 0.3, // Подстройка уровня шероховатости
+    metalness: 0.5, // Придаёт металлический блеск
+  });  
+
+  const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 2.0, 0);
 
   mesh.castShadow = true;
@@ -306,8 +391,8 @@ uploadButton.addEventListener('click', () => {fileInput.click();});
 
 // coil
 
-const generateButton = document.getElementById('generate-coil');
-generateButton.addEventListener('click', () => {DrawCoil();});
+const generateButton_ = document.getElementById('generate-coil-non-auth');
+generateButton_.addEventListener('click', () => {DrawCoil();});
 
 
 function coilRender(fi, xx, rr) {
@@ -331,12 +416,41 @@ function coilRender(fi, xx, rr) {
   return [vertices, indices];
 }
 
+// -------
+
+function lambdaCall(name, param) {
+  console.log("lambdaCall start");
+
+  const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
+  const accessToken = localStorage.getItem('accessToken'); // Получаем токен из локального хранилища
+
+  const headers = {
+    headers: {
+      auth: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  }
+
+  return axios.post(
+    path + name,
+    JSON.stringify(param),
+    headers
+  ).then((response) => {
+      // console.log("lambdaCall response");
+      // console.log(response.data);
+      return response.data;
+    })
+    .catch((error) => {
+      console.error('Error calling Lambda:', error);
+    });
+}
+
 function CalcCoil(r, x) {
   console.log("CalcCoil");
-  return lambda_Call("vitok", [x, r, 10., 10.])
-      .then(resp => {
-        console.log("CalcCoil:", resp.data);
-        const [cfi, cx, calfa, cr] = resp.data
+  return lambdaCall("vitok", [x, r, 10., 10.])
+      .then(res => {
+        console.log("CalcCoil:", res);
+        const [cfi, cx, calfa, cr] = res
         return [cfi, cx, calfa, cr];
       })
       .catch(error => {
@@ -349,7 +463,6 @@ function DrawCoil() {
   loading();
   CalcCoil(r, x)
       .then(([cfi, cx, calfa, cr]) => {
-          // console.log("vitok:", [cfi, cx, calfa, cr]);
           const mesh = line(coilRender(cfi, cx, cr));
           loaded();
         })
@@ -357,3 +470,48 @@ function DrawCoil() {
           console.error("Error in DrawCoil:", error);
       });
 }
+
+// -------
+
+// var quad_vertices =
+// [
+// -30.0,  30.0, 0.0,
+// 30.0,  30.0, 0.0,
+// 30.0, -30.0, 0.0,
+// -30.0, -30.0, 0.0
+// ];
+
+// var quad_uvs =
+// [
+// 0.0, 0.0,
+// 1.0, 0.0,
+// 1.0, 1.0,
+// 0.0, 1.0
+// ];
+
+// var quad_indices =
+// [
+// 0, 2, 1, 0, 3, 2
+// ];
+
+// var geometry = new THREE.BufferGeometry();
+
+// var vertices = new Float32Array( quad_vertices );
+// // Each vertex has one uv coordinate for texture mapping
+// var uvs = new Float32Array(quad_uvs);
+// // Use the four vertices to draw the two triangles that make up the square.
+// var indices = new Uint32Array( quad_indices )
+
+// // itemSize = 3 because there are 3 values (components) per vertex
+// geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+// geometry.setAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
+// geometry.setIndex( new THREE.BufferAttribute( indices, 1 ) );
+
+// // Load the texture asynchronously
+// let sprite = new THREE.TextureLoader().load('Pic.jpg');
+
+// var material = new THREE.MeshBasicMaterial( {map: sprite });
+// var mesh = new THREE.Mesh( geometry, material );
+// mesh.position.z = -100;
+
+// scene.add(mesh);

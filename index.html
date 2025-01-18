@@ -16,6 +16,8 @@
         }
       }
     </script>
+
+
 	</head>
 	<body>
     <div id="heading">
@@ -33,13 +35,65 @@
     </div> -->
 
   <div id="control-panel">
+    <button id="logIn" class="action-button">Log In</button>
+
     <button id="upload-forming" class="action-button">Upload mandrel</button>
     <input type="file" id="fileInput" accept=".csv" style="display: none;" />
-    <button id="generate-coil" class="action-button">Generate coil</button>
-    <button id="download-coil" class="action-button">Download coil</button>
+
+    <button id="generate-coil-non-auth" class="action-button">Generate coil</button>
+    <!-- <button id="download-coil" class="action-button">Download coil</button> -->
+
+    <button id="logOff" class="action-button">Log Off</button>
+
+    <div id="user-info">
+      <p id="user-logged" class="user-logged">You are not logged in</p>
+      <p id="user-email" class="user-logged"></p>
+    </div>
   </div>
       
-    <script type="module" src="./main.js"></script>
+  <script type="module" src="./main.js"></script>
+  <script type="module" src="./cognito.js"></script>
+
+
+
+  <!-- cognito -->
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  
+  <!-- <script type="module">
+      import { userManager } from "./main.js";
+  
+      document.getElementById("signIn").addEventListener("click", async () => {
+          await userManager.signinRedirect();
+      });
+  </script> -->
+  
+  <!-- <script type="module">
+      import { userManager } from "./main.js";
+
+      userManager.signinCallback().then(function (user) {
+          // document.getElementById("email").textContent = user.profile?.email;
+          document.getElementById("access-token").textContent = user.access_token;
+          document.getElementById("id-token").textContent = user.id_token;
+          document.getElementById("refresh-token").textContent = user.refresh_token;
+      });
+  </script> -->
+
+
+  <!-- add sign-out button -->
+  <!-- <script type="module">
+      import { signOutRedirect } from "./main.js";
+
+      document.getElementById("signOut").addEventListener("click", async () => {
+          await signOutRedirect();
+      });
+  </script> -->
+
+
+
+
+
 
 	</body>
 </html>

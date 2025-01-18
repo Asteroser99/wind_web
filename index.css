@@ -88,3 +88,8 @@ h2 {
   background: linear-gradient(90deg, #333, #666);
   transform: scale(1);
 }
+
+.user-logged {
+  color: white; /* Белый цвет текста */
+  font-weight: bold; /* Жирный шрифт */
+}
