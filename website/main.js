@@ -188,7 +188,7 @@ function box() {
 
 // box()
 
-function model([vertices, indices]) {
+function model([vertices, indices], Color = 0x000000) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.setIndex(indices);
@@ -210,16 +210,16 @@ function model([vertices, indices]) {
 
   // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, flatShading: true });
   
-  const textureLoader = new THREE.TextureLoader();
+  // const textureLoader = new THREE.TextureLoader();
 
   // Загрузка текстур
-  const colorTexture     = textureLoader.load('Color.jpg');
+  // const colorTexture     = textureLoader.load('Color.jpg');
   // const normalTexture    = textureLoader.load('./texture/Fabric004/NormalDX.png');
   // const roughnessTexture = textureLoader.load('./texture/Fabric004/Roughness.png');
   
-  colorTexture.wrapS = THREE.RepeatWrapping;
-  colorTexture.wrapT = THREE.RepeatWrapping;
-  colorTexture.repeat.set(1.0, 1.0);
+  // colorTexture.wrapS = THREE.RepeatWrapping;
+  // colorTexture.wrapT = THREE.RepeatWrapping;
+  // colorTexture.repeat.set(1.0, 1.0);
 
   // normalTexture.wrapS = THREE.RepeatWrapping;
   // normalTexture.wrapT = THREE.RepeatWrapping;
@@ -231,12 +231,13 @@ function model([vertices, indices]) {
 
 // Создание материала
   const material = new THREE.MeshStandardMaterial({
-    map: colorTexture,
+    // map: colorTexture,
     // normalMap: normalTexture,
     // roughnessMap: roughnessTexture,
     roughness: 0.3, // Подстройка уровня шероховатости
     metalness: 0.5, // Придаёт металлический блеск
-  });  
+    color: Color, // Желтый цвет в формате HEX
+});  
 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 2.0, 0);
@@ -341,9 +342,9 @@ function mandrelRender(rr, xx) {
       const row = [];
 
       for (const fii of theta) {
-          const x = rr[i] * Math.cos(fii);
+          const x = xx[i];
           const y = rr[i] * Math.sin(fii);
-          const z = xx[i];
+          const z = rr[i] * Math.cos(fii);
 
           points.push(x, y, z);
           row.push(points.length / 3 - 1);
@@ -358,8 +359,8 @@ function mandrelRender(rr, xx) {
           const p2 = indices[i][j + 1];
           const p3 = indices[i + 1][j];
           const p4 = indices[i + 1][j + 1];
-          faces.push(p1, p2, p4);
-          faces.push(p1, p4, p3);
+          faces.push(p1, p4, p2);
+          faces.push(p1, p3, p4);
       }
   }
 
@@ -401,9 +402,9 @@ function coilRender(fi, xx, rr) {
 
   for (let i = 0; i < xx.length; i++) {
       const fii = fi[i];
-      const x = rr[i] * Math.cos(fii);
+      const x = xx[i];
       const y = rr[i] * Math.sin(fii);
-      const z = xx[i];
+      const z = rr[i] * Math.cos(fii);
 
       vertices.push(x, y, z);
 
@@ -445,13 +446,16 @@ function lambdaCall(name, param) {
     });
 }
 
+
+// Line coil
+
 function CalcCoil(r, x) {
   console.log("CalcCoil");
   return lambdaCall("vitok", [x, r, 10., 10.])
       .then(res => {
         console.log("CalcCoil:", res);
-        const [cfi, cx, calfa, cr] = res
-        return [cfi, cx, calfa, cr];
+        const [cx, cr, cfi, calfa] = res
+        return [cx, cr, cfi, calfa];
       })
       .catch(error => {
         console.error("Error in CalcCoil:", error);
@@ -462,14 +466,51 @@ function DrawCoil() {
   const { r, x } = vessel["mandrel"];
   loading();
   CalcCoil(r, x)
-      .then(([cfi, cx, calfa, cr]) => {
-          const mesh = line(coilRender(cfi, cx, cr));
+      .then(([cx, cr, cfi, calfa]) => {
+        vessel["coil"] = { cx, cr, cfi, calfa };
+        const mesh = line(coilRender(cfi, cx, cr));
+          loaded();
+        })
+      .catch(error => {
+          console.error("Error in DrawTapeN:", error);
+      });
+}
+
+
+// Tape coil
+
+const tapeNButton = document.getElementById('draw-tape');
+tapeNButton.addEventListener('click', () => {DrawTapeN();});
+
+
+function sceneTapeN() {
+  console.log("sceneTapeN");
+  console.log("0", vessel["coil"]);
+  console.log("1", vessel["mandrel"]);
+  const { cx, cr, cfi, calfa } = vessel["coil"];
+  console.log("2", cx);
+  return lambdaCall("gltfCoil", [ "TapeN", cx, cr, cfi, calfa, 10., 10. ])
+      .then(gltf => {
+        console.log("sceneTapeN:", gltf);
+        return gltf;
+      })
+      .catch(error => {
+        console.error("Error in sceneTapeN:", error);
+      });
+}
+
+function DrawTapeN() {
+  loading();
+  sceneTapeN()
+      .then(gltf => {
+          const mesh = model([gltf.verticesArray, gltf.indicesArray], 0xffff00);
           loaded();
         })
       .catch(error => {
           console.error("Error in DrawCoil:", error);
       });
 }
+
 
 // -------
 
