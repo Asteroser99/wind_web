@@ -473,7 +473,12 @@ function lambdaCall(name, param) {
 
 function CalcCoil(r, x) {
   console.log("CalcCoil");
-  return lambdaCall("vitok", [x, r, 10., 10.])
+
+  const valueX = document.getElementById('value-x');
+  const Pole = parseFloat(valueX.textContent)//.toFixed(2)
+  console.log("Pole = ", Pole);
+
+  return lambdaCall("vitok", [x, r, Pole, 10.])
       .then(res => {
         console.log("CalcCoil:", res);
         const [cx, cr, cfi, calfa] = res
@@ -511,6 +516,7 @@ function sceneTapeN() {
   console.log("1", vessel["mandrel"]);
   const { cx, cr, cfi, calfa } = vessel["coil"];
   console.log("2", cx);
+
   return lambdaCall("gltfCoil", [ "TapeN", cx, cr, cfi, calfa, 10., 10. ])
       .then(gltf => {
         console.log("sceneTapeN:", gltf);
