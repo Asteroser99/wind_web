@@ -209,7 +209,7 @@ function box() {
 
 // box()
 
-function model([vertices, indices], Color = 0x000000) {
+function model([vertices, indices], Color = 0x4444FF) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.setIndex(indices);
@@ -258,6 +258,7 @@ function model([vertices, indices], Color = 0x000000) {
     roughness: 0.3, // Подстройка уровня шероховатости
     metalness: 0.5, // Придаёт металлический блеск
     color: Color, // Желтый цвет в формате HEX
+    side: THREE.DoubleSide,
 });  
 
   const mesh = new THREE.Mesh(geometry, material);
