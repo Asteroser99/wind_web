@@ -35,6 +35,27 @@ function setupScene(){
 
   scene = new THREE.Scene();
 
+  const axesHelper = new THREE.AxesHelper(5);
+  scene.add(axesHelper);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+
+  const context = canvas.getContext('2d');
+  const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
+  gradient.addColorStop(1, '#00827E'); // Нижний цвет
+  
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Используем градиент как фон
+  const gradientTexture = new THREE.CanvasTexture(canvas);
+  scene.background = gradientTexture;
+
+
+
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.set(4, 5, 11);
 
@@ -62,25 +83,25 @@ function setupScene(){
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.enablePan = false;
+  controls.enablePan = true;
   controls.minDistance = 5;
   controls.maxDistance = 20;
-  controls.minPolarAngle = 0.5;
-  controls.maxPolarAngle = 1.5;
-  controls.autoRotate = true;
+  // controls.minPolarAngle = 0.5;
+  // controls.maxPolarAngle = 1.5;
+  // controls.autoRotate = true;
   controls.target = new THREE.Vector3(0, 1, 0);
   controls.update();
 
-  const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
-  groundGeometry.rotateX(-Math.PI / 2);
-  const groundMaterial = new THREE.MeshStandardMaterial({
-    color: 0x556655,
-    side: THREE.DoubleSide
-  });
-  const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-  groundMesh.castShadow = false;
-  groundMesh.receiveShadow = true;
-  scene.add(groundMesh);
+  // const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
+  // groundGeometry.rotateX(-Math.PI / 2);
+  // const groundMaterial = new THREE.MeshStandardMaterial({
+  //   color: 0x556655,
+  //   side: THREE.DoubleSide
+  // });
+  // const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+  // groundMesh.castShadow = false;
+  // groundMesh.receiveShadow = true;
+  // scene.add(groundMesh);
 }
 
 function resize(mesh){
