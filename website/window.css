@@ -1,0 +1,145 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #9ACBD0;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #9ACBD0;
+    color: #23486A;
+    font-weight: bold;
+    height: 70px
+}
+
+.title {
+    padding: 20px;
+    /* font-size: 2.0em; */
+    flex: 1;
+    text-align: left;
+}
+
+.logo {
+    padding: 10px 12px;
+    background-color: #F2EFE7;
+}
+
+h2 {
+    /* color: rgb(215, 215, 215); */
+    margin: 3px;
+    font-weight: 100;
+} 
+  
+p {
+    margin: 3px;
+} 
+  
+  
+.buttons {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+.header-btn {
+    background-color: #9ACBD0;
+    color: #F2EFE7;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+    border: 1px solid #2973B2;
+}
+
+.header-btn:hover {
+    background-color: #48A6A7;
+}
+
+.main-container {
+    display: flex;
+    flex-grow: 1;
+}
+
+.tab-container {
+    display: flex;
+    height: 100%;
+}
+
+.tab-link {
+    font-size: 1.2em;
+}
+
+.tabs {
+    width: 74px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tabs button {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    background-color: #9ACBD0;
+    color: #F2EFE7;
+    border: none;
+    outline: none;
+    padding: 25px;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid #2973B2;
+    font-weight: bold;
+}
+.tabs button:hover {
+    background-color: #48A6A7;
+}
+
+.tabs button.active {
+    background-color: #2973B2;
+}
+
+.tabs-content {
+    flex-grow: 1;
+    padding: 10px;
+    background-color: #F2EFE7;
+    /* min-width: 300px; Fixed minimum width for content */
+    width: 200px;
+    display: none;
+}
+
+.tabs-content.active {
+    display: block;
+}
+
+.tab-content {
+    width: 200px;
+    display: none;
+    color: #23486A;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.static-content {
+    color: #23486A;
+    flex-grow: 1;
+    background-color: white;
+    /* padding: 20px; */
+    border-left: 1px solid #9ACBD0;
+    display: none;
+}
+
+.static-content.active {
+    display: block;
+}
+

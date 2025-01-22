@@ -21,46 +21,86 @@ function loading(){
 
 loading()
 
+function createGradientTexture() {
+  const canvas = document.createElement('canvas');
+  // const canvas = document.getElementById('static-3d-canvas')
+  const ctx = canvas.getContext('2d');
+  canvas.width = 512; // Размер текстуры
+  canvas.height = 512;
+
+  // Создаем градиент
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  // gradient.addColorStop(0, '#ff7eb3'); // Розовый
+  // gradient.addColorStop(0.5, '#6c5ce7'); // Фиолетовый
+  // gradient.addColorStop(1, '#00cec9'); // Голубой
+  gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
+  gradient.addColorStop(1, '#00827E'); // Нижний цвет
+
+  // Заливаем canvas градиентом
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Создаем текстуру из canvas
+  const texture = new THREE.CanvasTexture(canvas);
+  scene.background = texture;
+  return texture;
+}
+
+
 function setupScene(){
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  const canvas = document.getElementById('static-3d-canvas')
+
+  scene = new THREE.Scene();
+  // const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+  // const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+  renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true,
+    alpha: true,
+  });
+  renderer.setSize(canvas.width, canvas.height);
+
+  // renderer = new THREE.WebGLRenderer({
+  //   canvas: canvas,
+  //   antialias: true,
+  // });
+  // const canvas = document.createElement('canvas');
+  // canvas.width = 128;
+  // canvas.height = 128;
+
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x000000);
+  renderer.setClearColor(0x9ACBD0);
   renderer.setPixelRatio(window.devicePixelRatio);
-
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  document.body.appendChild(renderer.domElement);
+  // document.body.appendChild(renderer.domElement);
 
-  scene = new THREE.Scene();
+  // scene = new THREE.Scene();
 
   const axesHelper = new THREE.AxesHelper(5);
   scene.add(axesHelper);
 
-  const canvas = document.createElement('canvas');
-  canvas.width = 128;
-  canvas.height = 128;
+  // const context = canvas.getContext('2d');
 
-  const context = canvas.getContext('2d');
-  const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-  gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
-  gradient.addColorStop(1, '#00827E'); // Нижний цвет
+  // console.log(context)
+
+  // const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
+  // gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
+  // gradient.addColorStop(1, '#00827E'); // Нижний цвет
   
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, canvas.width, canvas.height);
+  // context.fillStyle = gradient;
+  // context.fillRect(0, 0, canvas.width, canvas.height);
 
   // Используем градиент как фон
-  const gradientTexture = new THREE.CanvasTexture(canvas);
-  scene.background = gradientTexture;
-
-  // const chartCanvas = document.getElementById('myChart');
-  // const gradientTexture = new THREE.CanvasTexture(chartCanvas);
+  // const gradientTexture = new THREE.CanvasTexture(canvas);
   // scene.background = gradientTexture;
-
+  createGradientTexture();
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.set(4, 5, 11);
+
 
   const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 0.22, 1);
   spotLight.position.set(0, 25, 0);
@@ -119,8 +159,11 @@ function calcScaleFactor(mesh){
   resize(mesh);
 }
 
-
-setupScene()
+document.addEventListener('DOMContentLoaded', function() {
+  setupScene();
+  loaded();
+  animate();
+  })
 
 
 // const accessToken = localStorage.getItem('accessToken');
@@ -293,7 +336,6 @@ function line([vertices, indices]) {
   return lines
 }
 
-loaded();
 
 function animate() {
   requestAnimationFrame(animate);
@@ -305,7 +347,6 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-animate();
 
 
 

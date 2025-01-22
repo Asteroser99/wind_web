@@ -1,257 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Filament winding</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="logo.png" type="image/x-icon">
+    <title>Filament winding</title>
 
-		<link rel="stylesheet" href="index.css">
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@v0.163.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@v0.163.0/examples/jsm/"
+          }
+        }
+    </script>
+
+    <link rel="stylesheet" href="./window.css">
+    <script type="module" src="./window.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" src="./cognito.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="./chart.js"></script>
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@v0.163.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@v0.163.0/examples/jsm/"
-        }
-      }
-    </script>
+    <link rel="stylesheet" href="./three.css">
+    <script type="module" src="./three.js"></script>
+  </head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <div class="title"><h1>Filament winding</h1></div>
+        <div class="buttons">
+            <div id="user-info">
+                <p id="user-logged" class="user-logged">You are not logged in</p>
+                <p id="user-email" class="user-logged"></p>
+              </div>
 
-
-	</head>
-	<body>
-    <div id="heading">
-      <h1>Filament winding</h1>
-      <div class="border"></div>
-    </div>
-
+            <button id="logIn"  class="header-btn">Login</button>
+            <button id="logOff" class="header-btn">Logoff</button>
+            <button class="header-btn">Help</button>
+        </div>
+    </div>    
     <div id="progress-container">
-      <div id="progress">Loading...</div>
+        <div id="progress">Loading...</div>
     </div>
+    <div class="main-container">
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab-link"        onclick="openTab(event, 'tab1')">Mandrel</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab2')">Patterns</button>
+                <button class="tab-link active" onclick="openTab(event, 'tab3')">Coil</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab4')">Help</button>
+            </div>
+            <div id="tabs-content" class="tabs-content active">
+                <div id="tab1" class="tab-content">
+                    <h2>Mandrel</h2>
+                    <p>Mandrel configuration</p>
+                </div>
+                <div id="tab2" class="tab-content">
+                    <h2>Pattern</h2>
+                    <p>Pattern configuration</p>
+                </div>
+                <div id="tab3" class="tab-content active">
+                    <h2>Coil</h2>
+                    <div id="control-panel">
+                        <!-- <button id="logIn" class="action-button">Log In</button> -->
+                    
+                        <button id="upload-forming" class="action-button">Upload mandrel</button>
+                        <input type="file" id="fileInput" accept=".csv" style="display: none;" />
+                    
+                        <button id="generate-coil-non-auth" class="action-button">Generate coil</button>
+                        <button id="draw-tape" class="action-button">Draw Tape</button>
+                    
+                        <!-- <button id="logOff" class="action-button">Log Off</button> -->
+                    
+                        <div id="numbers">
+                          <p>Numeric Values</p>
+                          <p>X: <span id="value-x">0</span></p>
+                          <p>Y: <span id="value-y">0</span></p>
+                          <p>Z: <span id="value-z">0</span></p>
+                    
+                          <button id="edit-button">Edit Values</button>
+                    
+                          <div class="modal-overlay" id="modal-overlay"></div>
+                      
+                          <div class="modal" id="edit-modal">
+                              <h2>Edit Values</h2>
+                              <label for="input-x">X:</label>
+                              <input type="number" id="input-x">
+                              <label for="input-y">Y:</label>
+                              <input type="number" id="input-y">
+                              <label for="input-z">Z:</label>
+                              <input type="number" id="input-z">
+                              <button id="save-button">Save</button>
+                              <button id="cancel-button">Cancel</button>
+                          </div>
+                    
+                          <canvas class="myChart" id="myChart" width="800" height="400" style="display:none;"></canvas>
+                          
+                        </div>
+                    
+                    </div>
 
-    <!-- <div id="load-file">
-      <h2>Загрузите CSV файл</h2>
-      <input type="file" id="fileInput" accept=".csv" />
-    </div> -->
-
-  <div id="control-panel">
-    <button id="logIn" class="action-button">Log In</button>
-
-    <button id="upload-forming" class="action-button">Upload mandrel</button>
-    <input type="file" id="fileInput" accept=".csv" style="display: none;" />
-
-    <button id="generate-coil-non-auth" class="action-button">Generate coil</button>
-    <button id="draw-tape" class="action-button">Draw Tape</button>
-
-    <button id="logOff" class="action-button">Log Off</button>
-
-    <div id="user-info">
-      <p id="user-logged" class="user-logged">You are not logged in</p>
-      <p id="user-email" class="user-logged"></p>
+                    <style>
+                        /* body {
+                            font-family: Arial, sans-serif;
+                            margin: 20px;
+                        } */
+                        .modal {
+                            display: none;
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            background-color: #fff;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                            padding: 20px;
+                            z-index: 1000;
+                            border-radius: 8px;
+                        }
+                        .modal-overlay {
+                            display: none;
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.5);
+                            z-index: 999;
+                        }
+                        .modal input {
+                            margin-bottom: 10px;
+                            display: block;
+                        }
+                        /* #myChart {
+                            display: none;
+                        } */
+                    </style>
+                    
+                      <script>
+                        const editButton = document.getElementById('edit-button');
+                        const modal = document.getElementById('edit-modal');
+                        const overlay = document.getElementById('modal-overlay');
+                        const saveButton = document.getElementById('save-button');
+                        const cancelButton = document.getElementById('cancel-button');
+                    
+                        const valueX = document.getElementById('value-x');
+                        const valueY = document.getElementById('value-y');
+                        const valueZ = document.getElementById('value-z');
+                    
+                        const inputX = document.getElementById('input-x');
+                        const inputY = document.getElementById('input-y');
+                        const inputZ = document.getElementById('input-z');
+                    
+                        editButton.addEventListener('click', () => {
+                            inputX.value = valueX.textContent;
+                            inputY.value = valueY.textContent;
+                            inputZ.value = valueZ.textContent;
+                    
+                            modal.style.display = 'block';
+                            overlay.style.display = 'block';
+                        });
+                    
+                        saveButton.addEventListener('click', () => {
+                            valueX.textContent = inputX.value;
+                            valueY.textContent = inputY.value;
+                            valueZ.textContent = inputZ.value;
+                    
+                            modal.style.display = 'none';
+                            overlay.style.display = 'none';
+                        });
+                    
+                        cancelButton.addEventListener('click', () => {
+                            modal.style.display = 'none';
+                            overlay.style.display = 'none';
+                        });
+                    
+                        overlay.addEventListener('click', () => {
+                            modal.style.display = 'none';
+                            overlay.style.display = 'none';
+                        });
+                    </script>
+                                    
+                </div>
+                <div id="tab4" class="tab-content">
+                    <h2>Help</h2>
+                    <p>This is the main content of the third tab.</p>
+                </div>
+            </div>
+        </div>
+        <div id="static-2d" class="static-content">
+            <h2>2D Content</h2>
+            <canvas id="static-2d-canvas" width="400" height="200"></canvas>
+        </div>
+        <div id="static-3d" class="static-content active">
+            <canvas id="static-3d-canvas" width="400" height="200"></canvas>
+        </div>
+        <div id="static-text" class="static-content">
+            <main>
+                <section>
+                    <h2>Mandrel Design and Customization</h2>
+                    <p>Our platform enables the precise design and customization of mandrels to suit a variety of coil winding requirements. Whether you are working with simple or complex geometries, we provide tools to create mandrels tailored to your specific needs, ensuring durability and compatibility with your equipment.</p>
+                </section>
+                <section>
+                    <h2>Efficient Coil Generation</h2>
+                    <p>Streamline your coil winding process with our advanced coil generation tools. Define parameters such as wire gauge, turns, and spacing to generate optimal coil designs. Our algorithms ensure accurate layouts for consistent performance across applications, from transformers to motors.</p>
+                </section>
+                <section>
+                    <h2>CNC Program Generation</h2>
+                    <p>Automate your CNC workflow with our program generation feature. Based on your mandrel and coil design, the system generates ready-to-use CNC code compatible with a wide range of machines. Reduce setup time and achieve precise results with minimal manual adjustments.</p>
+                </section>
+                <section>
+                    <h2>Integrated Workflow for Maximum Productivity</h2>
+                    <p>Our solution brings together mandrel design, coil generation, and CNC programming into a seamless workflow. By integrating all stages of the process, we help you reduce errors, save time, and achieve high-quality outputs, making it an ideal choice for industries demanding precision and efficiency.</p>
+                </section>
+            </main>
+        </div>
     </div>
-
-    <div id="numbers">
-      <p>Numeric Values</p>
-      <p>X: <span id="value-x">0</span></p>
-      <p>Y: <span id="value-y">0</span></p>
-      <p>Z: <span id="value-z">0</span></p>
-
-      <button id="edit-button">Edit Values</button>
-
-      <div class="modal-overlay" id="modal-overlay"></div>
-  
-      <div class="modal" id="edit-modal">
-          <h2>Edit Values</h2>
-          <label for="input-x">X:</label>
-          <input type="number" id="input-x">
-          <label for="input-y">Y:</label>
-          <input type="number" id="input-y">
-          <label for="input-z">Z:</label>
-          <input type="number" id="input-z">
-          <button id="save-button">Save</button>
-          <button id="cancel-button">Cancel</button>
-      </div>
-
-      <canvas class="myChart" id="myChart" width="800" height="400" style="display:none;"></canvas>
-      
-    </div>
-
-  </div>
-      
-  <style>
-    /* body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    } */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding: 20px;
-        z-index: 1000;
-        border-radius: 8px;
-    }
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-    .modal input {
-        margin-bottom: 10px;
-        display: block;
-    }
-    /* #myChart {
-        display: none;
-    } */
-</style>
-
-  <script>
-    const editButton = document.getElementById('edit-button');
-    const modal = document.getElementById('edit-modal');
-    const overlay = document.getElementById('modal-overlay');
-    const saveButton = document.getElementById('save-button');
-    const cancelButton = document.getElementById('cancel-button');
-
-    const valueX = document.getElementById('value-x');
-    const valueY = document.getElementById('value-y');
-    const valueZ = document.getElementById('value-z');
-
-    const inputX = document.getElementById('input-x');
-    const inputY = document.getElementById('input-y');
-    const inputZ = document.getElementById('input-z');
-
-    editButton.addEventListener('click', () => {
-        inputX.value = valueX.textContent;
-        inputY.value = valueY.textContent;
-        inputZ.value = valueZ.textContent;
-
-        modal.style.display = 'block';
-        overlay.style.display = 'block';
-    });
-
-    saveButton.addEventListener('click', () => {
-        valueX.textContent = inputX.value;
-        valueY.textContent = inputY.value;
-        valueZ.textContent = inputZ.value;
-
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-    });
-
-    cancelButton.addEventListener('click', () => {
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-    });
-
-    overlay.addEventListener('click', () => {
-        modal.style.display = 'none';
-        overlay.style.display = 'none';
-    });
-</script>
-
-  <script type="module" src="./main.js"></script>
-  <script type="module" src="./cognito.js"></script>
-
-
-
-  <!-- cognito -->
-    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-  
-  <!-- <script type="module">
-      import { userManager } from "./main.js";
-  
-      document.getElementById("signIn").addEventListener("click", async () => {
-          await userManager.signinRedirect();
-      });
-  </script> -->
-  
-  <!-- <script type="module">
-      import { userManager } from "./main.js";
-
-      userManager.signinCallback().then(function (user) {
-          // document.getElementById("email").textContent = user.profile?.email;
-          document.getElementById("access-token").textContent = user.access_token;
-          document.getElementById("id-token").textContent = user.id_token;
-          document.getElementById("refresh-token").textContent = user.refresh_token;
-      });
-  </script> -->
-
-
-  <!-- add sign-out button -->
-  <!-- <script type="module">
-      import { signOutRedirect } from "./main.js";
-
-      document.getElementById("signOut").addEventListener("click", async () => {
-          await signOutRedirect();
-      });
-  </script> -->
-
-
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
-  <script>
-    // Генерация данных для графика
-    const labels = []; // Значения X
-    const data = [];   // Значения Y = sin(X)
-
-    for (let x = -Math.PI * 2; x <= Math.PI * 2; x += 0.1) {
-      labels.push(x.toFixed(1)); // Добавляем значение X
-      data.push(Math.sin(x));    // Добавляем значение Y
-    }
-
-    // Конфигурация графика
-    const config = {
-      type: 'line', // Тип графика - линия
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'y = sin(x)', // Название графика
-          data: data,
-          borderColor: 'rgb(75, 192, 192)', // Цвет линии
-          tension: 0.1, // Сглаживание линии
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top', // Позиция легенды
-          }
-        },
-        scales: {
-          x: {
-            title: {
-              display: true,
-              text: 'X'
-            }
-          },
-          y: {
-            title: {
-              display: true,
-              text: 'Y'
-            }
-          }
-        }
-      }
-    };
-
-    // Рендеринг графика
-    const ctx = document.getElementById('myChart').getContext('2d');
-    new Chart(ctx, config);
-  </script>  
-
-
-	</body>
+</body>
 </html>

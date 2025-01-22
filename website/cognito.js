@@ -4,8 +4,8 @@ const redirectUri = 'https://winding.surge.sh/';
 const scope       = "email+openid+phone";
 
 const poolData = {
-    UserPoolId: 'eu-central-1_jaSxje83x', // Замените на ваш User Pool ID
-    ClientId: '760tl57va0f4esqlrn9kdprdqe',    // Замените на ваш App Client ID
+    UserPoolId: 'eu-central-1_jaSxje83x',
+    ClientId: '760tl57va0f4esqlrn9kdprdqe',
   };
   
   const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
