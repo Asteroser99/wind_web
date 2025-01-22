@@ -71,16 +71,18 @@
           <button id="save-button">Save</button>
           <button id="cancel-button">Cancel</button>
       </div>
+
+      <canvas class="myChart" id="myChart" width="800" height="400" style="display:none;"></canvas>
       
     </div>
 
   </div>
       
   <style>
-    body {
+    /* body {
         font-family: Arial, sans-serif;
         margin: 20px;
-    }
+    } */
     .modal {
         display: none;
         position: fixed;
@@ -107,6 +109,9 @@
         margin-bottom: 10px;
         display: block;
     }
+    /* #myChart {
+        display: none;
+    } */
 </style>
 
   <script>
@@ -194,7 +199,58 @@
 
 
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    // Генерация данных для графика
+    const labels = []; // Значения X
+    const data = [];   // Значения Y = sin(X)
 
+    for (let x = -Math.PI * 2; x <= Math.PI * 2; x += 0.1) {
+      labels.push(x.toFixed(1)); // Добавляем значение X
+      data.push(Math.sin(x));    // Добавляем значение Y
+    }
+
+    // Конфигурация графика
+    const config = {
+      type: 'line', // Тип графика - линия
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'y = sin(x)', // Название графика
+          data: data,
+          borderColor: 'rgb(75, 192, 192)', // Цвет линии
+          tension: 0.1, // Сглаживание линии
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top', // Позиция легенды
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'X'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Y'
+            }
+          }
+        }
+      }
+    };
+
+    // Рендеринг графика
+    const ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, config);
+  </script>  
 
 
 	</body>

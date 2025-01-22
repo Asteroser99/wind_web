@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filament winding</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #9ACBD0;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #9ACBD0;
+            color: #23486A;
+            font-weight: bold;
+            height: 70px
+        }
+
+        .title {
+            padding: 20px;
+            /* font-size: 2.0em; */
+            flex: 1;
+            text-align: left;
+        }
+
+        .logo {
+            padding: 10px 12px;
+            background-color: #F2EFE7;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .header-btn {
+            background-color: #9ACBD0;
+            color: #F2EFE7;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9em;
+            border: 1px solid #2973B2;
+        }
+
+        .header-btn:hover {
+            background-color: #48A6A7;
+        }
+        
+        .main-container {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .tab-container {
+            display: flex;
+            height: 100%;
+        }
+
+        .tab-link {
+            font-size: 1.2em;
+        }
+
+        .tabs {
+            width: 74px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tabs button {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            background-color: #9ACBD0;
+            color: #F2EFE7;
+            border: none;
+            outline: none;
+            padding: 25px;
+            cursor: pointer;
+            text-align: center;
+            border: 1px solid #2973B2;
+            font-weight: bold;
+        }
+        .tabs button:hover {
+            background-color: #48A6A7;
+        }
+
+        .tabs button.active {
+            background-color: #2973B2;
+        }
+
+        .tabs-content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #F2EFE7;
+            /* min-width: 300px; Fixed minimum width for content */
+            width: 200px;
+            display: none;
+        }
+
+        .tabs-content.active {
+            display: block;
+        }
+
+        .tab-content {
+            width: 200px;
+            display: none;
+            color: #23486A;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .static-content {
+            color: #23486A;
+            flex-grow: 1;
+            background-color: white;
+            padding: 20px;
+            border-left: 1px solid #9ACBD0;
+            display: none;
+        }
+
+        .static-content.active {
+            display: block;
+        }
+
+    </style>
+    <link rel="icon" href="logo.png" type="image/x-icon">
+</head>
+<body>
+    <!-- <div class="header">My Vertical Tabs Example</div> -->
+    <div class="header">
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <div class="title"><h1>Filament winding</h1></div>
+        <div class="buttons">
+            <button class="header-btn">Login</button>
+            <button class="header-btn">Logoff</button>
+            <button class="header-btn">Help</button>
+        </div>
+    </div>    
+    <div class="main-container">
+        <div class="tab-container">
+            <div class="tabs">
+                <button class="tab-link"        onclick="openTab(event, 'tab1')">Mandrel</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab2')">Patterns</button>
+                <button class="tab-link active" onclick="openTab(event, 'tab3')">Coil</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab4')">Help</button>
+            </div>
+            <div id="tabs-content" class="tabs-content active">
+                <div id="tab1" class="tab-content">
+                    <h2>Mandrel</h2>
+                    <p>This is the main content of the first tab.</p>
+                </div>
+                <div id="tab2" class="tab-content">
+                    <h2>Patterns</h2>
+                    <p>This is the main content of the second tab --  - long long long.</p>
+                </div>
+                <div id="tab3" class="tab-content active">
+                    <h2>Coil</h2>
+                    <p>This is the main content of the second tab --  - long long long.</p>
+                </div>
+                <div id="tab4" class="tab-content">
+                    <h2>Help</h2>
+                    <p>This is the main content of the third tab.</p>
+                </div>
+            </div>
+        </div>
+        <div id="static-2d" class="static-content">
+            <h2>2D Content</h2>
+            <p>This is a static text area that is not affected by tab switching. You can use this section to display any additional information.</p>
+        </div>
+        <div id="static-3d" class="static-content active">
+            <h2>3D Content</h2>
+            <p>This is a static text area that is not affected by tab switching. You can use this section to display any additional information.</p>
+        </div>
+        <div id="static-text" class="static-content">
+            <h2>Text Content</h2>
+            <p>This is a static text area that is not affected by tab switching. You can use this section to display any additional information.</p>
+        </div>
+    </div>
+
+    <script>
+        function openTab(event, tabId) {
+            let hideIt = false;
+            const activeTab  = document.querySelector('.tab-content.active');
+            const activeTabs = document.querySelector('.tabs-content.active');
+            if (activeTab.id == tabId && activeTabs) {
+                hideIt = true
+            }
+            if(tabId == "tab4"){
+                hideIt = true
+            }
+
+            const tabLinks = document.querySelectorAll('.tab-link');
+            tabLinks.forEach(link => link.classList.remove('active'));
+
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            let contentId = "static-2d"
+            if (tabId == "tab3"){
+                contentId = "static-3d"
+            } else if  (tabId == "tab4"){
+                contentId = "static-text"
+            }
+
+            document.getElementById("tabs-content").classList.remove('active');
+            if(!hideIt){
+                document.getElementById("tabs-content").classList.add('active');
+            }
+            
+            const staticContents = document.querySelectorAll('.static-content');
+            staticContents.forEach(tab => tab.classList.remove('active'));
+            if (contentId != "") {
+                document.getElementById(contentId).classList.add('active');
+            }
+            
+        }
+    </script>
+</body>
+</html>

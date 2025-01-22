@@ -54,6 +54,9 @@ function setupScene(){
   const gradientTexture = new THREE.CanvasTexture(canvas);
   scene.background = gradientTexture;
 
+  // const chartCanvas = document.getElementById('myChart');
+  // const gradientTexture = new THREE.CanvasTexture(chartCanvas);
+  // scene.background = gradientTexture;
 
 
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
