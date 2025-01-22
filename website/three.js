@@ -98,8 +98,23 @@ function setupScene(){
   // scene.background = gradientTexture;
   createGradientTexture();
 
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-  camera.position.set(4, 5, 11);
+
+  // camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+  // camera.position.set(4, 5, 11);
+
+  // Ортографическая камера для изометрии
+  const aspect = window.innerWidth / window.innerHeight;
+  const d = 10; // Размеры области видимости камеры
+  camera = new THREE.OrthographicCamera(
+    -d * aspect, // Лево
+    d * aspect,  // Право
+    d,           // Верх
+    -d,          // Низ
+    0.1,         // Ближняя плоскость
+    1000         // Дальняя плоскость
+  );
+  camera.position.set(10, 10, 10); // Сместим камеру
+  camera.lookAt(0, 0, 0);         // Направим камеру в центр сцены
 
 
   const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 0.22, 1);
