@@ -9,6 +9,7 @@ let renderer = null;
 let scene    = null;
 let camera   = null;
 let controls = null;
+let canvas   = null;
 
 
 function loaded(){
@@ -46,9 +47,40 @@ function createGradientTexture() {
   return texture;
 }
 
+function resizeScene(){
+  const parent = canvas.parentElement;
+
+  let width  = parent.offsetWidth  - 1;
+  let height = parent.offsetHeight - 1;
+  // width  = 500;
+  // height = 500;
+
+  // canvas.width  = width;
+  // canvas.height = height;
+
+  canvas.style.width  = width;
+  canvas.style.height = height;
+
+  renderer.setSize(width, height);
+
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+
+  console.log(
+    "par", parent.offsetWidth, " -> ",
+    "cnv", canvas.width, " -> ",
+    "cvs", canvas.style.width, " -> ",
+    "ren", renderer.getSize(new THREE.Vector2()).width
+  )
+}
+
+window.addEventListener('resize', () => {
+  resizeScene();
+});
 
 function setupScene(){
-  const canvas = document.getElementById('static-3d-canvas')
+  canvas = document.getElementById('static-3d-canvas')
+  // log size of canvas
 
   scene = new THREE.Scene();
   // const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
@@ -58,7 +90,9 @@ function setupScene(){
     antialias: true,
     alpha: true,
   });
-  renderer.setSize(canvas.width, canvas.height);
+
+  renderer.domElement.style.minWidth  = '0';
+  renderer.domElement.style.minHeight = '0';
 
   // renderer = new THREE.WebGLRenderer({
   //   canvas: canvas,
@@ -69,11 +103,13 @@ function setupScene(){
   // canvas.height = 128;
 
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0x9ACBD0);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  // console.log(canvas.width, canvas.height)
+  // return
 
   // document.body.appendChild(renderer.domElement);
 
@@ -160,9 +196,11 @@ function setupScene(){
   // groundMesh.castShadow = false;
   // groundMesh.receiveShadow = true;
   // scene.add(groundMesh);
+
+  resizeScene();
 }
 
-function resize(mesh){
+function resizeMesh(mesh){
   mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
 }
 
@@ -171,7 +209,7 @@ function calcScaleFactor(mesh){
   const size = box.getSize(new THREE.Vector3());
   scaleFactor = 5 / Math.max(size.x, size.y, size.z);
 
-  resize(mesh);
+  resizeMesh(mesh);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -207,7 +245,7 @@ function fromfile() {
     // const size = box.getSize(new THREE.Vector3());
     // const scaleFactor = 5 / Math.max(size.x, size.y, size.z);
     // mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
-    resize(mesh);
+    resizeMesh(mesh);
 
     mesh.position.set(0, 1.05, -1);
 
@@ -263,7 +301,7 @@ function box() {
   cube.receiveShadow = true;
   cube.position.set(3, 2.0, -1);
 
-  resize(cube);
+  resizeMesh(cube);
 
   scene.add(cube);
 }
@@ -328,7 +366,7 @@ function model([vertices, indices], Color = 0x4444FF) {
   mesh.castShadow = true;
   mesh.receiveShadow = true;
 
-  resize(mesh);
+  resizeMesh(mesh);
 
   scene.add(mesh);
 
@@ -346,7 +384,7 @@ function line([vertices, indices]) {
   lines.position.set(0, 2.0, 0);
   scene.add(lines);
 
-  resize(lines);
+  resizeMesh(lines);
 
   return lines
 }
@@ -362,14 +400,6 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-
-
-
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
 
 
 // mandrel
