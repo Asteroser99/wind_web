@@ -25,9 +25,6 @@ export function openTab(event, tabId) {
     if (activeTab.id == tabId && activeTabs) {
         hideIt = true
     }
-    if(tabId == "tab4"){
-        hideIt = true
-    }
 
     const tabLinks = document.querySelectorAll('.tab-link');
     tabLinks.forEach(link => link.classList.remove('active'));
@@ -38,11 +35,12 @@ export function openTab(event, tabId) {
     document.getElementById(tabId).classList.add('active');
     event.currentTarget.classList.add('active');
 
-    let contentId = "static-2d"
-    if (tabId == "tab3"){
-        contentId = "static-3d"
-    } else if  (tabId == "tab4"){
-        contentId = "static-text"
+    let contentId = "static-3d";
+    if (tabId == "tab1" || tabId == "tab2") {
+        contentId = "static-2d";
+    } else if  (tabId == "tab4") {
+        hideIt = true;
+        contentId = "static-text";
     }
 
     document.getElementById("tabs-content").classList.remove('active');
@@ -54,6 +52,9 @@ export function openTab(event, tabId) {
     staticContents.forEach(tab => tab.classList.remove('active'));
     if (contentId != "") {
         document.getElementById(contentId).classList.add('active');
+    }
+    if (contentId == "static-3d") {
+        resizeScene();
     }
 }
 window.openTab = openTab;
@@ -93,13 +94,29 @@ editButton.addEventListener('click', () => {
     overlay.style.display = 'block';
 });
 
-const saveButton = document.getElementById('save-button');
+
+function downloadYamlFile(data, fileName) {
+    // Конвертируем объект в YAML
+    const yamlString = jsyaml.dump(data);
+
+    // Создаем Blob для скачивания
+    const blob = new Blob([yamlString], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+
+    // Создаем временную ссылку
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+
+    // Убираем ссылку
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+const saveButton = document.getElementById('saveVessel');
 saveButton.addEventListener('click', () => {
-    valueX.textContent = inputX.value;
-    valueY.textContent = inputY.value;
-    valueZ.textContent = inputZ.value;
-
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
+    console.log("vessel.yaml");
+    downloadYamlFile(vessel, "vessel.yaml");
 });
-

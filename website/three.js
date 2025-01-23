@@ -2,14 +2,14 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-let vessel = {};
-let scaleFactor = 1;
+window.vessel = {};
 
 let renderer = null;
 let scene    = null;
 let camera   = null;
 let controls = null;
 let canvas   = null;
+let scaleFactor = 1;
 
 
 function loaded(){
@@ -63,16 +63,17 @@ function resizeScene(){
 
   renderer.setSize(width, height);
 
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
+  // camera.aspect = width / height;
+  // camera.updateProjectionMatrix();
 
-  console.log(
-    "par", parent.offsetWidth, " -> ",
-    "cnv", canvas.width, " -> ",
-    "cvs", canvas.style.width, " -> ",
-    "ren", renderer.getSize(new THREE.Vector2()).width
-  )
+  // console.log(
+  //   "par", parent.offsetWidth, " -> ",
+  //   "cnv", canvas.width, " -> ",
+  //   "cvs", canvas.style.width, " -> ",
+  //   "ren", renderer.getSize(new THREE.Vector2()).width
+  // )
 }
+window.resizeScene = resizeScene
 
 window.addEventListener('resize', () => {
   resizeScene();
@@ -503,7 +504,7 @@ uploadButton.addEventListener('click', () => {fileInput.click();});
 
 // coil
 
-const generateButton_ = document.getElementById('generate-coil-non-auth');
+const generateButton_ = document.getElementById('generate-coil');
 generateButton_.addEventListener('click', () => {DrawCoil();});
 
 
@@ -673,3 +674,10 @@ function DrawTapeN() {
 // mesh.position.z = -100;
 
 // scene.add(mesh);
+
+function saveVessel() {
+
+}
+
+const saveVesselButton = document.getElementById('saveVessel');
+saveVesselButton.addEventListener('click', () => {saveVessel();});
