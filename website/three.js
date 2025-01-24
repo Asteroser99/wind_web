@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-window.vessel = {};
-
 let renderer = null;
 let scene    = null;
 let camera   = null;
@@ -131,7 +129,7 @@ function setupScene(){
 
   // Ортографическая камера для изометрии
   const aspect = window.innerWidth / window.innerHeight;
-  const d = 4; // Размеры области видимости камеры
+  const d = 6;
   camera = new THREE.OrthographicCamera(
     -d * aspect, // Лево
     d * aspect,  // Право
@@ -140,7 +138,7 @@ function setupScene(){
     0.1,         // Ближняя плоскость
     1000         // Дальняя плоскость
   );
-  camera.position.set(0.5, 0.5, 0.5);
+  camera.position.set(12., 10., 10.);
   camera.lookAt(0, 0, 0);
 
 
@@ -368,7 +366,7 @@ function addMesh([vertices, indices], scale = false, color = 0x4444FF) {
 }
 window.addMesh = addMesh
 
-function line([vertices, indices]) {
+function addLineSegments([vertices, indices]) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.setIndex(indices);
@@ -380,10 +378,8 @@ function line([vertices, indices]) {
   scene.add(lines);
 
   resizeMesh(lines);
-
-  return lines
 }
-window.line = line
+window.addLineSegments = addLineSegments
 
 
 function animate() {
@@ -443,3 +439,24 @@ function animate() {
   
   // scene.add(mesh);
   
+
+function clearScene() {
+  scene.traverse((object) => {
+    if (object.isMesh || object.isLineSegments) {
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach((mat) => mat.dispose());
+        } else {
+          object.material.dispose();
+        }
+      }
+
+      scene.remove(object);
+    }
+  });
+}
+window.clearScene = clearScene
