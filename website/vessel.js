@@ -1,3 +1,30 @@
+function lambdaCall(name, param) {
+    const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
+    const accessToken = localStorage.getItem('accessToken'); // Получаем токен из локального хранилища
+
+    const headers = {
+        headers: {
+            auth: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+    }
+
+    return axios.post(
+        path + name,
+        JSON.stringify(param),
+        headers
+    )
+        .then((response) => {
+            return response.data;
+        })
+        .catch((error) => {
+            console.error('Error calling Lambda:', error);
+        });
+}
+
+
+// Mandrel
+
 function mandrelRender(rr, xx) {
     const resolution = 100;
     const indices = [];
@@ -44,30 +71,49 @@ function DrawMandrel() {
 }
 window.DrawMandrel = DrawMandrel
 
-// -------
 
-function lambdaCall(name, param) {
-    const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
-    const accessToken = localStorage.getItem('accessToken'); // Получаем токен из локального хранилища
+const loadMandrelInput = document.getElementById('loadMandrelInput');
+loadMandrelInput.addEventListener(
+    'change', function (event) { loadCSVDrawMandrel(event) }
+);
+document.getElementById('loadMandrel').addEventListener(
+    'click', () => { loadMandrelInput.click(); }
+);
 
-    const headers = {
-        headers: {
-            auth: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-        },
+function loadCSVDrawMandrel(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            loading();
+            const csvText = e.target.result;
+            parseCSVToMandrel(csvText);
+            DrawMandrel();
+        };
+        reader.readAsText(file);
+    }
+}
+
+function parseCSVToMandrel(csvText) {
+    loading();
+    const lines = csvText.trim().split("\n");
+    const headers = lines[0].split(",");
+
+    if (headers.length < 2) {
+        throw new Error("CSV must have at least two columns");
     }
 
-    return axios.post(
-        path + name,
-        JSON.stringify(param),
-        headers
-    )
-        .then((response) => {
-            return response.data;
-        })
-        .catch((error) => {
-            console.error('Error calling Lambda:', error);
-        });
+    const r = []; const x = [];
+    for (let i = 1; i < lines.length; i++) {
+        const [rValue, xValue] = lines[i].split(",");
+        r.push(Number(rValue.trim()));
+        x.push(Number(xValue.trim()));
+    }
+
+    vessel["mandrel"] = { r, x }
+
+    loaded();
+    return { r, x };
 }
 
 
@@ -159,48 +205,66 @@ function DrawTapeN() {
 }
 
 
-// loadMandrel
+// ALL
 
-const loadMandrelInput = document.getElementById('loadMandrelInput');
-loadMandrelInput.addEventListener(
-    'change', function (event) { loadCSVDrawMandrel(event) }
-);
-document.getElementById('loadMandrel').addEventListener(
-    'click', () => { loadMandrelInput.click(); }
+// saveVessel
+
+function downloadYamlFile(data, fileName) {
+    // Конвертируем объект в YAML
+    const yamlString = jsyaml.dump(data);
+
+    // Создаем Blob для скачивания
+    const blob = new Blob([yamlString], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+
+    // Создаем временную ссылку
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+
+    // Убираем ссылку
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+document.getElementById('saveVessel').addEventListener(
+    'click', () => {
+        downloadYamlFile(vessel, "vessel.yaml");
+    }
 );
 
-function loadCSVDrawMandrel(event) {
+
+// loadVessel
+
+const loadVesselInput = document.getElementById('loadVesselInput');
+loadVesselInput.addEventListener(
+    'change', function (event) { loadVessel(event) }
+);
+document.getElementById('loadVessel').addEventListener(
+    'click', () => { loadVesselInput.click(); }
+);
+
+function loadVessel(event) {
     const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            loading();
-            const csvText = e.target.result;
-            parseCSVToMandrel(csvText);
-            DrawMandrel();
-        };
-        reader.readAsText(file);
-    }
-}
+    if (!file) return;
 
-function parseCSVToMandrel(csvText) {
-    loading();
-    const lines = csvText.trim().split("\n");
-    const headers = lines[0].split(",");
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        let parsedData = null;
+        try {
+            const yamlString = e.target.result;
+            parsedData = jsyaml.load(yamlString);
+        } catch (error) {
+            console.error("Error parsing YAML file:", error);
+        }
 
-    if (headers.length < 2) {
-        throw new Error("CSV must have at least two columns");
-    }
+        vessel = parsedData;
 
-    const r = []; const x = [];
-    for (let i = 1; i < lines.length; i++) {
-        const [rValue, xValue] = lines[i].split(",");
-        r.push(Number(rValue.trim()));
-        x.push(Number(xValue.trim()));
-    }
+        DrawMandrel();
 
-    vessel["mandrel"] = { r, x }
+};
 
-    loaded();
-    return { r, x };
-}
+    reader.readAsText(file);
+};

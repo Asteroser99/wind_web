@@ -101,7 +101,7 @@ saveButton.addEventListener('click', () => {
     valueX.textContent = inputX.value;
     valueY.textContent = inputY.value;
     valueZ.textContent = inputZ.value;
-    
+
     modal.style.display = 'none';
     overlay.style.display = 'none';
 });
@@ -116,64 +116,3 @@ overlay.addEventListener('click', () => {
     modal.style.display = 'none';
     overlay.style.display = 'none';
 });
-
-// saveVessel
-
-function downloadYamlFile(data, fileName) {
-    // Конвертируем объект в YAML
-    const yamlString = jsyaml.dump(data);
-
-    // Создаем Blob для скачивания
-    const blob = new Blob([yamlString], { type: "text/yaml" });
-    const url = URL.createObjectURL(blob);
-
-    // Создаем временную ссылку
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-
-    // Убираем ссылку
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-document.getElementById('saveVessel').addEventListener(
-    'click', () => {
-        downloadYamlFile(vessel, "vessel.yaml");
-    }
-);
-
-
-// loadVessel
-const loadVesselInput = document.getElementById('loadVesselInput');
-loadVesselInput.addEventListener(
-    'change', function (event) { loadVessel(event) }
-);
-document.getElementById('loadVessel').addEventListener(
-    'click', () => { loadVesselInput.click(); }
-);
-
-function loadVessel(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        let parsedData = null;
-        try {
-            const yamlString = e.target.result;
-            parsedData = jsyaml.load(yamlString);
-        } catch (error) {
-            console.error("Error parsing YAML file:", error);
-        }
-
-        vessel = parsedData;
-
-        DrawMandrel();
-
-};
-
-    reader.readAsText(file);
-};
