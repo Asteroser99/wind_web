@@ -17,10 +17,23 @@
 //     document.head.appendChild(script);
 // }
 // window.loadJS = loadJS;
+
+function loading(){
+    document.getElementById('progress-container').style.display = '';
+}
+window.loading = loading
+  
+function loaded(){
+    document.getElementById('progress-container').style.display = 'none';
+}
+window.loaded = loaded
+  
+loading()
+
   
 export function openTab(event, tabId) {
     let hideIt = false;
-    const activeTab  = document.querySelector('.tab-content.active');
+    const activeTab = document.querySelector('.tab-content.active');
     const activeTabs = document.querySelector('.tabs-content.active');
     if (activeTab.id == tabId && activeTabs) {
         hideIt = true
@@ -38,16 +51,16 @@ export function openTab(event, tabId) {
     let contentId = "static-3d";
     if (tabId == "tab1" || tabId == "tab2") {
         contentId = "static-2d";
-    } else if  (tabId == "tab4") {
+    } else if (tabId == "tab4") {
         hideIt = true;
         contentId = "static-text";
     }
 
     document.getElementById("tabs-content").classList.remove('active');
-    if(!hideIt){
+    if (!hideIt) {
         document.getElementById("tabs-content").classList.add('active');
     }
-    
+
     const staticContents = document.querySelectorAll('.static-content');
     staticContents.forEach(tab => tab.classList.remove('active'));
     if (contentId != "") {
@@ -70,8 +83,28 @@ const inputX = document.getElementById('input-x');
 const inputY = document.getElementById('input-y');
 const inputZ = document.getElementById('input-z');
 
-const modal   = document.getElementById('edit-modal');
+const modal = document.getElementById('edit-modal');
 const overlay = document.getElementById('modal-overlay');
+
+const editButton = document.getElementById('edit-button');
+editButton.addEventListener('click', () => {
+    inputX.value = valueX.textContent;
+    inputY.value = valueY.textContent;
+    inputZ.value = valueZ.textContent;
+
+    modal.style.display = 'block';
+    overlay.style.display = 'block';
+});
+
+const saveButton = document.getElementById('save-button');
+saveButton.addEventListener('click', () => {
+    valueX.textContent = inputX.value;
+    valueY.textContent = inputY.value;
+    valueZ.textContent = inputZ.value;
+    
+    modal.style.display = 'none';
+    overlay.style.display = 'none';
+});
 
 const cancelButton = document.getElementById('cancel-button');
 cancelButton.addEventListener('click', () => {
@@ -84,16 +117,7 @@ overlay.addEventListener('click', () => {
     overlay.style.display = 'none';
 });
 
-const editButton = document.getElementById('edit-button');
-editButton.addEventListener('click', () => {
-    inputX.value = valueX.textContent;
-    inputY.value = valueY.textContent;
-    inputZ.value = valueZ.textContent;
-
-    modal.style.display = 'block';
-    overlay.style.display = 'block';
-});
-
+// saveVessel
 
 function downloadYamlFile(data, fileName) {
     // Конвертируем объект в YAML
@@ -115,8 +139,41 @@ function downloadYamlFile(data, fileName) {
     URL.revokeObjectURL(url);
 }
 
-const saveButton = document.getElementById('saveVessel');
-saveButton.addEventListener('click', () => {
-    console.log("vessel.yaml");
-    downloadYamlFile(vessel, "vessel.yaml");
-});
+document.getElementById('saveVessel').addEventListener(
+    'click', () => {
+        downloadYamlFile(vessel, "vessel.yaml");
+    }
+);
+
+
+// loadVessel
+const loadVesselInput = document.getElementById('loadVesselInput');
+loadVesselInput.addEventListener(
+    'change', function (event) { loadVessel(event) }
+);
+document.getElementById('loadVessel').addEventListener(
+    'click', () => { loadVesselInput.click(); }
+);
+
+function loadVessel(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        let parsedData = null;
+        try {
+            const yamlString = e.target.result;
+            parsedData = jsyaml.load(yamlString);
+        } catch (error) {
+            console.error("Error parsing YAML file:", error);
+        }
+
+        vessel = parsedData;
+
+        DrawMandrel();
+
+};
+
+    reader.readAsText(file);
+};

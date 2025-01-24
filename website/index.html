@@ -30,8 +30,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script type="module" src="./three.js"></script>
     <link rel="stylesheet" href="./three.css">
-    
-  </head>
+
+    <script type="module" src="./vessel.js"></script>
+
+</head>
 <body>
     <div class="header">
         <div class="logo">
@@ -48,10 +50,26 @@
             <button id="logOff" class="header-btn">Logoff</button>
             <button class="header-btn">Help</button>
         </div>
-    </div>    
-    <div id="progress-container">
-        <div id="progress">Loading...</div>
     </div>
+
+    <div id="progress-container">
+        <div id="progress">
+            Loading...
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 200px; height: 200px;">
+                <circle cx="120" cy="120" r="60" fill="none" stroke="#00aaff" stroke-width="2" stroke-dasharray="502" stroke-dashoffset="0">
+                  <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="4s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="100" cy="20" r="15" fill="#ff4500">
+                  <animate attributeName="cx" values="100; 180; 100; 20; 100" dur="3s" repeatCount="indefinite" />
+                  <animate attributeName="cy" values="20; 100; 180; 100; 20" dur="4s" repeatCount="indefinite" />
+                </circle>
+                <rect x="90" y="90" width="20" height="20" fill="#ffa500">
+                  <animateTransform attributeName="transform" type="translate" values="0,0; 80,0; 0,80; -80,0; 0,-80; 0,0" dur="4s" repeatCount="indefinite" />
+                </rect>
+            </svg>
+        </div>
+    </div>
+
     <div class="main-container">
         <div class="tab-container">
             <div class="tabs">
@@ -61,33 +79,37 @@
                 <button class="tab-link"        onclick="openTab(event, 'tab3')">Coil</button>
                 <button class="tab-link"        onclick="openTab(event, 'tab4')">Help</button>
             </div>
+
             <div id="tabs-content" class="tabs-content active">
                 <div id="tab-file" class="tab-content active">
                     <h2>File</h2>
                     <p>Load / Save</p>
-                    <button id="upload-forming" class="action-button">Upload mandrel</button>
-                    <input type="file" id="fileInput" accept=".csv" style="display: none;" />
 
+                    <h3>All data</h3>
                     <button id="saveVessel" class="action-button">Save</button>
+                    <button id="loadVessel" class="action-button">Load</button>
+                    <input id="loadVesselInput" type="file" accept=".yaml" style="display: none;" />
 
+                    <h3>Mandrel</h3>
+                    <button id="loadMandrel" class="action-button">Load</button>
+                    <input id="loadMandrelInput" type="file" accept=".csv" style="display: none;" />
                 </div>
+
                 <div id="tab1" class="tab-content">
                     <h2>Mandrel</h2>
                     <p>Mandrel configuration</p>
                 </div>
+
                 <div id="tab2" class="tab-content">
                     <h2>Pattern</h2>
                     <p>Pattern configuration</p>
                 </div>
+
                 <div id="tab3" class="tab-content">
                     <h2>Coil</h2>
                     <div id="control-panel">
-                        <!-- <button id="logIn" class="action-button">Log In</button> -->
-                    
-                        <button id="generate-coil" class="action-button">Generate coil</button>
-                        <button id="draw-tape" class="action-button">Draw Tape</button>
-                    
-                        <!-- <button id="logOff" class="action-button">Log Off</button> -->
+                        <button id="DrawCoil"  class="action-button">Generate coil</button>
+                        <button id="DrawTapeN" class="action-button">Draw Tape</button>
                     
                         <div id="numbers">
                           <p>Numeric Values</p>
@@ -110,25 +132,28 @@
                               <button id="save-button">Save</button>
                               <button id="cancel-button">Cancel</button>
                           </div>
-                          
-                          <!-- <canvas class="myChart" id="myChart" width="800" height="400" style="display:none;"></canvas> -->
-                          
+
                         </div>
                     </div>
                 </div>
+
                 <div id="tab4" class="tab-content">
                     <h2>Help</h2>
                     <p>This is the main content of the third tab.</p>
                 </div>
+
             </div>
         </div>
+
         <div id="static-2d" class="static-content">
             <h2>2D Content</h2>
             <canvas id="static-2d-canvas"></canvas>
         </div>
+
         <div id="static-3d" class="static-content active">
             <canvas id="static-3d-canvas"></canvas>
         </div>
+
         <div id="static-text" class="static-content">
             <main>
                 <section>
@@ -149,6 +174,7 @@
                 </section>
             </main>
         </div>
+
     </div>
 </body>
 </html>
