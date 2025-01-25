@@ -1,36 +1,21 @@
-// function loadJS(module, OnLoad = null){
-//     const script = document.createElement('script');
-//     script.src = module;
-//     script.type = 'text/javascript';
-//     script.async = false;
-
-//     if(OnLoad){
-//         script.onload = () => {
-//             OnLoad()
-//         };
-//     }
-
-//     script.onerror = () => {
-//         console.error('Error loading ' + module);
-//     };
-
-//     document.head.appendChild(script);
-// }
-// window.loadJS = loadJS;
+function changeImage(id, filename) {
+    const imgElement = document.getElementById(id);
+    if (imgElement && imgElement.tagName === "IMG") {
+        imgElement.src = filename;
+    }
+}
 
 function loading(){
-    document.getElementById('progress-container').style.display = '';
+    changeImage("logo", "logo.gif")
 }
 window.loading = loading
   
 function loaded(){
-    document.getElementById('progress-container').style.display = 'none';
+    changeImage("logo", "logo.png")
 }
 window.loaded = loaded
-  
-loading()
 
-  
+
 export function openTab(event, tabId) {
     let hideIt = false;
     const activeTab = document.querySelector('.tab-content.active');
@@ -71,8 +56,6 @@ export function openTab(event, tabId) {
     }
 }
 window.openTab = openTab;
-
-
 
 
 const valueX = document.getElementById('value-x');
@@ -121,4 +104,5 @@ overlay.addEventListener('click', () => {
 window.onload = function () {
     vesselOnLoad();
     cognitoOnLoad();
+    loaded();
 };

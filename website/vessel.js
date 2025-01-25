@@ -315,7 +315,6 @@ function tapeDraw() {
         return;
     }
     addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
-    console.log(gltf.verticesArray)
 }
 
 // ALL

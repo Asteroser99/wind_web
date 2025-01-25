@@ -58,36 +58,33 @@ function cognitoOnLoad() {
   const code = urlParams.get('code');
 
   let access_token = localStorage.getItem('accessToken');
-  let id_token     = localStorage.getItem('idToken');
+  let id_token = localStorage.getItem('idToken');
 
   if (code) {
-    console.log("code", code)
-    axios
-      .post(`${domain}/oauth2/token`, new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: clientId,
-        redirect_uri: redirectUri,
-        code: code,
-      }), {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      })
-      .then((response) => {
-        ({ id_token, access_token } = response.data);
-        localStorage.setItem('accessToken', access_token);
-        localStorage.setItem('idToken', id_token);
+    // console.log("code", code)
+    axios.post(`${domain}/oauth2/token`, new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      code: code,
+    }), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }).then((response) => {
+      ({ id_token, access_token } = response.data);
+      localStorage.setItem('accessToken', access_token);
+      localStorage.setItem('idToken', id_token);
 
-        // remove code from url
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.delete('code');
-        const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
-        window.history.replaceState(null, '', newUrl);
+      // remove code from url
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.delete('code');
+      const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
+      window.history.replaceState(null, '', newUrl);
 
-      })
-      .catch((error) => {
+    }).catch((error) => {
         console.error('Error exchanging code for token:', error);
-      });
+    });
   }
 
   if (id_token) {

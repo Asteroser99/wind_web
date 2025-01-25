@@ -37,7 +37,7 @@
 <body>
     <div class="header">
         <div class="logo">
-            <img src="logo.png" alt="Logo">
+            <img id="logo" src="logo.gif" alt="Logo">
         </div>
         <div class="title"><h1>Filament winding</h1></div>
         <div class="buttons">
@@ -49,24 +49,6 @@
             <button id="logIn"  class="header-btn">Login</button>
             <button id="logOff" class="header-btn">Logoff</button>
             <button class="header-btn">Help</button>
-        </div>
-    </div>
-
-    <div id="progress-container">
-        <div id="progress">
-            Loading...
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style="width: 200px; height: 200px;">
-                <circle cx="120" cy="120" r="60" fill="none" stroke="#00aaff" stroke-width="2" stroke-dasharray="502" stroke-dashoffset="0">
-                  <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="4s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="100" cy="20" r="15" fill="#ff4500">
-                  <animate attributeName="cx" values="100; 180; 100; 20; 100" dur="3s" repeatCount="indefinite" />
-                  <animate attributeName="cy" values="20; 100; 180; 100; 20" dur="4s" repeatCount="indefinite" />
-                </circle>
-                <rect x="90" y="90" width="20" height="20" fill="#ffa500">
-                  <animateTransform attributeName="transform" type="translate" values="0,0; 80,0; 0,80; -80,0; 0,-80; 0,0" dur="4s" repeatCount="indefinite" />
-                </rect>
-            </svg>
         </div>
     </div>
 
