@@ -42,26 +42,20 @@ function resizeScene(){
 
   let width  = parent.offsetWidth  - 1;
   let height = parent.offsetHeight - 1;
-  // width  = 500;
-  // height = 500;
-
-  // canvas.width  = width;
-  // canvas.height = height;
 
   canvas.style.width  = width;
   canvas.style.height = height;
 
   renderer.setSize(width, height);
 
+  const d = 6;
+  const aspect  = width / height;
+  camera.left   = -d * aspect;
+  camera.right  =  d * aspect;
+  camera.top    =  d;
+  camera.bottom = -d;
   // camera.aspect = width / height;
-  // camera.updateProjectionMatrix();
-
-  // console.log(
-  //   "par", parent.offsetWidth, " -> ",
-  //   "cnv", canvas.width, " -> ",
-  //   "cvs", canvas.style.width, " -> ",
-  //   "ren", renderer.getSize(new THREE.Vector2()).width
-  // )
+  camera.updateProjectionMatrix(); // Обновление матрицы проекции
 }
 window.resizeScene = resizeScene
 
@@ -130,13 +124,8 @@ function setupScene(){
   // camera.position.set(4, 5, 11);
 
   // Ортографическая камера для изометрии
-  const aspect = window.innerWidth / window.innerHeight;
-  const d = 6;
   camera = new THREE.OrthographicCamera(
-    -d * aspect, // Лево
-    d * aspect,  // Право
-    d,           // Верх
-    -d,          // Низ
+    -1, 1, 1, -1,
     0.1,         // Ближняя плоскость
     1000         // Дальняя плоскость
   );
@@ -228,23 +217,8 @@ document.addEventListener('DOMContentLoaded', function() {
   setupScene();
   loaded();
   animate();
-  })
+})
 
-
-// const accessToken = localStorage.getItem('accessToken');
-
-// axios
-//   .get('https://YOUR_API_ENDPOINT', {
-//     headers: {
-//       Authorization: `Bearer ${accessToken}`, // Используйте Bearer токен
-//     },
-//   })
-//   .then((response) => {
-//     console.log('API Response:', response.data);
-//   })
-//   .catch((error) => {
-//     console.error('API Error:', error);
-//   });
 
 // models
 
@@ -268,7 +242,7 @@ function fromfile() {
   });
 }
 
-function box() {
+function addBox() {
   const geometry = new THREE.BoxGeometry(2, 2, 2);
 
   // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
@@ -314,7 +288,6 @@ function box() {
   scene.add(cube);
 }
 
-// box()
 
 function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
   if(vertices.length == 0){
@@ -373,7 +346,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
     metalness: 0.5, // Придаёт металлический блеск
     color: color,
     side: THREE.DoubleSide,
-});  
+  });  
 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 0, 0);
