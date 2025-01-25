@@ -30,12 +30,12 @@ const getField = (key) => {
             vessel[storedKey] = value;
         });
     }
-    console.log("get => key =", key, "value =", vessel[key]);
+    // console.log("get => key =", key, "value =", vessel[key]);
     return vessel[key];
 };
 
 const setField = async (key, value) => {
-    console.log("set => key =", key, "value =", value);
+    // console.log("set => key =", key, "value =", value);
     vessel[key] = value;
 
     try {
@@ -451,7 +451,6 @@ document.getElementById('clear').addEventListener(
 
 function vesselOnLoad() {
     getVessel();
-    console.log(">>> vessel =", vessel);
     if (Object.keys(vessel).length === 0) {
         vesselloadFromURL("Example1");
     } else {

@@ -106,7 +106,7 @@ function setupScene(){
 
   // scene = new THREE.Scene();
 
-  const axesHelper = new THREE.AxesHelper(7);
+  const axesHelper = new THREE.AxesHelper(15);
   scene.add(axesHelper);
 
   // const context = canvas.getContext('2d');
@@ -145,7 +145,7 @@ function setupScene(){
 
 
 
-  const x = 10; // Расстояние от центра до вершины тетраэдра
+  const x = 20; // Расстояние от центра до вершины тетраэдра
   const sh = x / Math.sqrt(3);
 
   const lights = [
@@ -161,7 +161,7 @@ function setupScene(){
   // const v4 = [                   0,  0, Math.sqrt(3) * x];
   
   lights.forEach(vertex => {
-    const light = new THREE.SpotLight(0xffffff, 1000, 30, 1.0, 2);
+    const light = new THREE.SpotLight(0xffffff, 5000, 30, 1.0, 2);
     light.position.set(...vertex);                 // Устанавливаем позицию
     light.target.position.set(0, 0, 0);            // Устанавливаем цель на центр (0, 0, 0)
     light.castShadow = true;                       // Включаем отбрасывание теней
@@ -196,7 +196,7 @@ function setupScene(){
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  // controls.enablePan = true;
+  controls.enablePan = false;
   controls.minDistance = 3;
   controls.maxDistance = 30;
   // controls.minPolarAngle = 0.5;
@@ -403,18 +403,16 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
         }
     }
     
-    console.log("minX:", minX, "maxX:", maxX);
-    console.log("minY:", minY, "maxY:", maxY);
-    console.log("minZ:", minZ, "maxZ:", maxZ);
+    // console.log("minX:", minX, "maxX:", maxX);
+    // console.log("minY:", minY, "maxY:", maxY);
+    // console.log("minZ:", minZ, "maxZ:", maxZ);
 
     scale.x = {max: maxX, min: minX}
     scale.y = {max: maxY, min: minY}
     scale.z = {max: maxZ, min: minZ}
 
-    console.log("scale === ", scale)
+    // console.log("scale === ", scale)
 
-
-    // calcScaleFactor(mesh, Math.min(...vertices), Math.max(...vertices));
 
     const min = Math.min(scale.x.min, scale.y.min, scale.z.min)
     const max = Math.max(scale.x.max, scale.y.max, scale.z.max)
@@ -423,14 +421,21 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
     scale.factor = 10 / maxSize;
 
-    console.log("scaleFactor === ", maxSize, " ===> ", scale.factor)
+    // console.log("scale.factor === ", maxSize, " ===> ", scale.factor)
 
     
     const box = new THREE.Box3().setFromObject(mesh);
     const size = box.getSize(new THREE.Vector3());
 
     const center = box.getCenter(new THREE.Vector3());  // Центр объекта
-    mesh.position.sub(center);
+
+    // mesh.position.sub(center);
+
+
+    // console.log("center", center)
+
+    controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // Центр вращения 0, 0, 0
+    controls.update();
   
     // const pointLight = new THREE.PointLight(0xffffff, 1, 300);  // Сила света и радиус действия
     // spotLight.position.set(0, size.y, 0);  // Размещаем свет выше объекта
@@ -456,7 +461,7 @@ function addLineSegments([vertices, indices]) {
   const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
 
   const lines = new THREE.LineSegments(geometry, material);
-  lines.position.set(0, 2.0, 0);
+  // lines.position.set(0, 2.0, 0);
   scene.add(lines);
 
   resizeMesh(lines);
