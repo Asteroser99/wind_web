@@ -173,8 +173,9 @@ function mandrelRender() {
     const indices = [];
     const points = [];
 
+    const theta = Array.from({ length: resolution }, (_, j) => (2 * Math.PI * j) / resolution);
+
     for (let i = 0; i < r.length; i++) {
-        const theta = Array.from({ length: resolution }, (_, j) => (2 * Math.PI * j) / resolution);
         const row = [];
 
         for (const fii of theta) {
@@ -190,15 +191,17 @@ function mandrelRender() {
 
     const faces = [];
     for (let i = 0; i < indices.length - 1; i++) {
-        for (let j = 0; j < indices[i].length - 1; j++) {
+        const max = indices[i].length - 1
+        for (let j = 0; j <= max; j++) {
+            const nxt = (j + 1) % max;
             const p1 = indices[i][j];
-            const p2 = indices[i][j + 1];
+            const p2 = indices[i][nxt];
             const p3 = indices[i + 1][j];
-            const p4 = indices[i + 1][j + 1];
+            const p4 = indices[i + 1][nxt];
             faces.push(p1, p4, p2);
             faces.push(p1, p3, p4);
         }
-    }
+}
 
     return [points, faces]
 }
@@ -312,6 +315,7 @@ function tapeDraw() {
         return;
     }
     addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
+    console.log(gltf.verticesArray)
 }
 
 // ALL

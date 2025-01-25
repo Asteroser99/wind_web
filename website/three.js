@@ -377,10 +377,8 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 0, 0);
-
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
   scene.add(mesh);
 
   if (setScale){
