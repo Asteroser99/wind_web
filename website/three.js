@@ -7,7 +7,9 @@ let scene    = null;
 let camera   = null;
 let controls = null;
 let canvas   = null;
-let scaleFactor = 1;
+let scale = {x: {}, y: {}, z: {}, factor: 1};
+
+let spotLight = null;
 
 
 function createGradientTexture() {
@@ -104,7 +106,7 @@ function setupScene(){
 
   // scene = new THREE.Scene();
 
-  const axesHelper = new THREE.AxesHelper(5);
+  const axesHelper = new THREE.AxesHelper(7);
   scene.add(axesHelper);
 
   // const context = canvas.getContext('2d');
@@ -138,15 +140,43 @@ function setupScene(){
     0.1,         // Ближняя плоскость
     1000         // Дальняя плоскость
   );
-  camera.position.set(12., 10., 10.);
+  camera.position.set(500., 500., 400.);
   camera.lookAt(0, 0, 0);
 
 
-  const spotLight = new THREE.SpotLight(0xffffff, 3000, 100, 0.22, 1);
-  spotLight.position.set(0, 25, 0);
-  spotLight.castShadow = true;
-  spotLight.shadow.bias = -0.0001;
-  scene.add(spotLight);
+
+  const x = 10; // Расстояние от центра до вершины тетраэдра
+  const sh = x / Math.sqrt(3);
+
+  const lights = [
+    [-sh,  x,  0],
+    [-sh, -x,  0],
+    [ sh,  0,  x],
+    [ sh,  0, -x]
+  ];
+
+  // const v1 = [2 * x / Math.sqrt(3),  0, -x / Math.sqrt(3)];
+  // const v2 = [   -x / Math.sqrt(3),  x, -x / Math.sqrt(3)];
+  // const v3 = [   -x / Math.sqrt(3), -x, -x / Math.sqrt(3)];
+  // const v4 = [                   0,  0, Math.sqrt(3) * x];
+  
+  lights.forEach(vertex => {
+    const light = new THREE.SpotLight(0xffffff, 1000, 30, 1.0, 2);
+    light.position.set(...vertex);                 // Устанавливаем позицию
+    light.target.position.set(0, 0, 0);            // Устанавливаем цель на центр (0, 0, 0)
+    light.castShadow = true;                       // Включаем отбрасывание теней
+    scene.add(light.target);                       // Добавляем цель в сцену
+    scene.add(light);                              // Добавляем свет в сцену
+  });
+
+
+
+
+  // spotLight = new THREE.SpotLight(0xffffff, 7000, 100, 0.5, 1);
+  // spotLight.position.set(0, 7., 0.);
+  // spotLight.castShadow = true;
+  // spotLight.shadow.bias = -0.0001;
+  // scene.add(spotLight);
 
   // const spotLight = new THREE.SpotLight(0xff11ff, 3000, 100, 0.22, 1);
   // spotLight.position.set(-20, 25, 0);
@@ -166,9 +196,9 @@ function setupScene(){
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.enablePan = true;
-  controls.minDistance = 5;
-  controls.maxDistance = 20;
+  // controls.enablePan = true;
+  controls.minDistance = 3;
+  controls.maxDistance = 30;
   // controls.minPolarAngle = 0.5;
   // controls.maxPolarAngle = 1.5;
   // controls.autoRotate = true;
@@ -190,17 +220,9 @@ function setupScene(){
 }
 
 function resizeMesh(mesh){
-  mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+  // console.log("resize scale = ", scale)
+  mesh.scale.set(scale.factor, scale.factor, scale.factor);
 }
-
-function calcScaleFactor(mesh){
-  const box = new THREE.Box3().setFromObject(mesh);
-  const size = box.getSize(new THREE.Vector3());
-  scaleFactor = 5 / Math.max(size.x, size.y, size.z);
-
-  resizeMesh(mesh);
-}
-window.calcScaleFactor = calcScaleFactor
 
 document.addEventListener('DOMContentLoaded', function() {
   setupScene();
@@ -231,10 +253,6 @@ function fromfile() {
   loader.load('scene.gltf', (gltf) => {
     const mesh = gltf.scene;
 
-    // const box = new THREE.Box3().setFromObject(mesh);
-    // const size = box.getSize(new THREE.Vector3());
-    // const scaleFactor = 5 / Math.max(size.x, size.y, size.z);
-    // mesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
     resizeMesh(mesh);
 
     mesh.position.set(0, 1.05, -1);
@@ -287,8 +305,8 @@ function box() {
   // })  
 
   const cube = new THREE.Mesh(geometry, material);
-  cube.castShadow = true;
-  cube.receiveShadow = true;
+  // cube.castShadow = true;
+  // cube.receiveShadow = true;
   cube.position.set(3, 2.0, -1);
 
   resizeMesh(cube);
@@ -298,7 +316,14 @@ function box() {
 
 // box()
 
-function addMesh([vertices, indices], scale = false, color = 0x4444FF) {
+function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
+  if(vertices.length == 0){
+    return
+  }
+
+
+  // console.log("vertices", vertices)
+
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.setIndex(indices);
@@ -351,22 +376,79 @@ function addMesh([vertices, indices], scale = false, color = 0x4444FF) {
 });  
 
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.position.set(0, 2.0, 0);
+  mesh.position.set(0, 0, 0);
 
   mesh.castShadow = true;
   mesh.receiveShadow = true;
 
-  resizeMesh(mesh);
-
   scene.add(mesh);
 
-  if (scale){
-    calcScaleFactor(mesh);
+  if (setScale){
+
+    let minX = 0, maxX = -0;
+    let minY = 0, maxY = -0;
+    let minZ = 0, maxZ = -0;
+    
+    for (let i = 0; i < vertices.length; i += 3) {
+        const x = vertices[i]; const y = vertices[i + 1]; const z = vertices[i + 2];
+    
+        if (i == 0){
+          minX = x; maxX = x;
+          minY = y; maxY = y;
+          minZ = z; maxZ = z;
+        } else {
+          minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+          minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
+        }
+    }
+    
+    console.log("minX:", minX, "maxX:", maxX);
+    console.log("minY:", minY, "maxY:", maxY);
+    console.log("minZ:", minZ, "maxZ:", maxZ);
+
+    scale.x = {max: maxX, min: minX}
+    scale.y = {max: maxY, min: minY}
+    scale.z = {max: maxZ, min: minZ}
+
+    console.log("scale === ", scale)
+
+
+    // calcScaleFactor(mesh, Math.min(...vertices), Math.max(...vertices));
+
+    const min = Math.min(scale.x.min, scale.y.min, scale.z.min)
+    const max = Math.max(scale.x.max, scale.y.max, scale.z.max)
+
+    const maxSize = Math.max(scale.x.max - scale.x.min, scale.y.max - scale.y.min, scale.z.max - scale.z.min)
+
+    scale.factor = 10 / maxSize;
+
+    console.log("scaleFactor === ", maxSize, " ===> ", scale.factor)
+
+    
+    const box = new THREE.Box3().setFromObject(mesh);
+    const size = box.getSize(new THREE.Vector3());
+
+    const center = box.getCenter(new THREE.Vector3());  // Центр объекта
+    mesh.position.sub(center);
+  
+    // const pointLight = new THREE.PointLight(0xffffff, 1, 300);  // Сила света и радиус действия
+    // spotLight.position.set(0, size.y, 0);  // Размещаем свет выше объекта
+    // scene.add(pointLight);
+  
+  
   }
+
+  resizeMesh(mesh);
+
 }
 window.addMesh = addMesh
 
 function addLineSegments([vertices, indices]) {
+  if(vertices.length == 0){
+    return
+  }
+
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.setIndex(indices);
@@ -441,22 +523,24 @@ function animate() {
   
 
 function clearScene() {
+  const toRemove = [];
   scene.traverse((object) => {
-    if (object.isMesh || object.isLineSegments) {
+      if (object.type == "Mesh" || object.type == "LineSegments") {
+          toRemove.push(object);
+      }
+  });
+  toRemove.forEach((object) => {
       if (object.geometry) {
-        object.geometry.dispose();
+          object.geometry.dispose(); // Освобождаем ресурсы геометрии
       }
-
       if (object.material) {
-        if (Array.isArray(object.material)) {
-          object.material.forEach((mat) => mat.dispose());
-        } else {
-          object.material.dispose();
-        }
+          if (Array.isArray(object.material)) {
+              object.material.forEach((material) => material.dispose()); // Освобождаем ресурсы материалов
+          } else {
+              object.material.dispose();
+          }
       }
-
-      scene.remove(object);
-    }
+      scene.remove(object); // Удаляем объект из сцены
   });
 }
 window.clearScene = clearScene

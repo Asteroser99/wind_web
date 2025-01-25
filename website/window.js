@@ -116,3 +116,9 @@ overlay.addEventListener('click', () => {
     modal.style.display = 'none';
     overlay.style.display = 'none';
 });
+
+
+window.onload = function () {
+    vesselOnLoad();
+    cognitoOnLoad();
+};

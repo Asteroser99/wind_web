@@ -1,5 +1,94 @@
 window.vessel = {};
 
+const asyncStorageUpdate = (key, value) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
+
+            if (!keys.includes(key)) {
+                keys.push(key);
+                localStorage.setItem('vessel_keys', JSON.stringify(keys));
+            }
+
+            localStorage.setItem(`vessel_${key}`, JSON.stringify(value));
+
+            resolve(`Key "${key}" updated successfully.`);
+
+        } catch (error) {
+            reject(`Error updating key "${key}": ${error}`);
+        }
+    });
+};
+
+
+const getField = (key) => {
+    if (Object.keys(vessel).length === 0) {
+        const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
+        console.log(keys);
+        keys.forEach((storedKey) => {
+            const value = JSON.parse(localStorage.getItem(`vessel_${storedKey}`));
+            vessel[storedKey] = value;
+        });
+    }
+    console.log("get => key =", key, "value =", vessel[key]);
+    return vessel[key];
+};
+
+const setField = async (key, value) => {
+    console.log("set => key =", key, "value =", value);
+    vessel[key] = value;
+
+    try {
+        const result = await asyncStorageUpdate(key, value);
+        console.log(result);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+
+const clearVessel = () => {
+    const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
+
+    keys.forEach((key) => {
+        localStorage.removeItem(`vessel_${key}`);
+    });
+
+    localStorage.removeItem('vessel_keys');
+
+    vessel = {};
+};
+
+const setVessel = async (newVessel) => {
+    clearVessel();
+
+    vessel = newVessel;
+
+    const promises = Object.entries(newVessel).map(([key, value]) =>
+        asyncStorageUpdate(key, value)
+    );
+
+    // try {
+    //     await Promise.all(promises);
+    //     console.log('New vessel set successfully.');
+    // } catch (error) {
+    //     console.error('Error setting new vessel:', error);
+    // }
+};
+
+const getVessel = () => {
+    const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
+
+    keys.forEach((key) => {
+        const value = JSON.parse(localStorage.getItem(`vessel_${key}`));
+        vessel[key] = value;
+    });
+
+    // console.log('Vessel restored from localStorage:', vessel);
+};
+
+
+// 
 
 function lambdaCall(name, param) {
     const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
@@ -57,6 +146,9 @@ function mandrelLoadOnFileLoad(event) {
 };
 
 function mandrelFromCSV(csvText) {
+
+    console.log("mandrelFromCSV")
+
     const lines = csvText.trim().split("\n");
     const headers = lines[0].split(",");
 
@@ -71,7 +163,9 @@ function mandrelFromCSV(csvText) {
         x.push(Number(xValue.trim()));
     }
 
-    vessel["mandrel"] = { r, x }
+    setField("mandrel", { r, x });
+
+    console.log("mandrel = ", getField("mandrel"));
 }
 
 function mandrelDraw() {
@@ -79,7 +173,13 @@ function mandrelDraw() {
 }
 
 function mandrelRender() {
-    const { r, x } = vessel["mandrel"];
+    // const { r, x } = vessel["mandrel"];
+    // const { r, x } = getField("mandrel");
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined){
+        return [[], []];
+    }
+    const { r, x } = mandrel;
 
     const resolution = 100;
     const indices = [];
@@ -140,13 +240,17 @@ function coilDraw() {
 }
 
 function coilFromMandrel() {
-    const { r, x } = vessel["mandrel"];
+    // const { r, x } = vessel["mandrel"];
+    const { r, x } = getField("mandrel")
+
     const valueX = document.getElementById('value-x');
     const Pole = parseFloat(valueX.textContent)//.toFixed(2)
 
     return lambdaCall("vitok", [x, r, Pole, 10.])
         .then(([x, r, fi, alfa]) => {
-            vessel["coil"] = { x, r, fi, alfa };
+            // vessel["coil"] = { x, r, fi, alfa };
+            setField("coil", { x, r, fi, alfa });
+
         })
         .catch(error => {
             console.error("Error in coilFromMandrel:", error);
@@ -154,7 +258,12 @@ function coilFromMandrel() {
 }
 
 function coilRender() {
-    const { x, r, fi, alfa } = vessel["coil"];
+    // const { x, r, fi, alfa } = vessel["coil"];
+    const coil = getField("coil");
+    if (coil == undefined){
+        return [[], []];
+    }
+    const { x, r, fi, alfa } = coil;
 
     const vertices = [];
     const indices = [];
@@ -196,10 +305,12 @@ function tapeDrawOnClick() {
 }
 
 function tapeFromCoil() {
-    const { x, r, fi, alfa } = vessel["coil"];
+    // const { x, r, fi, alfa } = vessel["coil"];
+    const { x, r, fi, alfa } = getField("coil");
     return lambdaCall("gltfCoil", ["TapeN", x, r, fi, alfa, 10., 10.])
         .then(gltf => {
-            vessel["tape"] = gltf;
+            // vessel["tape"] = gltf;
+            setField("tape", gltf);
         })
         .catch(error => {
             console.error("Error in tapeFromCoil:", error);
@@ -207,11 +318,22 @@ function tapeFromCoil() {
 }
 
 function tapeDraw() {
-    const gltf = vessel["tape"];
+    // const gltf = vessel["tape"];
+    const gltf = getField("tape");
+    if (gltf == undefined){
+        return;
+    }
     addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
 }
 
 // ALL
+
+function drawAll() {
+    mandrelDraw();
+    coilDraw();
+    tapeDraw();
+}
+
 
 // vesselSave
 
@@ -261,11 +383,13 @@ function vesselLoadOnClick(event) {
     reader.readAsText(file);
 };
 function vesselLoadOnFileLoad(event) {
+    setVessel
     vessel = loadFromYaml(event.target.result);
 
-    mandrelDraw();
-    coilDraw();
-    tapeDraw();
+    // mandrelDraw();
+    // coilDraw();
+    // tapeDraw();
+    drawAll()
 }
 
 function loadFromYaml(yamlString){
@@ -299,14 +423,19 @@ async function loadFromYamlURL(url) {
         console.error('Error loading YAML file:', error);
     }
 
-    vessel = loadFromYaml(await response.text());
+    // vessel = loadFromYaml(await response.text());
+    setVessel(loadFromYaml(await response.text()));
 }
 
 function vesselloadFromURL(name) {
+    clearVessel();
+    clearScene();
+
     loadFromYamlURL('./examples/' + name + '.yaml').then(() => {
-        mandrelDraw();
-        coilDraw();
-        tapeDraw();
+        // mandrelDraw();
+        // coilDraw();
+        // tapeDraw();
+        drawAll()
     })
 };
 
@@ -314,12 +443,19 @@ function vesselloadFromURL(name) {
 // Clear
 document.getElementById('clear').addEventListener(
     'click', () => {
-        vessel = {};
+        clearVessel();
         clearScene();
     }
 );
 
 
-window.onload = function () {
-    vesselloadFromURL("Example1");
-};
+function vesselOnLoad() {
+    getVessel();
+    console.log(">>> vessel =", vessel);
+    if (Object.keys(vessel).length === 0) {
+        vesselloadFromURL("Example1");
+    } else {
+        drawAll();
+    }
+}
+window.vesselOnLoad = vesselOnLoad

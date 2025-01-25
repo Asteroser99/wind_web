@@ -53,7 +53,7 @@ function decodeJwt(token) {
     return JSON.parse(jsonPayload); // Парсим payload
   }
   
-function handleCallback() {
+function cognitoOnLoad() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
   
@@ -87,7 +87,8 @@ function handleCallback() {
           console.error('Error exchanging code for token:', error);
         });
     }
-  }
+}
+window.cognitoOnLoad = cognitoOnLoad;
 
 const logOffButton = document.getElementById('logOff');
 logOffButton.addEventListener('click', () => {
@@ -96,5 +97,3 @@ logOffButton.addEventListener('click', () => {
     document.getElementById('user-logged').textContent = `You are not logged in`;
     document.getElementById('user-email').textContent = ``;
 });
-
-window.onload = handleCallback;
