@@ -30,17 +30,14 @@ const getField = (key) => {
             vessel[storedKey] = value;
         });
     }
-    // console.log("get => key =", key, "value =", vessel[key]);
     return vessel[key];
 };
 
 const setField = async (key, value) => {
-    // console.log("set => key =", key, "value =", value);
     vessel[key] = value;
 
     try {
         const result = await asyncStorageUpdate(key, value);
-        console.log(result);
     } catch (error) {
         console.error(error);
     }
@@ -83,8 +80,6 @@ const getVessel = () => {
         const value = JSON.parse(localStorage.getItem(`vessel_${key}`));
         vessel[key] = value;
     });
-
-    // console.log('Vessel restored from localStorage:', vessel);
 };
 
 
@@ -146,9 +141,6 @@ function mandrelLoadOnFileLoad(event) {
 };
 
 function mandrelFromCSV(csvText) {
-
-    console.log("mandrelFromCSV")
-
     const lines = csvText.trim().split("\n");
     const headers = lines[0].split(",");
 
@@ -163,9 +155,7 @@ function mandrelFromCSV(csvText) {
         x.push(Number(xValue.trim()));
     }
 
-    setField("mandrel", { r, x });
-
-    console.log("mandrel = ", getField("mandrel"));
+    setField("mandrel", { x, r });
 }
 
 function mandrelDraw() {
@@ -173,13 +163,11 @@ function mandrelDraw() {
 }
 
 function mandrelRender() {
-    // const { r, x } = vessel["mandrel"];
-    // const { r, x } = getField("mandrel");
     const mandrel = getField("mandrel");
     if (mandrel == undefined){
         return [[], []];
     }
-    const { r, x } = mandrel;
+    const { x, r } = mandrel;
 
     const resolution = 100;
     const indices = [];
@@ -240,8 +228,11 @@ function coilDraw() {
 }
 
 function coilFromMandrel() {
-    // const { r, x } = vessel["mandrel"];
-    const { r, x } = getField("mandrel")
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined){
+        return null;
+    }
+    const { x, r } = mandrel;
 
     const valueX = document.getElementById('value-x');
     const Pole = parseFloat(valueX.textContent)//.toFixed(2)
@@ -258,7 +249,6 @@ function coilFromMandrel() {
 }
 
 function coilRender() {
-    // const { x, r, fi, alfa } = vessel["coil"];
     const coil = getField("coil");
     if (coil == undefined){
         return [[], []];
@@ -305,7 +295,6 @@ function tapeDrawOnClick() {
 }
 
 function tapeFromCoil() {
-    // const { x, r, fi, alfa } = vessel["coil"];
     const { x, r, fi, alfa } = getField("coil");
     return lambdaCall("gltfCoil", ["TapeN", x, r, fi, alfa, 10., 10.])
         .then(gltf => {
@@ -318,7 +307,6 @@ function tapeFromCoil() {
 }
 
 function tapeDraw() {
-    // const gltf = vessel["tape"];
     const gltf = getField("tape");
     if (gltf == undefined){
         return;
@@ -338,21 +326,17 @@ function drawAll() {
 // vesselSave
 
 function downloadYamlFile(data, fileName) {
-    // Конвертируем объект в YAML
     const yamlString = jsyaml.dump(data);
 
-    // Создаем Blob для скачивания
     const blob = new Blob([yamlString], { type: "text/yaml" });
     const url = URL.createObjectURL(blob);
 
-    // Создаем временную ссылку
     const a = document.createElement("a");
     a.href = url;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
 
-    // Убираем ссылку
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
@@ -385,10 +369,6 @@ function vesselLoadOnClick(event) {
 function vesselLoadOnFileLoad(event) {
     setVessel
     vessel = loadFromYaml(event.target.result);
-
-    // mandrelDraw();
-    // coilDraw();
-    // tapeDraw();
     drawAll()
 }
 
@@ -422,8 +402,6 @@ async function loadFromYamlURL(url) {
     } catch (error) {
         console.error('Error loading YAML file:', error);
     }
-
-    // vessel = loadFromYaml(await response.text());
     setVessel(loadFromYaml(await response.text()));
 }
 
@@ -432,9 +410,6 @@ function vesselloadFromURL(name) {
     clearScene();
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(() => {
-        // mandrelDraw();
-        // coilDraw();
-        // tapeDraw();
         drawAll()
     })
 };
