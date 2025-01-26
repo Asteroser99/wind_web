@@ -34,9 +34,9 @@ export function openTab(event, tabId) {
     event.currentTarget.classList.add('active');
 
     let contentId = "static-3d";
-    if (tabId == "tab1" || tabId == "tab2") {
+    if (tabId == "tab-mandrel" || tabId == "tab-patterns") {
         contentId = "static-2d";
-    } else if (tabId == "tab4") {
+    } else if (tabId == "tab-info") {
         hideIt = true;
         contentId = "static-text";
     }

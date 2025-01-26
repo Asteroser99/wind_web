@@ -54,17 +54,17 @@
     <div class="main-container">
         <div class="tab-container">
             <div class="tabs">
-                <button class="tab-link active" onclick="openTab(event, 'tab-data')">Data</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab1')">Mandrel</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab2')">Patterns</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab3')">Coil</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab4')">Help</button>
+                <button class="tab-link active" onclick="openTab(event, 'tab-vessel'  )">Vessel</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab-mandrel' )">Mandrel</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab-patterns')">Patterns</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab-coil'    )">Coil</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab-info'    )">Info</button>
             </div>
 
             <div id="tabs-content" class="tabs-content active">
-                <div id="tab-data" class="tab-content active">
-                    <h2>Data</h2>
-                    <p>Data management</p>
+                <div id="tab-vessel" class="tab-content active">
+                    <h2>Vessel</h2>
+                    <p>Vessel management</p>
 
                     <h3>All data</h3>
                     <button id="vesselSave" class="action-button">Save</button>
@@ -80,7 +80,7 @@
                     
                 </div>
 
-                <div id="tab1" class="tab-content">
+                <div id="tab-mandrel" class="tab-content">
                     <h2>Mandrel</h2>
                     <p>Mandrel configuration</p>
 
@@ -89,12 +89,12 @@
 
                 </div>
 
-                <div id="tab2" class="tab-content">
+                <div id="tab-patterns" class="tab-content">
                     <h2>Pattern</h2>
                     <p>Pattern configuration</p>
                 </div>
 
-                <div id="tab3" class="tab-content">
+                <div id="tab-coil" class="tab-content">
                     <h2>Coil</h2>
                     <div id="control-panel">
                         <button id="coilDraw"  class="action-button">Generate coil</button>
@@ -126,9 +126,9 @@
                     </div>
                 </div>
 
-                <div id="tab4" class="tab-content">
-                    <h2>Help</h2>
-                    <p>This is the main content of the third tab.</p>
+                <div id="tab-info" class="tab-content">
+                    <h2>Info</h2>
+                    <p>This is the info</p>
                 </div>
 
             </div>
