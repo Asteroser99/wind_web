@@ -1,5 +1,10 @@
 window.vessel = {};
 
+window.mandrelMesh = null;
+
+
+// storage
+
 const asyncStorageUpdate = (key, value) => {
     return new Promise((resolve, reject) => {
         try {
@@ -159,15 +164,38 @@ function mandrelFromCSV(csvText) {
 }
 
 function mandrelDraw() {
-    addMesh(mandrelRender(), true);
+    if (window.mandrelMesh)
+        removeMesh(window.mandrelMesh);
+
+    const {render, isSmoothed} = mandrelRender();
+
+    window.mandrelMesh = addMesh(render, true,  isSmoothed ? 0x0000ff: 0x4bc0c0);
+
+    mandrelChartUpdate(mandrelGet(true ));
+    mandrelChartUpdate(mandrelGet(false));
+}
+
+function mandrelGet(isSmoothed = null){
+    if (isSmoothed == null){
+        let mandrel = getField("smoothed");
+        if (mandrel)
+            return {mandrel, isSmoothed: true};
+        
+        mandrel = getField("mandrel");
+        if (mandrel)
+            return {mandrel, isSmoothed: false};
+        
+        console.log("No mandrel");
+        throw new Error("no mandrel");
+
+    } else {
+        return {mandrel: getField(isSmoothed ? "smoothed" : "mandrel"), isSmoothed};
+
+    }
 }
 
 function mandrelRender() {
-    const mandrel = getField("mandrel");
-    if (mandrel == undefined){
-        return [[], []];
-    }
-    const { x, r } = mandrel;
+    const { mandrel: { x: x, r: r }, isSmoothed } = mandrelGet();
 
     const resolution = 100;
     const indices = [];
@@ -203,7 +231,130 @@ function mandrelRender() {
         }
 }
 
-    return [points, faces]
+    return {render: [points, faces], isSmoothed}
+}
+
+// smooth
+
+document.getElementById('mandrelSmooth').addEventListener(
+    'click', () => { mandrelSmoothOnClick(); }
+);
+
+function mandrelSmoothOnClick() {
+    loading();
+
+    mandrelSmooth()
+        .then(() => {
+            mandrelDraw()
+            loaded();
+        })
+        .catch(error => {
+            console.error("Error in coilDrawOnClick:", error);
+        });
+}
+
+function mandrelSmooth() {
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined){
+        return null;
+    }
+    const { x, r } = mandrel;
+
+    return lambdaCall("smooth_full", [x, r])
+        .then(([x, r]) => {
+            setField("smoothed", { x, r });
+            mandrelDraw();
+        })
+        .catch(error => {
+            console.error("Error in coilFromMandrel:", error);
+        });
+}
+
+// reverse
+
+document.getElementById('mandrelReverse').addEventListener(
+    'click', () => { mandrelReverseOnClick(); }
+);
+
+function mandrelReverseOnClick() {
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined){
+        return null;
+    }
+    let { x, r } = mandrel;
+
+    x = x.map(value => -value);
+    
+    setField("mandrel", { x, r });
+
+    mandrelDraw();
+}
+
+// mirror
+
+document.getElementById('mandrelMirror').addEventListener(
+    'click', () => { mandrelMirrorOnClick(); }
+);
+
+function mandrelMirrorOnClick() {
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined){
+        return null;
+    }
+    let { x, r } = mandrel;
+
+    // 1. shift X to 0
+    const shiftValue = x[0];
+    const xSh = x.map(val => val - shiftValue);
+
+    // 2. mirror by Y
+    const xReflected = xSh.map((val, index) => (index === 0 ? val : -val)).reverse().slice(0, xSh.length - 1);
+    const rReflected = [...r].reverse().slice(0, r.length - 1);
+    
+    // 3. combine halfs
+    x = [...xReflected, ...xSh];
+    r = [...rReflected, ...r];
+
+    setField("mandrel", { x, r });
+
+    mandrelDraw();
+}
+
+// swap
+
+document.getElementById('mandrelSwap').addEventListener(
+    'click', () => { mandrelSwapOnClick(); }
+);
+
+function mandrelSwapOnClick() {
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined){
+        return null;
+    }
+    let { x, r } = mandrel;
+
+    setField("mandrel", { x: r, r: x });
+
+    mandrelDraw();
+}
+
+
+// swap
+
+document.getElementById('mandrelDir').addEventListener(
+    'click', () => { mandrelDirOnClick(); }
+);
+
+function mandrelDirOnClick() {
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined){
+        return null;
+    }
+    let { x, r } = mandrel;
+
+    setField("mandrel", { x: x.reverse(), r: r.reverse() });
+
+    mandrelDraw();
 }
 
 
@@ -242,7 +393,6 @@ function coilFromMandrel() {
 
     return lambdaCall("vitok", [x, r, Pole, 10.])
         .then(([x, r, fi, alfa]) => {
-            // vessel["coil"] = { x, r, fi, alfa };
             setField("coil", { x, r, fi, alfa });
 
         })
@@ -301,7 +451,6 @@ function tapeFromCoil() {
     const { x, r, fi, alfa } = getField("coil");
     return lambdaCall("gltfCoil", ["TapeN", x, r, fi, alfa, 10., 10.])
         .then(gltf => {
-            // vessel["tape"] = gltf;
             setField("tape", gltf);
         })
         .catch(error => {
@@ -314,6 +463,7 @@ function tapeDraw() {
     if (gltf == undefined){
         return;
     }
+    console.log(gltf);
     addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
 }
 
@@ -423,6 +573,7 @@ document.getElementById('clear').addEventListener(
     'click', () => {
         clearVessel();
         clearScene();
+        clearChart();
     }
 );
 

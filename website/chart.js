@@ -1,3 +1,5 @@
+window.mandrelChart = null;
+
 function configGraph() {
   return {
     type: 'bar', // Пример графика (столбчатая диаграмма)
@@ -81,9 +83,163 @@ function configSin() {
   };
 }
 
+function configMandrel() {
+  return {
+    type: 'line', // Тип графика - линия
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Mandrel', // Название графика
+          data: [],
+          borderColor: 'rgb(75, 192, 192)', // Цвет линии
+          tension: 0.0, // Сглаживание линии
+        },
+        {
+          label: 'Smoothed', // Название второго набора данных
+          data: [],
+          borderColor: 'rgb(192, 75, 75)', // Другой цвет линии
+          borderDash: [5, 5], // Линия с пунктиром
+          tension: 0.0, // Сглаживание линии
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top', // Позиция легенды
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'X'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Y'
+          }
+        }
+      }
+    }
+  };
+}
+
+function createScatterConfig() {
+  return {
+    type: 'scatter', // или 'line'
+    data: {
+      datasets: [
+        {
+          label: 'Raw',
+          data: [
+            // { x: 1, y: 2 },
+            // { x: 2, y: 4 },
+            // { x: 3, y: 6 },
+            // { x: 4, y: 8 },
+          ], // Массив точек с координатами x, y
+          borderColor: '#4bc0c0',
+          borderDash: [5, 5], // Пунктирная линия
+          showLine: true, // Отображаем соединяющую линию
+          tension: 0.0, // Сглаживание линии
+          pointRadius: function(context) {
+            return context.dataIndex === 0 ? 8 : 4;
+          },
+        },
+        {
+          label: 'Smoothed',
+          data: [
+            // { x: 1, y: 1.5 },
+            // { x: 2, y: 3.5 },
+            // { x: 3, y: 5.5 },
+            // { x: 4, y: 7.5 },
+          ],
+          borderColor: '#0000ff',
+          showLine: true, // Показываем линию
+          tension: 0.0,
+          pointRadius: function(context) {
+            return context.dataIndex === 0 ? 8 : 4;
+          },
+
+        },
+      ],
+    },
+    options: {
+      responsive: true,  // График будет адаптироваться к изменениям размера контейнера
+      maintainAspectRatio: false,  // Отключаем сохранение пропорций
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true, // Включаем масштабирование колесиком мыши
+            },
+            pinch: {
+              enabled: true, // Включаем масштабирование с помощью pinch (для сенсорных экранов)
+            },
+            mode: 'xy', // Масштабирование по обеим осям
+          },
+          pan: {
+            enabled: true, // Включаем панорамирование
+            mode: 'xy', // Панорамирование по обеим осям
+          },
+        },
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'X Axis',
+          },
+        },
+        y: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Y Axis',
+          },
+        },
+      },
+    },
+  };
+}
+
+function mandrelChartUpdate(mandrelS){
+  if(!mandrelS) return;
+  const { mandrel, isSmoothed } = mandrelS;
+  
+  if(!mandrel) return;
+  const {x, r} = mandrel;
+
+  const data = x.map((value, index) => ({ 
+    x: value, 
+    y: r[index] 
+  }));
+  mandrelChart.data.datasets[isSmoothed ? 1 : 0].data = data;
+  mandrelChart.update();
+}
+window.mandrelChartUpdate = mandrelChartUpdate;
+
+
+function clearChart(){
+  mandrelChartUpdate({mandrel: {x: [], r: []}, isSmoothed: false});
+  mandrelChartUpdate({mandrel: {x: [], r: []}, isSmoothed: true });
+}
+window.clearChart = clearChart;
+
+
 function chartOnLoad() {
+  Chart.register(ChartZoom);
+
   const ctx = document.getElementById('static-2d-canvas').getContext('2d');
-  new Chart(ctx, configSin());
+  mandrelChart = new Chart(ctx, createScatterConfig());
 }
 
 chartOnLoad();

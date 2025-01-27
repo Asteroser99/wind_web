@@ -417,6 +417,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
   resizeMesh(mesh);
 
+  return mesh;
 }
 window.addMesh = addMesh
 
@@ -436,6 +437,8 @@ function addLineSegments([vertices, indices]) {
   scene.add(lines);
 
   resizeMesh(lines);
+
+  return lines;
 }
 window.addLineSegments = addLineSegments
 
@@ -498,6 +501,21 @@ function animate() {
   // scene.add(mesh);
   
 
+function removeMesh(object) {
+  if (object.geometry) {
+    object.geometry.dispose(); // Освобождаем ресурсы геометрии
+  }
+  if (object.material) {
+    if (Array.isArray(object.material)) {
+      object.material.forEach((material) => material.dispose()); // Освобождаем ресурсы материалов
+    } else {
+      object.material.dispose();
+    }
+  }
+  scene.remove(object); // Удаляем объект из сцены
+}
+window.removeMesh = removeMesh
+
 function clearScene() {
   const toRemove = [];
   scene.traverse((object) => {
@@ -506,17 +524,7 @@ function clearScene() {
       }
   });
   toRemove.forEach((object) => {
-      if (object.geometry) {
-          object.geometry.dispose(); // Освобождаем ресурсы геометрии
-      }
-      if (object.material) {
-          if (Array.isArray(object.material)) {
-              object.material.forEach((material) => material.dispose()); // Освобождаем ресурсы материалов
-          } else {
-              object.material.dispose();
-          }
-      }
-      scene.remove(object); // Удаляем объект из сцены
+      removeMesh(object);
   });
 }
 window.clearScene = clearScene

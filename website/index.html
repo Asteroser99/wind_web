@@ -24,6 +24,7 @@
     <script type="module" src="./cognito.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script type="module" src="./chart.js"></script>
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -82,10 +83,21 @@
 
                 <div id="tab-mandrel" class="tab-content">
                     <h2>Mandrel</h2>
-                    <p>Mandrel configuration</p>
+                    <p>Import CSV</p>
 
                     <button id="mandrelLoad" class="action-button">Load</button>
                     <input id="mandrelLoadInput" type="file" accept=".csv" style="display: none;" />
+
+                    <p>Mandrel manipulations</p>
+
+                    <button id="mandrelReverse" class="action-button">Reverse</button>
+                    <button id="mandrelMirror" class="action-button">Mirror</button>
+                    <button id="mandrelSwap" class="action-button">Swap</button>
+                    <button id="mandrelDir" class="action-button">Direction</button>
+                    
+                    <p>Mandrel smoothing</p>
+
+                    <button id="mandrelSmooth" class="action-button">Smooth</button>
 
                 </div>
 
