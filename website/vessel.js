@@ -82,8 +82,11 @@ const getVessel = () => {
     const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
 
     keys.forEach((key) => {
-        const value = JSON.parse(localStorage.getItem(`vessel_${key}`));
-        vessel[key] = value;
+        const jsonStr = localStorage.getItem(`vessel_${key}`)
+        if (jsonStr && jsonStr != "undefined") {
+            const value = JSON.parse(jsonStr);
+            vessel[key] = value;
+        }
     });
 };
 
@@ -119,14 +122,20 @@ function lambdaCall(name, param) {
 
 const mandrelLoadInput = document.getElementById('mandrelLoadInput');
 document.getElementById('mandrelLoad').addEventListener(
-    'click', () => { mandrelLoadInput.click(); }
+    'click', () => { 
+        mandrelLoadInput.click();
+        loading();
+    }
 );
 mandrelLoadInput.addEventListener(
     'change', function (event) { mandrelLoadOnClick(event) }
 );
 function mandrelLoadOnClick(event) {
     const file = event.target.files[0];
-    if (!file) return 
+    if (!file){
+        loaded();
+        return 
+    }
 
     const reader = new FileReader();
     reader.onload = mandrelLoadOnFileLoad;
@@ -134,30 +143,42 @@ function mandrelLoadOnClick(event) {
 }
 
 function mandrelLoadOnFileLoad(event) {
-    loading();
     const csvText = event.target.result;
 
-    loading();
+    const colNumEl = document.getElementById('csv-column');
+    const colNum = colNumEl.value - 1;
+    console.log(colNum);
 
-    mandrelFromCSV(csvText);
+    mandrelFromCSV(csvText, colNum);
     mandrelDraw();
 
     loaded();
 };
 
-function mandrelFromCSV(csvText) {
+function mandrelFromCSV(csvText, colNum = 0) {
+    console.log("colNum", colNum);
     const lines = csvText.trim().split("\n");
-    const headers = lines[0].split(",");
 
+    let div = ","
+    let headers = lines[0].split(div);
     if (headers.length < 2) {
-        throw new Error("CSV must have at least two columns");
+        div = ";"
+        headers = lines[0].split(div);
+        if (headers.length < 2) {
+            throw new Error("CSV must have at least two columns");
+        }
     }
 
     const r = []; const x = [];
+
+    const k = (headers[colNum * 2 + 0].includes("x") || headers[colNum * 2 + 0].includes("y")) ? [x, r] : [r, x];
     for (let i = 1; i < lines.length; i++) {
-        const [rValue, xValue] = lines[i].split(",");
-        r.push(Number(rValue.trim()));
-        x.push(Number(xValue.trim()));
+        const line = lines[i].split(div);
+        // const [v0, v1] = line;
+        const [v0, v1] = [line[colNum * 2 + 0], line[colNum * 2 + 1]]
+        if (v0.trim() == "" && v1.trim() == "") continue;
+        k[0].push(Number(v0.trim()));
+        k[1].push(Number(v1.trim()));
     }
 
     setField("mandrel", { x, r });
@@ -391,7 +412,7 @@ function coilFromMandrel() {
     const valueX = document.getElementById('value-x');
     const Pole = parseFloat(valueX.textContent)//.toFixed(2)
 
-    return lambdaCall("vitok", [x, r, Pole, 10.])
+    return lambdaCall("vitokLight", [x, r, Pole, 10.])
         .then(([x, r, fi, alfa]) => {
             setField("coil", { x, r, fi, alfa });
 

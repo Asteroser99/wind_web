@@ -102,6 +102,9 @@ overlay.addEventListener('click', () => {
 
 
 window.onload = function () {
+    const colNumEl = document.getElementById('csv-column');
+    colNumEl.value = 1;
+
     vesselOnLoad();
     cognitoOnLoad();
     loaded();
