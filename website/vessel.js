@@ -276,14 +276,10 @@ function mandrelSmoothOnClick() {
 
 function mandrelSmooth() {
     const mandrel = getField("mandrel");
-    if (mandrel == undefined){
-        return null;
-    }
-    const { x, r } = mandrel;
-
-    return lambdaCall("smooth_full", [x, r])
-        .then(([x, r]) => {
-            setField("smoothed", { x, r });
+    if (mandrel == undefined) return null;
+    return lambdaCall("smooth_full", [mandrel])
+        .then((res) => {
+            setField("smoothed", res);
             mandrelDraw();
         })
         .catch(error => {
@@ -487,6 +483,7 @@ function tapeDraw() {
     console.log(gltf);
     addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
 }
+
 
 // ALL
 
