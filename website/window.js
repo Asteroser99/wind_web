@@ -100,6 +100,72 @@ overlay.addEventListener('click', () => {
     overlay.style.display = 'none';
 });
 
+function showError(error) {
+    let errorContainer = document.getElementById("error-container");
+    if (!errorContainer) {
+        errorContainer = document.createElement("div");
+        errorContainer.id = "error-container";
+        errorContainer.style.position = "fixed";
+        errorContainer.style.bottom = "10px";
+        errorContainer.style.right = "15px";  // Отступ 5px от правого края
+        errorContainer.style.background = "rgba(255, 0, 0, 0.8)";
+        errorContainer.style.color = "white";
+        errorContainer.style.padding = "15px";
+        errorContainer.style.borderRadius = "5px";
+        errorContainer.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
+        errorContainer.style.width = "auto"; // Автоширина под текст
+        errorContainer.style.maxWidth = "70%"; // Ограничение максимальной ширины
+        errorContainer.style.textAlign = "left";
+            
+        let closeButton = document.createElement("span");
+        closeButton.innerHTML = "&times;";
+        closeButton.style.cursor = "pointer";
+        closeButton.style.float = "right";
+        closeButton.style.fontSize = "16px";
+        closeButton.style.marginLeft = "10px";
+        closeButton.onclick = function () {
+            errorContainer.remove();
+        };
+
+        let ul = document.createElement("ul");
+        ul.id = "error-list";
+        ul.style.margin = "0";
+        ul.style.padding = "0";
+        ul.style.listStyleType = "none";
+
+        errorContainer.appendChild(closeButton);
+        errorContainer.appendChild(ul);
+        document.body.appendChild(errorContainer);
+    }
+
+    console.log("Error displayed : [")
+    console.error(error);
+    console.log("]")
+
+    let message;
+    if (error.code === "ERR_NETWORK" && error.name === "AxiosError"
+        && error.response && error.response.status === 401
+    ) {
+        message = "You are not logged in";
+    } else if (error.code === "ERR_BAD_RESPONSE" && error.name === "AxiosError"
+        && error.response && error.response.status === 500
+        && error.response.data
+    ) {
+        message = error.response.data.replaceAll("\n", "<br>");
+    } else if (error.message && error.message === "Empty lambdaCall result") {
+        return;
+    } else if (error.message) {
+        message = "Error message: " + error.message;
+    } else {
+        message = error;
+    }
+
+    let errorList = document.getElementById("error-list");
+    let li = document.createElement("li");
+    li.innerHTML = "<small>&#9654;</small> " + message;
+    errorList.appendChild(li);
+}
+window.showError = showError;
 
 window.onload = function () {
     const colNumEl = document.getElementById('csv-column');

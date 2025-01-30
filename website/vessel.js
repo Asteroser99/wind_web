@@ -44,7 +44,7 @@ const setField = async (key, value) => {
     try {
         const result = await asyncStorageUpdate(key, value);
     } catch (error) {
-        console.error(error);
+        showError(error);
     }
 };
 
@@ -74,7 +74,7 @@ const setVessel = async (newVessel) => {
     //     await Promise.all(promises);
     //     console.log('New vessel set successfully.');
     // } catch (error) {
-    //     console.error('Error setting new vessel:', error);
+        // showError(error);
     // }
 };
 
@@ -113,7 +113,7 @@ function lambdaCall(name, param) {
             return response.data;
         })
         .catch((error) => {
-            console.error('Error calling Lambda:', error);
+            showError(error);
         });
 }
 
@@ -270,7 +270,7 @@ function mandrelSmoothOnClick() {
             loaded();
         })
         .catch(error => {
-            console.error("Error in coilDrawOnClick:", error);
+            showError(error);
         });
 }
 
@@ -283,7 +283,7 @@ function mandrelSmooth() {
             mandrelDraw();
         })
         .catch(error => {
-            console.error("Error in coilFromMandrel:", error);
+            showError(error);
         });
 }
 
@@ -390,7 +390,7 @@ function coilDrawOnClick() {
             loaded();
         })
         .catch(error => {
-            console.error("Error in coilDrawOnClick:", error);
+            showError(error);
         });
 }
 
@@ -403,18 +403,18 @@ function coilFromMandrel() {
     if (mandrel == undefined){
         return null;
     }
-    const { x, r } = mandrel;
 
     const valueX = document.getElementById('value-x');
     const Pole = parseFloat(valueX.textContent)//.toFixed(2)
 
-    return lambdaCall("vitokLight", [x, r, Pole, 10.])
-        .then(([x, r, fi, alfa]) => {
+    return lambdaCall("vitokLight", [mandrel, {"Pole": Pole, "Band": 10.}])
+        .then(res => {
+            if(!res) throw new Error("Empty lambdaCall result");
+            const [x, r, fi, alfa] = res
             setField("coil", { x, r, fi, alfa });
-
         })
         .catch(error => {
-            console.error("Error in coilFromMandrel:", error);
+            showError(error);
         });
 }
 
@@ -460,7 +460,7 @@ function tapeDrawOnClick() {
             loaded();
         })
         .catch(error => {
-            console.error("Error in DrawTapeN:", error);
+            showError(error);
         });
 }
 
@@ -471,7 +471,7 @@ function tapeFromCoil() {
             setField("tape", gltf);
         })
         .catch(error => {
-            console.error("Error in tapeFromCoil:", error);
+            showError(error);
         });
 }
 
@@ -548,7 +548,7 @@ function loadFromYaml(yamlString){
     try {
         parsedData = jsyaml.load(yamlString);
     } catch (error) {
-        console.error("Error parsing YAML file:", error);
+        showError(error);
     }
     return parsedData;
 }
@@ -571,7 +571,7 @@ async function loadFromYamlURL(url) {
             throw new Error(`Failed to load ${url}: ${response.statusText}`);
         }
     } catch (error) {
-        console.error('Error loading YAML file:', error);
+        showError(error);
     }
     setVessel(loadFromYaml(await response.text()));
 }
