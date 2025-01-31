@@ -294,7 +294,6 @@ function mandrelGet(isSmoothed = null){
         if (mandrel)
             return {mandrel, isSmoothed: false};
         
-        console.log("No mandrel");
         throw new Error("no mandrel");
 
     } else {
@@ -472,14 +471,18 @@ document.getElementById('coilDraw').addEventListener(
 function coilDrawOnClick() {
     loading();
 
-    coilFromMandrel()
-        .then(() => {
-            coilDraw()
-            loaded();
-        })
-        .catch(error => {
-            showError(error);
-        });
+    try {
+        coilFromMandrel()
+            .then(() => {
+                coilDraw()
+                loaded();
+            });
+            // .catch(error => {
+            //     showError(error);
+            // });
+    } catch (error) {
+        showError(error);
+    }
 }
 
 function coilDraw() {
@@ -487,10 +490,7 @@ function coilDraw() {
 }
 
 function coilFromMandrel() {
-    const mandrel = getField("mandrel");
-    if (mandrel == undefined){
-        return null;
-    }
+    const { mandrel, isSmoothed } = mandrelGet();
 
     const valueX = document.getElementById('value-x');
     const Pole = parseFloat(valueX.textContent)//.toFixed(2)
@@ -498,8 +498,10 @@ function coilFromMandrel() {
     return lambdaCall("vitokLight", [{"Pole": Pole, "Band": 10.}, mandrel])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
-            const [x, r, fi, alfa] = res
-            setField("coil", { x, r, fi, alfa });
+            const coil = res[0]
+            // const [x, r, fi, alfa] = res[0]
+            // setField("coil", { x, r, fi, alfa });
+            setField("coil", coil);
         })
         .catch(error => {
             showError(error);

@@ -113,8 +113,9 @@ function showError(error) {
         errorContainer.style.padding = "15px";
         errorContainer.style.borderRadius = "5px";
         errorContainer.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
-        errorContainer.style.width = "auto"; // Автоширина под текст
-        errorContainer.style.maxWidth = "70%"; // Ограничение максимальной ширины
+        // errorContainer.style.width = "auto"; // Автоширина под текст
+        // errorContainer.style.maxWidth = "70%"; // Ограничение максимальной ширины
+        errorContainer.style.width = "40%";
         errorContainer.style.textAlign = "left";
             
         let closeButton = document.createElement("span");
@@ -157,7 +158,7 @@ function showError(error) {
     } else if (error.message && error.message === "Empty lambdaCall result") {
         return;
     } else if (error.message) {
-        message = "Error message: " + error.message;
+        message = "err: " + error.message;
     } else {
         message = error;
     }
