@@ -494,14 +494,12 @@ function coilFromMandrel() {
 
     const valueX = document.getElementById('value-x');
     const Pole = parseFloat(valueX.textContent)//.toFixed(2)
+    const vesselPars = {"Pole": Pole, "Band": 10.};
 
-    return lambdaCall("vitokLight", [{"Pole": Pole, "Band": 10.}, mandrel])
+    return lambdaCall("vitokLight", [vesselPars, mandrel])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
-            const coil = res[0]
-            // const [x, r, fi, alfa] = res[0]
-            // setField("coil", { x, r, fi, alfa });
-            setField("coil", coil);
+            setField("coil", res);
         })
         .catch(error => {
             showError(error);
@@ -555,9 +553,15 @@ function tapeDrawOnClick() {
 }
 
 function tapeFromCoil() {
-    const { x, r, fi, alfa } = getField("coil");
-    return lambdaCall("gltfCoil", ["TapeN", x, r, fi, alfa, 10., 10.])
+    const vesselPars = {"Band": 10.};
+    let coil = getField("coil");
+    console.log(coil)
+    coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]}
+    console.log(coil)
+
+    return lambdaCall("gltfCoil", ["TapeN", vesselPars, coil])
         .then(gltf => {
+            if(!gltf) throw new Error("Empty lambdaCall result");
             setField("tape", gltf);
         })
         .catch(error => {
