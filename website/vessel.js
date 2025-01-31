@@ -120,17 +120,17 @@ function lambdaCall(name, param) {
 
 // Mandrel
 
-const mandrelLoadInput = document.getElementById('mandrelLoadInput');
-document.getElementById('mandrelLoad').addEventListener(
+const mandrelImportCSVInput = document.getElementById('mandrelImportCSVInput');
+document.getElementById('mandrelImportCSV').addEventListener(
     'click', () => { 
-        mandrelLoadInput.click();
+        mandrelImportCSVInput.click();
         loading();
     }
 );
-mandrelLoadInput.addEventListener(
-    'change', function (event) { mandrelLoadOnClick(event) }
+mandrelImportCSVInput.addEventListener(
+    'change', function (event) { mandrelImportCSVOnClick(event) }
 );
-function mandrelLoadOnClick(event) {
+function mandrelImportCSVOnClick(event) {
     const file = event.target.files[0];
     if (!file){
         loaded();
@@ -138,11 +138,11 @@ function mandrelLoadOnClick(event) {
     }
 
     const reader = new FileReader();
-    reader.onload = mandrelLoadOnFileLoad;
+    reader.onload = mandrelImportCSVOnFileLoad;
     reader.readAsText(file);
 }
 
-function mandrelLoadOnFileLoad(event) {
+function mandrelImportCSVOnFileLoad(event) {
     const csvText = event.target.result;
 
     const colNumEl = document.getElementById('csv-column');
@@ -183,6 +183,94 @@ function mandrelFromCSV(csvText, colNum = 0) {
 
     setField("mandrel", { x, r });
 }
+
+// Export CSV
+
+// function mandrelExportCSVWithInputDialog(data) {
+//     const input = document.createElement("input");
+//     input.type = "file";
+//     input.accept = ".csv";
+//     input.addEventListener("change", (event) => {
+//         const file = event.target.files[0];
+//         if (!file) return;
+
+//         mandrelExportCSVFileWrite(file, data);
+//     });
+
+//     input.click();
+// }
+
+// // Запись данных в файл через File API
+// function mandrelExportCSVFileWrite(file, data) {
+//     const blob = new Blob([convertArrayToCsv(data)], { type: "text/csv" });
+//     const fileWriter = new FileReader();
+
+//     fileWriter.onload = function () {
+//         const link = document.createElement("a");
+//         link.href = fileWriter.result;
+//         link.download = file.name;
+//         document.body.appendChild(link);
+//         link.click();
+//         document.body.removeChild(link);
+//     };
+
+//     fileWriter.readAsDataURL(blob);
+// }
+
+async function saveCsvWithDialog(data) {
+    try {
+        // Проверяем поддержку API
+        if (!window.showSaveFilePicker) {
+            alert("Ваш браузер не поддерживает File System Access API.");
+            return;
+        }
+
+        // Открываем диалоговое окно выбора места сохранения
+        const handle = await window.showSaveFilePicker({
+            suggestedName: "vessel.csv",
+            types: [
+                {
+                    description: "CSV file",
+                    accept: { "text/csv": [".csv"] }
+                }
+            ]
+        });
+
+        // Записываем данные в файл
+        const writable = await handle.createWritable();
+        await writable.write(convertArrayToCsv(data));
+        await writable.close();
+
+        console.log("Файл успешно сохранен!");
+    } catch (error) {
+        console.error("Ошибка сохранения:", error);
+    }
+}
+
+// Преобразование массива объектов в CSV
+function convertArrayToCsv(data) {
+    const keys = Object.keys(data); // Получаем заголовки (x, r)
+    const rows = [];
+
+    // Формируем строки CSV
+    for (let i = 0; i < data[keys[0]].length; i++) {
+        rows.push(keys.map(key => data[key][i]).join(",")); // x[i], r[i]
+    }
+
+    return keys.join(",") + "\n" + rows.join("\n");
+}
+
+
+document.getElementById('mandrelExportCSV').addEventListener(
+    'click', () => saveCsvWithDialog(getField("mandrel"))
+);
+
+document.getElementById('mandrelExportCSVSmoothed').addEventListener(
+    'click', () => saveCsvWithDialog(getField("smoothed"))
+);
+
+
+// mandrelDraw
 
 function mandrelDraw() {
     if (window.mandrelMesh)
@@ -407,7 +495,7 @@ function coilFromMandrel() {
     const valueX = document.getElementById('value-x');
     const Pole = parseFloat(valueX.textContent)//.toFixed(2)
 
-    return lambdaCall("vitokLight", [mandrel, {"Pole": Pole, "Band": 10.}])
+    return lambdaCall("vitokLight", [{"Pole": Pole, "Band": 10.}, mandrel])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
             const [x, r, fi, alfa] = res

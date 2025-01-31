@@ -143,10 +143,12 @@ function showError(error) {
     console.log("]")
 
     let message;
-    if (error.code === "ERR_NETWORK" && error.name === "AxiosError"
-        && error.response && error.response.status === 401
+    if (typeof error === "string")
+        message = error;
+    else if (error.code === "ERR_NETWORK" && error.name === "AxiosError"
+        // && error.response && error.response.status === 401
     ) {
-        message = "You are not logged in";
+        message = "Session expired or network error<br>Try to relogin";
     } else if (error.code === "ERR_BAD_RESPONSE" && error.name === "AxiosError"
         && error.response && error.response.status === 500
         && error.response.data

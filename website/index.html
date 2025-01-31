@@ -88,15 +88,19 @@
                     <label for="csv-column">CSV column:</label>
                     <input type="number" id="csv-column">
 
-                    <button id="mandrelLoad" class="action-button">Load</button>
-                    <input id="mandrelLoadInput" type="file" accept=".csv" style="display: none;" />
+                    <button id="mandrelImportCSV" class="action-button">Import</button>
+                    <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
+
+                    <p>Export CSV</p>
+                    <button id="mandrelExportCSV" class="action-button">Raw</button>
+                    <button id="mandrelExportCSVSmoothed" class="action-button">Smoothed</button>
 
                     <p>Mandrel manipulations</p>
 
                     <button id="mandrelReverse" class="action-button">Reverse</button>
                     <button id="mandrelMirror" class="action-button">Mirror</button>
                     <button id="mandrelSwap" class="action-button">Swap</button>
-                    <button id="mandrelDir" class="action-button">Direction</button>
+                    <button id="mandrelDir" class="action-button">Redirect</button>
                     
                     <p>Mandrel smoothing</p>
 
