@@ -14,7 +14,7 @@ let spotLight = null;
 
 function createGradientTexture() {
   const canvas = document.createElement('canvas');
-  // const canvas = document.getElementById('static-3d-canvas')
+  // const canvas = document.getElementById('scene-canvas')
   const ctx = canvas.getContext('2d');
   canvas.width = 512; // Размер текстуры
   canvas.height = 512;
@@ -64,7 +64,7 @@ window.addEventListener('resize', () => {
 });
 
 function setupScene(){
-  canvas = document.getElementById('static-3d-canvas')
+  canvas = document.getElementById('scene-canvas')
   // log size of canvas
 
   scene = new THREE.Scene();

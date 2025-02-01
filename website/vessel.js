@@ -37,6 +37,7 @@ const getField = (key) => {
     }
     return vessel[key];
 };
+window.getField = getField
 
 const setField = async (key, value) => {
     vessel[key] = value;
@@ -47,7 +48,7 @@ const setField = async (key, value) => {
         showError(error);
     }
 };
-
+window.setField = setField
 
 const clearVessel = () => {
     const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
@@ -91,7 +92,24 @@ const getVessel = () => {
 };
 
 
-// 
+// vessel_data
+
+function getVesselData(){
+    const fibboSel = fibboGetSelectedValues()
+
+    return {
+        //  parseFloat(document.getElementById('value-x').textContent), //.toFixed(2)
+        "Pole": inputValue('poleInput'),
+        "Band": 10.,
+        "Conv": 4,
+        "Turns": fibboSel["Turns"],
+        "Coils": fibboSel["Coils"],
+    };
+}
+window.getVesselData = getVesselData
+
+
+// lambdaCall
 
 function lambdaCall(name, param) {
     const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
@@ -492,11 +510,9 @@ function coilDraw() {
 function coilFromMandrel() {
     const { mandrel, isSmoothed } = mandrelGet();
 
-    const valueX = document.getElementById('value-x');
-    const Pole = parseFloat(valueX.textContent)//.toFixed(2)
-    const vesselPars = {"Pole": Pole, "Band": 10.};
+    const vessel_data = getVesselData();
 
-    return lambdaCall("vitokLight", [vesselPars, mandrel])
+    return lambdaCall("vitokLight", [vessel_data, mandrel])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
             setField("coil", res);
@@ -511,7 +527,7 @@ function coilRender() {
     if (coil == undefined){
         return [[], []];
     }
-    const { x, r, fi, alfa } = coil;
+    const { x, r, fi, al } = coil;
 
     const vertices = [];
     const indices = [];
@@ -553,13 +569,13 @@ function tapeDrawOnClick() {
 }
 
 function tapeFromCoil() {
-    const vesselPars = {"Band": 10.};
+    const vessel_data = getVesselData();
     let coil = getField("coil");
     console.log(coil)
     coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]}
     console.log(coil)
 
-    return lambdaCall("gltfCoil", ["TapeN", vesselPars, coil])
+    return lambdaCall("gltfCoil", ["TapeN", vessel_data, coil])
         .then(gltf => {
             if(!gltf) throw new Error("Empty lambdaCall result");
             setField("tape", gltf);
@@ -574,8 +590,42 @@ function tapeDraw() {
     if (gltf == undefined){
         return;
     }
-    console.log(gltf);
     addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
+}
+
+
+// Patterns
+
+document.getElementById('getPatterns').addEventListener(
+    'click', () => { getPatternsOnClick(); }
+);
+
+function getPatternsOnClick() {
+    loading();
+    getPatterns()
+        .then(() => {
+            fibboRenderTable();
+            loaded();
+        })
+        .catch(error => {
+            showError(error);
+        });
+}
+
+function getPatterns() {
+    const vessel_data = getVesselData();
+    let coil = getField("coil");
+    console.log(coil);
+    coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]};
+
+    return lambdaCall("fibbo", [vessel_data, coil])
+        .then(res => {
+            if(!res) throw new Error("Empty lambdaCall result");
+            setField("fibbo", res);
+        })
+        .catch(error => {
+            showError(error);
+        });
 }
 
 

@@ -32,6 +32,8 @@
     <script type="module" src="./three.js"></script>
     <link rel="stylesheet" href="./three.css">
 
+    <script type="module" src="./patterns.js"></script>
+
     <script type="module" src="./vessel.js"></script>
 
 </head>
@@ -57,8 +59,8 @@
             <div class="tabs">
                 <button class="tab-link active" onclick="openTab(event, 'tab-vessel'  )">Vessel</button>
                 <button class="tab-link"        onclick="openTab(event, 'tab-mandrel' )">Mandrel</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab-patterns')">Patterns</button>
                 <button class="tab-link"        onclick="openTab(event, 'tab-coil'    )">Coil</button>
+                <button class="tab-link"        onclick="openTab(event, 'tab-patterns')">Patterns</button>
                 <button class="tab-link"        onclick="openTab(event, 'tab-info'    )">Info</button>
             </div>
 
@@ -108,18 +110,16 @@
 
                 </div>
 
-                <div id="tab-patterns" class="tab-content">
-                    <h2>Pattern</h2>
-                    <p>Pattern configuration</p>
-                </div>
-
                 <div id="tab-coil" class="tab-content">
                     <h2>Coil</h2>
                     <div id="control-panel">
+                        <label for="poleInput">Pole:</label>
+                        <input type="number" id="poleInput">
+    
                         <button id="coilDraw"  class="action-button">Generate coil</button>
                         <button id="tapeDraw" class="action-button">Draw Tape</button>
                     
-                        <div id="numbers">
+                        <!-- <div id="numbers">
                           <p>Numeric Values</p>
                           <p>X: <span id="value-x">0</span></p>
                           <p>Y: <span id="value-y">0</span></p>
@@ -141,8 +141,27 @@
                               <button id="cancel-button">Cancel</button>
                           </div>
 
-                        </div>
+                        </div> -->
                     </div>
+                </div>
+
+                <div id="tab-patterns" class="tab-content">
+                    <h2>Pattern</h2>
+                    <p>Pattern configuration</p>
+
+                    <button id="getPatterns" class="action-button">Get patterns</button>
+
+                    <table id="data-table">
+                        <thead>
+                            <tr>
+                                <th>Turns</th>
+                                <th>Coils</th>
+                                <th>Corr. %</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <button id="DrawPatterns" class="action-button">Draw patterns</button>
                 </div>
 
                 <div id="tab-info" class="tab-content">
@@ -153,16 +172,19 @@
             </div>
         </div>
 
-        <div id="static-2d" class="static-content">
-            <h2>2D Content</h2>
-            <canvas id="static-2d-canvas"></canvas>
+        <div id="mandrel-canvas-div" class="static-content">
+            <canvas id="mandrel-canvas"></canvas>
         </div>
 
-        <div id="static-3d" class="static-content active">
-            <canvas id="static-3d-canvas"></canvas>
+        <div id="patterns-canvas-div" class="static-content">
+            <canvas id="patterns-canvas"></canvas>
         </div>
 
-        <div id="static-text" class="static-content">
+        <div id="scene-canvas-div" class="static-content active">
+            <canvas id="scene-canvas"></canvas>
+        </div>
+
+        <div id="info-canvas-div" class="static-content">
             <main>
                 <section>
                     <h2>Mandrel Design and Customization</h2>

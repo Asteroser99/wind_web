@@ -33,12 +33,14 @@ export function openTab(event, tabId) {
     document.getElementById(tabId).classList.add('active');
     event.currentTarget.classList.add('active');
 
-    let contentId = "static-3d";
-    if (tabId == "tab-mandrel" || tabId == "tab-patterns") {
-        contentId = "static-2d";
+    let contentId = "scene-canvas-div";
+    if (tabId == "tab-mandrel") {
+        contentId = "mandrel-canvas-div";
+    } else if (tabId == "tab-patterns") {
+        contentId = "patterns-canvas-div";
     } else if (tabId == "tab-info") {
         hideIt = true;
-        contentId = "static-text";
+        contentId = "info-canvas-div";
     }
 
     document.getElementById("tabs-content").classList.remove('active');
@@ -51,54 +53,59 @@ export function openTab(event, tabId) {
     if (contentId != "") {
         document.getElementById(contentId).classList.add('active');
     }
-    if (contentId == "static-3d") {
+    if (contentId == "scene-canvas-div") {
         resizeScene();
     }
 }
 window.openTab = openTab;
 
 
-const valueX = document.getElementById('value-x');
-const valueY = document.getElementById('value-y');
-const valueZ = document.getElementById('value-z');
+// Modal
 
-const inputX = document.getElementById('input-x');
-const inputY = document.getElementById('input-y');
-const inputZ = document.getElementById('input-z');
+// const valueX = document.getElementById('value-x');
+// const valueY = document.getElementById('value-y');
+// const valueZ = document.getElementById('value-z');
 
-const modal = document.getElementById('edit-modal');
-const overlay = document.getElementById('modal-overlay');
+// const inputX = document.getElementById('input-x');
+// const inputY = document.getElementById('input-y');
+// const inputZ = document.getElementById('input-z');
 
-const editButton = document.getElementById('edit-button');
-editButton.addEventListener('click', () => {
-    inputX.value = valueX.textContent;
-    inputY.value = valueY.textContent;
-    inputZ.value = valueZ.textContent;
+// const modal = document.getElementById('edit-modal');
+// const overlay = document.getElementById('modal-overlay');
 
-    modal.style.display = 'block';
-    overlay.style.display = 'block';
-});
+// const editButton = document.getElementById('edit-button');
+// editButton.addEventListener('click', () => {
+//     inputX.value = valueX.textContent;
+//     inputY.value = valueY.textContent;
+//     inputZ.value = valueZ.textContent;
 
-const saveButton = document.getElementById('save-button');
-saveButton.addEventListener('click', () => {
-    valueX.textContent = inputX.value;
-    valueY.textContent = inputY.value;
-    valueZ.textContent = inputZ.value;
+//     modal.style.display = 'block';
+//     overlay.style.display = 'block';
+// });
 
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
-});
+// const saveButton = document.getElementById('save-button');
+// saveButton.addEventListener('click', () => {
+//     valueX.textContent = inputX.value;
+//     valueY.textContent = inputY.value;
+//     valueZ.textContent = inputZ.value;
 
-const cancelButton = document.getElementById('cancel-button');
-cancelButton.addEventListener('click', () => {
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
-});
+//     modal.style.display = 'none';
+//     overlay.style.display = 'none';
+// });
 
-overlay.addEventListener('click', () => {
-    modal.style.display = 'none';
-    overlay.style.display = 'none';
-});
+// const cancelButton = document.getElementById('cancel-button');
+// cancelButton.addEventListener('click', () => {
+//     modal.style.display = 'none';
+//     overlay.style.display = 'none';
+// });
+
+// overlay.addEventListener('click', () => {
+//     modal.style.display = 'none';
+//     overlay.style.display = 'none';
+// });
+
+
+// Errors
 
 function showError(error) {
     let errorContainer = document.getElementById("error-container");
@@ -170,11 +177,34 @@ function showError(error) {
 }
 window.showError = showError;
 
+
+// OnLoad
+
+function inputValue(id, val = null, isInt = false){
+    const el = document.getElementById(id);
+
+    if (val != null){
+        el.value = val;
+    }
+
+    if(isInt)
+        val = parseInt(el.value)
+    else
+        val = parseFloat(el.value)
+    
+    return val;
+}
+window.inputValue = inputValue
+
+
 window.onload = function () {
-    const colNumEl = document.getElementById('csv-column');
-    colNumEl.value = 1;
+    // const colNumEl = document.getElementById('csv-column');
+    // colNumEl.value = 1;
+    inputValue('csv-column', 1);
 
     vesselOnLoad();
     cognitoOnLoad();
+    fibboRenderTable();
+
     loaded();
 };

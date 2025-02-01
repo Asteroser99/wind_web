@@ -238,7 +238,7 @@ window.clearChart = clearChart;
 function chartOnLoad() {
   Chart.register(ChartZoom);
 
-  const ctx = document.getElementById('static-2d-canvas').getContext('2d');
+  const ctx = document.getElementById('mandrel-canvas').getContext('2d');
   mandrelChart = new Chart(ctx, createScatterConfig());
 }
 
