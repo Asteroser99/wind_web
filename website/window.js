@@ -55,6 +55,8 @@ export function openTab(event, tabId) {
     }
     if (contentId == "scene-canvas-div") {
         resizeScene();
+    } else if (contentId == "patterns-canvas-div") {
+        resizePattern();
     }
 }
 window.openTab = openTab;
@@ -205,6 +207,7 @@ window.onload = function () {
     vesselOnLoad();
     cognitoOnLoad();
     fibboRenderTable();
+    patternsOnLoad();
 
     loaded();
 };

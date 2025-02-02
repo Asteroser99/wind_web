@@ -135,6 +135,12 @@ function lambdaCall(name, param) {
         });
 }
 
+function SetPole() {
+    const mandrel = getField("mandrel")
+    const {x, r} = mandrel
+    if (r.length > 0) inputValue('poleInput', r[0]);
+}
+
 
 // Mandrel
 
@@ -165,16 +171,16 @@ function mandrelImportCSVOnFileLoad(event) {
 
     const colNumEl = document.getElementById('csv-column');
     const colNum = colNumEl.value - 1;
-    console.log(colNum);
 
     mandrelFromCSV(csvText, colNum);
+
+    SetPole();
     mandrelDraw();
 
     loaded();
 };
 
 function mandrelFromCSV(csvText, colNum = 0) {
-    console.log("colNum", colNum);
     const lines = csvText.trim().split("\n");
 
     let div = ","
@@ -195,8 +201,8 @@ function mandrelFromCSV(csvText, colNum = 0) {
         // const [v0, v1] = line;
         const [v0, v1] = [line[colNum * 2 + 0], line[colNum * 2 + 1]]
         if (v0.trim() == "" && v1.trim() == "") continue;
-        k[0].push(Number(v0.trim()));
-        k[1].push(Number(v1.trim()));
+        k[0].push(parseFloat(v0.trim()));
+        k[1].push(parseFloat(v1.trim()));
     }
 
     setField("mandrel", { x, r });
@@ -409,6 +415,7 @@ function mandrelReverseOnClick() {
     
     setField("mandrel", { x, r });
 
+    SetPole();
     mandrelDraw();
 }
 
@@ -439,6 +446,7 @@ function mandrelMirrorOnClick() {
 
     setField("mandrel", { x, r });
 
+    SetPole();
     mandrelDraw();
 }
 
@@ -457,6 +465,7 @@ function mandrelSwapOnClick() {
 
     setField("mandrel", { x: r, r: x });
 
+    SetPole();
     mandrelDraw();
 }
 
@@ -476,6 +485,7 @@ function mandrelDirOnClick() {
 
     setField("mandrel", { x: x.reverse(), r: r.reverse() });
 
+    SetPole();
     mandrelDraw();
 }
 
@@ -725,7 +735,8 @@ function vesselloadFromURL(name) {
     clearScene();
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(() => {
-        drawAll()
+        SetPole();
+        drawAll();
     })
 };
 

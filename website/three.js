@@ -39,9 +39,14 @@ function createGradientTexture() {
 
 function resizeScene(){
   const parent = canvas.parentElement;
+  // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
+  // if (!parent.classList.contains("active")) {
+  //   console.log("not active")
+  //   return
+  // }
 
-  let width  = parent.offsetWidth  - 1;
-  let height = parent.offsetHeight - 1;
+  let width  = Math.max(parent.offsetWidth  - 1, 0);
+  let height = Math.max(parent.offsetHeight - 1, 0);
 
   canvas.style.width  = width;
   canvas.style.height = height;
@@ -55,7 +60,7 @@ function resizeScene(){
   camera.top    =  d;
   camera.bottom = -d;
   // camera.aspect = width / height;
-  camera.updateProjectionMatrix(); // Обновление матрицы проекции
+  camera.updateProjectionMatrix();
 }
 window.resizeScene = resizeScene
 
@@ -422,9 +427,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 window.addMesh = addMesh
 
 function addLineSegments([vertices, indices]) {
-  if(vertices.length == 0){
-    return
-  }
+  if(vertices.length == 0) return;
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
@@ -444,6 +447,10 @@ window.addLineSegments = addLineSegments
 
 
 function animate() {
+  const parent = canvas.parentElement;
+  // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
+  // if (!parent.classList.contains("active")) return
+
   requestAnimationFrame(animate);
 
   // cube.rotation.x += 0.01;

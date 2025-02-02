@@ -5,7 +5,7 @@ function fibboRenderTable() {
     if(!fibbo) return;
 
     const tableBody = document.querySelector("#data-table tbody");
-    
+
     while (tableBody.firstChild) {
         tableBody.removeChild(tableBody.firstChild);
     }    
@@ -30,6 +30,8 @@ function fibboSelectRow(row, index) {
     }
     row.classList.add("selected");
     row.dataset.index = index;
+
+    drawPattern();
 }
 
 function fibboGetSelectedValues() {
@@ -54,96 +56,127 @@ window.fibboGetSelectedValues = fibboGetSelectedValues;
 // Draw
 
 function drawAxes() {
-    const canvas = window.patterns_canvas;
-    const ctx = window.patterns_canvas_ctx;
+    const r = window.pRadius;
 
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
+    pContext.strokeStyle = "black";
+    pContext.lineWidth = 1;
     
-    // Ось X
-    ctx.beginPath();
-    ctx.moveTo(0, canvas.height / 2);
-    ctx.lineTo(canvas.width, canvas.height / 2);
-    ctx.stroke();
+    pContext.beginPath();
+    pContext.moveTo(- pRadius, 0);
+    pContext.lineTo(  pRadius, 0);
+    pContext.stroke();
     
-    // Ось Y
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2, 0);
-    ctx.lineTo(canvas.width / 2, canvas.height);
-    ctx.stroke();
+    pContext.beginPath();
+    pContext.moveTo(0, -pRadius);
+    pContext.lineTo(0,  pRadius);
+    pContext.stroke();
     
-    // Метки на осях
-    ctx.font = "14px Arial";
-    ctx.fillStyle = "black";
-    for (let i = -200; i <= 200; i += 50) {
+    pContext.font = "8px Arial";
+    pContext.fillStyle = "black";
+    for (let i = -pRadius; i <= pRadius; i += 50) {
         if (i !== 0) {
-            ctx.fillText(i, canvas.width / 2 + i, canvas.height / 2 + 15);
-            ctx.fillText(i, canvas.width / 2 + 5, canvas.height / 2 - i);
+            pContext.fillText(i, i,  15);
+            pContext.fillText(i, 5, - i);
         }
     }
 }
 
 function drawRectangle(x, y, w, h, color) {
-    const canvas = window.patterns_canvas;
-    const ctx = window.patterns_canvas_ctx;
-
-    ctx.fillStyle = color;
-    ctx.fillRect(canvas.width / 2 + x, canvas.height / 2 - y, w, -h);
+    pContext.fillStyle = color;
+    pContext.fillRect(pCanvas.width / 2 + x, pCanvas.height / 2 - y, w, -h);
 }
 
 function drawDiamond(x, y, size, color) {
-    const canvas = window.patterns_canvas;
-    const ctx = window.patterns_canvas_ctx;
-
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(canvas.width / 2 + x, canvas.height / 2 - (y - size));
-    ctx.lineTo(canvas.width / 2 + (x + size), canvas.height / 2 - y);
-    ctx.lineTo(canvas.width / 2 + x, canvas.height / 2 - (y + size));
-    ctx.lineTo(canvas.width / 2 + (x - size), canvas.height / 2 - y);
-    ctx.closePath();
-    ctx.fill();
+    pContext.fillStyle = color;
+    pContext.beginPath();
+    pContext.moveTo(pCanvas.width / 2 + x, pCanvas.height / 2 - (y - size));
+    pContext.lineTo(pCanvas.width / 2 + (x + size), pCanvas.height / 2 - y);
+    pContext.lineTo(pCanvas.width / 2 + x, pCanvas.height / 2 - (y + size));
+    pContext.lineTo(pCanvas.width / 2 + (x - size), pCanvas.height / 2 - y);
+    pContext.closePath();
+    pContext.fill();
 }
 
-document.getElementById('DrawPatterns').addEventListener(
-    'click', () => { drawPattern(); }
-);
+function resizePattern() {
+    const parent = pCanvas.parentElement;
+    pCanvas.width  = parent.offsetWidth; //  * window.devicePixelRatio
+    pCanvas.height = parent.offsetHeight;
+
+    window.pRadius = Math.min(pCanvas.width, pCanvas.height) / 2;
+
+    pContext.translate(pRadius, pRadius);
+
+    drawPattern();
+}
+window.resizePattern = resizePattern;
 
 function drawPattern() {
-    const ctx = window.patterns_canvas_ctx;
+    pContext.clearRect(-pRadius, -pRadius, pCanvas.width, pCanvas.height);
+
+    drawAxes();
+
     const vessel_data = getVesselData()
+    if (vessel_data["Band"] == 0) return
+
+    const rd = pRadius * 0.95;
+    pContext.strokeStyle = "black";
+    pContext.lineWidth = 1;
+    pContext.beginPath();
+    pContext.arc(0, 0, rd / 2., 0, 2 * Math.PI);
+    pContext.stroke();
 
     const coil = getField("coil");
     if (coil == undefined) return;
     let { x, r, fi, al } = coil;
 
-    console.log(vessel_data);
-    console.log(coil);
-
-    let ae = Math.min(Math.PI * 0.5 - Math.min(...al));
+    let ae = Math.PI * 0.5 - Math.max(...al)
     let re = Math.max(...r);
+    re = pRadius * 0.75;
     let EL = 2.0 * Math.PI * re;
     let shk = vessel_data["Band"] / Math.cos(ae);
     let NVit = Math.floor((EL * Math.cos(ae)) / vessel_data["Band"]);
     shk = (EL * Math.cos(ae)) / NVit;
 
     let twk = 2.0 * Math.PI * vessel_data["Turns"] / vessel_data["Coils"];
-    let aek = Math.min(Math.PI * 0.5 - Math.min(...al));
-    let shkr = shk / Math.cos(aek);
+    let shkr = shk / Math.cos(ae);
     let dsh = shkr / re;
     let ng = Math.floor((2 * Math.PI / dsh) + 0.5);
     shkr = (2 * Math.PI * re) / ng;
 
-    console.log(ae, re, EL, shk, NVit, twk, aek, shkr, dsh, ng);
+    let x00 = re * Math.cos(-shkr * 0.5 / re);
+    let y00 = re * Math.sin(-shkr * 0.5 / re);
+    let x01 = re * Math.cos(+shkr * 0.5 / re);
+    let y01 = re * Math.sin(+shkr * 0.5 / re);
+
+    let x10, y10, x11, y11
 
     for (let i = 0; i <= ng; i++) {
         let fii = i * twk;
-        ctx.beginPath();
-        ctx.arc(0, 0, re, fii, fii + 0.05);
-        ctx.stroke();
-        ctx.fillText(i, 1.2 * re * Math.cos(fii), 1.2 * re * Math.sin(fii));
+        pContext.beginPath();
+        pContext.arc(0, 0, re, fii, fii + 0.15);
+        pContext.stroke();
+
+        x10 = re * Math.cos(i * twk - shkr * 0.5 / re);
+        y10 = re * Math.sin(i * twk - shkr * 0.5 / re);
+        x11 = re * Math.cos(i * twk + shkr * 0.5 / re);
+        y11 = re * Math.sin(i * twk + shkr * 0.5 / re);
+
+        pContext.beginPath();
+        pContext.moveTo(x00, y00);
+        pContext.lineTo(x01, y01);
+        pContext.lineTo(x11, y11);
+        pContext.lineTo(x10, y10);
+        pContext.closePath();
+
+        // pContext.fillStyle = "rgba(255, 0, 0, 0.5)"; // alfa
+        pContext.fillStyle = "#2973B2";
+        pContext.fill();    
+
+        // pContext.fillText(i, 1.2 * re * Math.cos(fii), 1.2 * re * Math.sin(fii));
+
+        x00 = x10; y00 = y10; x01 = x11; y01 = y11;
     }
-    // ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    // pContext.translate(-pCanvas.width / 2, -pCanvas.height / 2);
 
 // drawRectangle(-100, 50, 80, 50, "blue");
 // drawDiamond(100, -50, 40, "red");
@@ -151,19 +184,21 @@ function drawPattern() {
 }
 window.drawPattern = drawPattern
 
-function patternClear() {
-    window.patterns_canvas = document.getElementById("patterns-canvas");
-    window.patterns_canvas_ctx = window.patterns_canvas.getContext("2d");
+// function patternClear() {
+//     window.pCanvas = document.getElementById("patterns-canvas");
+//     window.pContext = window.pCanvas.getContext("2d");
 
-    const canvas = window.patterns_canvas;
-    const ctx = window.patterns_canvas_ctx;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //ctx.translate(canvas.width / 2, canvas.height / 2);
+//     pContext.clearRect(0, 0, pCanvas.width, pCanvas.height);
+//     //pContext.translate(pCanvas.width / 2, pCanvas.height / 2);
     
-    drawAxes();
+//     drawAxes();
+// }
+
+function patternsOnLoad() {
+    window.pCanvas = document.getElementById("patterns-canvas");
+    window.pContext = window.pCanvas.getContext("2d");
+    
+    window.addEventListener("resize", resizePattern);
+    resizePattern();
 }
-
-patternClear()
-
-// drawPattern(coil, Band, Turns, Coils);
+window.patternsOnLoad = patternsOnLoad
