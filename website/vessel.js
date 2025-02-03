@@ -490,7 +490,13 @@ function mandrelDirOnClick() {
 }
 
 
+
+
 // Line coil
+
+function coilDraw() {
+    addLineSegments(coilRender("coil"));
+}
 
 document.getElementById('coilDraw').addEventListener(
     'click', () => { coilDrawOnClick(); }
@@ -502,7 +508,7 @@ function coilDrawOnClick() {
     try {
         coilFromMandrel()
             .then(() => {
-                coilDraw()
+                coilDraw();
                 loaded();
             });
             // .catch(error => {
@@ -511,10 +517,6 @@ function coilDrawOnClick() {
     } catch (error) {
         showError(error);
     }
-}
-
-function coilDraw() {
-    addLineSegments(coilRender());
 }
 
 function coilFromMandrel() {
@@ -532,8 +534,8 @@ function coilFromMandrel() {
         });
 }
 
-function coilRender() {
-    const coil = getField("coil");
+function coilRender(coilName) {
+    const coil = getField(coilName);
     if (coil == undefined){
         return [[], []];
     }
@@ -580,8 +582,8 @@ function tapeDrawOnClick() {
 
 function tapeFromCoil() {
     const vessel_data = getVesselData();
-    let coil = getField("coil");
-    coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]}
+    const coil = getField("coil");
+    // coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]}
 
     return lambdaCall("gltfCoil", ["TapeN", vessel_data, coil])
         .then(gltf => {
@@ -599,6 +601,47 @@ function tapeDraw() {
         return;
     }
     addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
+}
+
+
+// Equidestanta
+
+function equidDraw(){
+    addLineSegments(coilRender("equidistanta"));
+}
+
+document.getElementById('equidDraw').addEventListener(
+    'click', () => { equidDrawOnClick(); }
+);
+
+function equidDrawOnClick() {
+    loading();
+
+    try {
+        EqudestantaFromCoil()
+            .then(() => {
+                equidDraw();
+                loaded();
+            });
+            // .catch(error => {
+            //     showError(error);
+            // });
+    } catch (error) {
+        showError(error);
+    }
+}
+
+function EqudestantaFromCoil() {
+    const coil = getField("coil");
+
+    return lambdaCall("equidistanta", [coil])
+        .then(res => {
+            if(!res) throw new Error("Empty lambdaCall result");
+            setField("equidistanta", res);
+        })
+        .catch(error => {
+            showError(error);
+        });
 }
 
 
@@ -642,6 +685,7 @@ function drawAll() {
     mandrelDraw();
     coilDraw();
     tapeDraw();
+    equidDraw();
 }
 
 
