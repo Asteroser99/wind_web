@@ -29,7 +29,7 @@ const asyncStorageUpdate = (key, value) => {
 const getField = (key) => {
     if (Object.keys(vessel).length === 0) {
         const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
-        console.log(keys);
+        // console.log(keys);
         keys.forEach((storedKey) => {
             const value = JSON.parse(localStorage.getItem(`vessel_${storedKey}`));
             vessel[storedKey] = value;
@@ -581,9 +581,7 @@ function tapeDrawOnClick() {
 function tapeFromCoil() {
     const vessel_data = getVesselData();
     let coil = getField("coil");
-    console.log(coil)
     coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]}
-    console.log(coil)
 
     return lambdaCall("gltfCoil", ["TapeN", vessel_data, coil])
         .then(gltf => {
@@ -625,7 +623,6 @@ function getPatternsOnClick() {
 function getPatterns() {
     const vessel_data = getVesselData();
     let coil = getField("coil");
-    console.log(coil);
     coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]};
 
     return lambdaCall("fibbo", [vessel_data, coil])
