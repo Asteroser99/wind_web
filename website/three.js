@@ -9,8 +9,9 @@ let controls = null;
 let canvas   = null;
 let scale = {x: {}, y: {}, z: {}, factor: 1};
 
-let spotLight = null;
+// let spotLight = null;
 
+let meshes = {}
 
 function createGradientTexture() {
   const canvas = document.createElement('canvas');
@@ -447,19 +448,30 @@ window.addLineSegments = addLineSegments
 
 
 function animate() {
-  const parent = canvas.parentElement;
+  requestAnimationFrame(animate);
+
+  // const parent = canvas.parentElement;
   // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
   // if (!parent.classList.contains("active")) return
-
-  requestAnimationFrame(animate);
 
   // cube.rotation.x += 0.01;
   // cube.rotation.y += 0.01;
 
+    // coilMesh.rotation.x += 0.01;
+    if (window.animateAuto) {
+      angle += 0.01;
+      animateSlider.value = angle % 6.28;
+    }
+
+    if (window.coilMesh)
+      window.coilMesh.rotation.x = angle;
+    
+    if (window.tapeMesh)
+      window.tapeMesh.rotation.x = angle;
+
   controls.update();
   renderer.render(scene, camera);
 }
-
 
 
   // -------

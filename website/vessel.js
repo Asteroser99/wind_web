@@ -495,7 +495,7 @@ function mandrelDirOnClick() {
 // Line coil
 
 function coilDraw() {
-    addLineSegments(coilRender("coil"));
+    window.coilMesh = addLineSegments(coilRender("coil"));
 }
 
 document.getElementById('coilDraw').addEventListener(
@@ -634,7 +634,7 @@ function tapeDraw() {
     if (gltf == undefined){
         return;
     }
-    addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
+    window.tapeMesh = addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
 }
 
 

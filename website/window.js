@@ -1,7 +1,7 @@
 function changeImage(id, filename) {
     const imgElement = document.getElementById(id);
     if (imgElement && imgElement.tagName === "IMG") {
-        imgElement.src = filename;
+        imgElement.src = "./img/" + filename;
     }
 }
 
@@ -179,7 +179,6 @@ function showError(error) {
 }
 window.showError = showError;
 
-
 // OnLoad
 
 function inputValue(id, val = null, isInt = false){
@@ -208,6 +207,7 @@ window.onload = function () {
     cognitoOnLoad();
     fibboRenderTable();
     patternsOnLoad();
+    animateOnLoad();
 
     loaded();
 };
