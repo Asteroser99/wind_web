@@ -562,6 +562,40 @@ function coilRender(coilName) {
 }
 
 
+// vesselLoad
+
+const vesselLoadInput = document.getElementById('vesselLoadInput');
+document.getElementById('vesselLoad').addEventListener(
+    'click', () => { vesselLoadInput.click(); }
+);
+vesselLoadInput.addEventListener(
+    'change', function (event) { vesselLoadOnClick(event) }
+);
+function vesselLoadOnClick(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = vesselLoadOnFileLoad;
+
+    reader.readAsText(file);
+};
+function vesselLoadOnFileLoad(event) {
+    setVessel(loadFromYaml(event.target.result));
+    drawAll()
+}
+
+function loadFromYaml(yamlString){
+    let parsedData = null;
+    try {
+        parsedData = jsyaml.load(yamlString);
+    } catch (error) {
+        showError(error);
+    }
+    return parsedData;
+}
+
+
 // Tape coil
 
 document.getElementById('tapeDraw').addEventListener(
@@ -716,36 +750,25 @@ document.getElementById('vesselSave').addEventListener(
 
 // vesselLoad
 
-const vesselLoadInput = document.getElementById('vesselLoadInput');
-document.getElementById('vesselLoad').addEventListener(
-    'click', () => { vesselLoadInput.click(); }
+const coilLoadInput = document.getElementById('coilLoadInput');
+document.getElementById('coilLoad').addEventListener(
+    'click', () => { coilLoadInput.click(); }
 );
-vesselLoadInput.addEventListener(
-    'change', function (event) { vesselLoadOnClick(event) }
+coilLoadInput.addEventListener(
+    'change', function (event) { coilLoadOnClick(event) }
 );
-function vesselLoadOnClick(event) {
+function coilLoadOnClick(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = vesselLoadOnFileLoad;
+    reader.onload = coilLoadOnFileLoad;
 
     reader.readAsText(file);
 };
-function vesselLoadOnFileLoad(event) {
-    setVessel
-    vessel = loadFromYaml(event.target.result);
+function coilLoadOnFileLoad(event) {
+    setField("coil", loadFromYaml(event.target.result));
     drawAll()
-}
-
-function loadFromYaml(yamlString){
-    let parsedData = null;
-    try {
-        parsedData = jsyaml.load(yamlString);
-    } catch (error) {
-        showError(error);
-    }
-    return parsedData;
 }
 
 
