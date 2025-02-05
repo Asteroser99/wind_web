@@ -3,11 +3,11 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 let renderer = null;
-let scene    = null;
-let camera   = null;
+let scene = null;
+let camera = null;
 let controls = null;
-let canvas   = null;
-let scale = {x: {}, y: {}, z: {}, factor: 1};
+let canvas = null;
+let scale = { x: {}, y: {}, z: {}, factor: 1 };
 
 // let spotLight = null;
 
@@ -38,7 +38,7 @@ function createGradientTexture() {
   return texture;
 }
 
-function resizeScene(){
+function resizeScene() {
   const parent = canvas.parentElement;
   // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
   // if (!parent.classList.contains("active")) {
@@ -46,19 +46,19 @@ function resizeScene(){
   //   return
   // }
 
-  let width  = Math.max(parent.offsetWidth  - 1, 0);
+  let width = Math.max(parent.offsetWidth - 1, 0);
   let height = Math.max(parent.offsetHeight - 1, 0);
 
-  canvas.style.width  = width;
+  canvas.style.width = width;
   canvas.style.height = height;
 
   renderer.setSize(width, height);
 
   const d = 6;
-  const aspect  = width / height;
-  camera.left   = -d * aspect;
-  camera.right  =  d * aspect;
-  camera.top    =  d;
+  const aspect = width / height;
+  camera.left = -d * aspect;
+  camera.right = d * aspect;
+  camera.top = d;
   camera.bottom = -d;
   // camera.aspect = width / height;
   camera.updateProjectionMatrix();
@@ -69,7 +69,7 @@ window.addEventListener('resize', () => {
   resizeScene();
 });
 
-function setupScene(){
+function setupScene() {
   canvas = document.getElementById('scene-canvas')
   // log size of canvas
 
@@ -116,7 +116,7 @@ function setupScene(){
   // const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
   // gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
   // gradient.addColorStop(1, '#00827E'); // Нижний цвет
-  
+
   // context.fillStyle = gradient;
   // context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -144,17 +144,17 @@ function setupScene(){
   const sh = x / Math.sqrt(3);
 
   const lights = [
-    [-sh,  x,  0],
-    [-sh, -x,  0],
-    [ sh,  0,  x],
-    [ sh,  0, -x]
+    [-sh, x, 0],
+    [-sh, -x, 0],
+    [sh, 0, x],
+    [sh, 0, -x]
   ];
 
   // const v1 = [2 * x / Math.sqrt(3),  0, -x / Math.sqrt(3)];
   // const v2 = [   -x / Math.sqrt(3),  x, -x / Math.sqrt(3)];
   // const v3 = [   -x / Math.sqrt(3), -x, -x / Math.sqrt(3)];
   // const v4 = [                   0,  0, Math.sqrt(3) * x];
-  
+
   lights.forEach(vertex => {
     const light = new THREE.SpotLight(0xffffff, 5000, 30, 1.0, 2);
     light.position.set(...vertex);                 // Устанавливаем позицию
@@ -214,12 +214,12 @@ function setupScene(){
   resizeScene();
 }
 
-function resizeMesh(mesh){
+function resizeMesh(mesh) {
   // console.log("resize scale = ", scale)
   mesh.scale.set(scale.factor, scale.factor, scale.factor);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   setupScene();
   loaded();
   animate();
@@ -255,10 +255,10 @@ function addBox() {
 
   const textureLoader = new THREE.TextureLoader();
 
-  const colorTexture     = textureLoader.load('Pic.jpg');
+  const colorTexture = textureLoader.load('Pic.jpg');
   // const normalTexture    = textureLoader.load('./texture/Fabric004/NormalDX.png');
   // const roughnessTexture = textureLoader.load('./texture/Fabric004/Roughness.png');
-  
+
   colorTexture.wrapS = THREE.RepeatWrapping;
   colorTexture.wrapT = THREE.RepeatWrapping;
   colorTexture.repeat.set(2, 2);
@@ -277,7 +277,7 @@ function addBox() {
     // roughnessMap: roughnessTexture,
     roughness: 0.3, // Подстройка уровня шероховатости
     metalness: 0.5, // Придаёт металлический блеск
-  });  
+  });
 
   // const material = new THREE.MeshPhongMaterial({
   //   color: new THREE.Color(0.5,0.5,0.5),
@@ -296,7 +296,7 @@ function addBox() {
 
 
 function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
-  if(vertices.length == 0){
+  if (vertices.length == 0) {
     return
   }
 
@@ -311,26 +311,26 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
 
   var quad_uvs =
-  [
-  0.0, 0.0,
-  1.0, 0.0,
-  1.0, 1.0,
-  0.0, 1.0
-  ];
+    [
+      0.0, 0.0,
+      1.0, 0.0,
+      1.0, 1.0,
+      0.0, 1.0
+    ];
   var uvs = new Float32Array(quad_uvs);
-  geometry.setAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
+  geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
 
 
 
   // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, flatShading: true });
-  
+
   // const textureLoader = new THREE.TextureLoader();
 
   // Загрузка текстур
   // const colorTexture     = textureLoader.load('Color.jpg');
   // const normalTexture    = textureLoader.load('./texture/Fabric004/NormalDX.png');
   // const roughnessTexture = textureLoader.load('./texture/Fabric004/Roughness.png');
-  
+
   // colorTexture.wrapS = THREE.RepeatWrapping;
   // colorTexture.wrapT = THREE.RepeatWrapping;
   // colorTexture.repeat.set(1.0, 1.0);
@@ -343,7 +343,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
   // roughnessTexture.wrapT = THREE.RepeatWrapping;
   // roughnessTexture.repeat.set(4, 4);
 
-// Создание материала
+  // Создание материала
   const material = new THREE.MeshStandardMaterial({
     // map: colorTexture,
     // normalMap: normalTexture,
@@ -352,7 +352,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
     metalness: 0.5, // Придаёт металлический блеск
     color: color,
     side: THREE.DoubleSide,
-  });  
+  });
 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 0, 0);
@@ -360,33 +360,33 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
   mesh.receiveShadow = false;
   scene.add(mesh);
 
-  if (setScale){
+  if (setScale) {
 
     let minX = 0, maxX = -0;
     let minY = 0, maxY = -0;
     let minZ = 0, maxZ = -0;
-    
+
     for (let i = 0; i < vertices.length; i += 3) {
-        const x = vertices[i]; const y = vertices[i + 1]; const z = vertices[i + 2];
-    
-        if (i == 0){
-          minX = x; maxX = x;
-          minY = y; maxY = y;
-          minZ = z; maxZ = z;
-        } else {
-          minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-          minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-          minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
-        }
+      const x = vertices[i]; const y = vertices[i + 1]; const z = vertices[i + 2];
+
+      if (i == 0) {
+        minX = x; maxX = x;
+        minY = y; maxY = y;
+        minZ = z; maxZ = z;
+      } else {
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+        minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
+      }
     }
-    
+
     // console.log("minX:", minX, "maxX:", maxX);
     // console.log("minY:", minY, "maxY:", maxY);
     // console.log("minZ:", minZ, "maxZ:", maxZ);
 
-    scale.x = {max: maxX, min: minX}
-    scale.y = {max: maxY, min: minY}
-    scale.z = {max: maxZ, min: minZ}
+    scale.x = { max: maxX, min: minX }
+    scale.y = { max: maxY, min: minY }
+    scale.z = { max: maxZ, min: minZ }
 
     // console.log("scale === ", scale)
 
@@ -400,7 +400,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
     // console.log("scale.factor === ", maxSize, " ===> ", scale.factor)
 
-    
+
     const box = new THREE.Box3().setFromObject(mesh);
     const size = box.getSize(new THREE.Vector3());
 
@@ -413,12 +413,12 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
     controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // Центр вращения 0, 0, 0
     controls.update();
-  
+
     // const pointLight = new THREE.PointLight(0xffffff, 1, 300);  // Сила света и радиус действия
     // spotLight.position.set(0, size.y, 0);  // Размещаем свет выше объекта
     // scene.add(pointLight);
-  
-  
+
+
   }
 
   resizeMesh(mesh);
@@ -427,17 +427,22 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 }
 window.addMesh = addMesh
 
-function addLineSegments([vertices, indices]) {
-  if(vertices.length == 0) return;
+function addLineSegments([vertices, indices], color = 0xff0000, transparent = false) {
+  if (vertices.length == 0) return;
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.setIndex(indices);
 
-  const material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+  const materialproperties = { color: color };
+  if (transparent) {
+    materialproperties.transparent = true;
+    materialproperties.opacity = 0.25;
+  }
+  const material = new THREE.LineBasicMaterial(materialproperties);
 
   const lines = new THREE.LineSegments(geometry, material);
-  // lines.position.set(0, 2.0, 0);
+
   scene.add(lines);
 
   resizeMesh(lines);
@@ -446,8 +451,30 @@ function addLineSegments([vertices, indices]) {
 }
 window.addLineSegments = addLineSegments
 
+function addMeshLine([vertices, indices], color = 0xff0000) {
+  if (vertices.length == 0) return;
 
-function animate() {
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setIndex(indices);
+
+  const line = new MeshLine();
+  line.setGeometry(geometry);
+
+  const material = new MeshLineMaterial({ color: color, lineWidth: 5, });
+
+  const mesh = new THREE.Mesh(line, material);
+
+  scene.add(mesh);
+
+  resizeMesh(mesh);
+
+  return mesh;
+}
+window.addMeshLine = addMeshLine
+
+
+function animate(timestamp) {
   requestAnimationFrame(animate);
 
   // const parent = canvas.parentElement;
@@ -457,68 +484,89 @@ function animate() {
   // cube.rotation.x += 0.01;
   // cube.rotation.y += 0.01;
 
-    // coilMesh.rotation.x += 0.01;
-    if (window.animateAuto) {
-      angle += 0.01;
-      animateSlider.value = angle % 6.28;
-    }
+  // coilMesh.rotation.x += 0.01;
 
+  // timestamp
+  if (window.animate && timestamp - window.animateUpdateTime > 100) {
+    window.animateUpdateTime = timestamp;
+
+    window.animateIndex = parseInt(animateSlider.value, 10);
+    // console.log(timestamp, i);
+    if (window.animateAuto) {
+      window.animateIndex += 3
+      if (window.animateIndex >= window.animateCoil.x.length) {
+        window.animateIndex = 0
+      }
+      animateSlider.value = window.animateIndex;
+    }
+  
+    const fi = window.animateEqd.fi[window.animateIndex]
+  
     if (window.coilMesh)
-      window.coilMesh.rotation.x = angle;
-    
+      window.coilMesh.rotation.x = fi;
+  
     if (window.tapeMesh)
-      window.tapeMesh.rotation.x = angle;
+      window.tapeMesh.rotation.x = fi;
+  
+    if (window.equidMesh)
+      window.equidMesh.rotation.x = fi;
+
+    if (window.rolleyMesh)
+      rolleyUpdate();
+      window.rolleyMesh.rotation.x = fi;
+  }
 
   controls.update();
+
   renderer.render(scene, camera);
 }
 
 
-  // -------
-  
-  // var quad_vertices =
-  // [
-  // -30.0,  30.0, 0.0,
-  // 30.0,  30.0, 0.0,
-  // 30.0, -30.0, 0.0,
-  // -30.0, -30.0, 0.0
-  // ];
-  
-  // var quad_uvs =
-  // [
-  // 0.0, 0.0,
-  // 1.0, 0.0,
-  // 1.0, 1.0,
-  // 0.0, 1.0
-  // ];
-  
-  // var quad_indices =
-  // [
-  // 0, 2, 1, 0, 3, 2
-  // ];
-  
-  // var geometry = new THREE.BufferGeometry();
-  
-  // var vertices = new Float32Array( quad_vertices );
-  // // Each vertex has one uv coordinate for texture mapping
-  // var uvs = new Float32Array(quad_uvs);
-  // // Use the four vertices to draw the two triangles that make up the square.
-  // var indices = new Uint32Array( quad_indices )
-  
-  // // itemSize = 3 because there are 3 values (components) per vertex
-  // geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-  // geometry.setAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
-  // geometry.setIndex( new THREE.BufferAttribute( indices, 1 ) );
-  
-  // // Load the texture asynchronously
-  // let sprite = new THREE.TextureLoader().load('Pic.jpg');
-  
-  // var material = new THREE.MeshBasicMaterial( {map: sprite });
-  // var mesh = new THREE.Mesh( geometry, material );
-  // mesh.position.z = -100;
-  
-  // scene.add(mesh);
-  
+// -------
+
+// var quad_vertices =
+// [
+// -30.0,  30.0, 0.0,
+// 30.0,  30.0, 0.0,
+// 30.0, -30.0, 0.0,
+// -30.0, -30.0, 0.0
+// ];
+
+// var quad_uvs =
+// [
+// 0.0, 0.0,
+// 1.0, 0.0,
+// 1.0, 1.0,
+// 0.0, 1.0
+// ];
+
+// var quad_indices =
+// [
+// 0, 2, 1, 0, 3, 2
+// ];
+
+// var geometry = new THREE.BufferGeometry();
+
+// var vertices = new Float32Array( quad_vertices );
+// // Each vertex has one uv coordinate for texture mapping
+// var uvs = new Float32Array(quad_uvs);
+// // Use the four vertices to draw the two triangles that make up the square.
+// var indices = new Uint32Array( quad_indices )
+
+// // itemSize = 3 because there are 3 values (components) per vertex
+// geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+// geometry.setAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
+// geometry.setIndex( new THREE.BufferAttribute( indices, 1 ) );
+
+// // Load the texture asynchronously
+// let sprite = new THREE.TextureLoader().load('Pic.jpg');
+
+// var material = new THREE.MeshBasicMaterial( {map: sprite });
+// var mesh = new THREE.Mesh( geometry, material );
+// mesh.position.z = -100;
+
+// scene.add(mesh);
+
 
 function removeMesh(object) {
   if (object.geometry) {
@@ -538,12 +586,12 @@ window.removeMesh = removeMesh
 function clearScene() {
   const toRemove = [];
   scene.traverse((object) => {
-      if (object.type == "Mesh" || object.type == "LineSegments") {
-          toRemove.push(object);
-      }
+    if (object.type == "Mesh" || object.type == "LineSegments") {
+      toRemove.push(object);
+    }
   });
   toRemove.forEach((object) => {
-      removeMesh(object);
+    removeMesh(object);
   });
 }
 window.clearScene = clearScene

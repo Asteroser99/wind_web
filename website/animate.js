@@ -1,5 +1,5 @@
-let animateSlider = document.getElementById("animateSlider");
-animateSlider.addEventListener("input", () => window.angle = parseFloat(animateSlider.value));
+// let animateSlider = document.getElementById("animateSlider");
+// animateSlider.addEventListener("input", () => window.angle = parseFloat(animateSlider.value));
 
 const animateButton = document.getElementById("animateButton");
 animateButton.addEventListener("click", () => {
@@ -7,6 +7,20 @@ animateButton.addEventListener("click", () => {
     animateButton.classList.toggle("active", window.animateAuto);
 });
 
+function setAnimate() {
+    window.animateCoil = getField("coil");
+    window.animateEqd  = getField("equidistanta");
+
+    if (!window.animateCoil || !window.animateEqd){
+        window.animate = false;
+        return
+    }
+
+    window.animate = true;
+    document.getElementById("animateSlider").max = window.animateCoil.x.length;
+    window.animateUpdateTime = 0;
+}
+window.setAnimate = setAnimate
 
 function animateOnLoad(){
     window.animateAuto = false;

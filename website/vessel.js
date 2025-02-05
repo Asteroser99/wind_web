@@ -146,25 +146,27 @@ function SetPole() {
 
 const mandrelImportCSVInput = document.getElementById('mandrelImportCSVInput');
 document.getElementById('mandrelImportCSV').addEventListener(
-    'click', () => { 
+    'click', () => {
+        mandrelImportCSVInput.value = "";
         mandrelImportCSVInput.click();
         loading();
     }
 );
-mandrelImportCSVInput.addEventListener(
-    'change', function (event) { mandrelImportCSVOnClick(event) }
-);
-function mandrelImportCSVOnClick(event) {
-    const file = event.target.files[0];
-    if (!file){
-        loaded();
-        return 
-    }
 
-    const reader = new FileReader();
-    reader.onload = mandrelImportCSVOnFileLoad;
-    reader.readAsText(file);
-}
+mandrelImportCSVInput.addEventListener(
+    'change', function (event) {
+        const file = event.target.files[0];
+        console.log("file", file);
+        if (!file){
+            loaded();
+            return 
+        }
+    
+        const reader = new FileReader();
+        reader.onload = mandrelImportCSVOnFileLoad;
+        reader.readAsText(file);
+    }
+);
 
 function mandrelImportCSVOnFileLoad(event) {
     const csvText = event.target.result;
@@ -640,9 +642,76 @@ function tapeDraw() {
 
 // Equidestanta
 
-function equidDraw(){
-    addLineSegments(coilRender("equidistanta"));
+function getT(coil, eqd, begin=0, end=0, long = false){
+    if(end == 0)
+        end = begin + 1;
+
+    const vertices = [];
+    const indices = [];
+    for (let i = begin; i < end; i++) {
+        const lR = 7.0;
+        const pN = 4; // point count
+        const j = (i - begin) * pN;
+
+        const pCoil = j + 0;
+        const cXi = coil.x[i];
+        const cYi = coil.r[i] * Math.sin(coil.fi[i]);
+        const cZi = coil.r[i] * Math.cos(coil.fi[i]);
+        vertices.push(cXi, cYi, cZi);
+
+        const pEqd = j + 1;
+        const eXi = eqd.x[i];
+        const eYi = eqd.r[i] * Math.sin(eqd.fi[i]);
+        const eZi = eqd.r[i] * Math.cos(eqd.fi[i]);
+        vertices.push(eXi, eYi, eZi);
+
+        // [2, 3] - rolley
+        const ds = lR * Math.sin(eqd.al[i])
+        const dc = lR * Math.cos(eqd.al[i])
+        const pTL = j + 2;
+        vertices.push(eXi + dc, eYi, eZi + ds);
+        const pTR = j + 3;
+        vertices.push(eXi - dc, eYi, eZi - ds);
+
+
+        if (long && i > 0) {
+            indices.push(pEqd - pN); indices.push(pEqd);
+        }
+        if (i % 5 == 0) {
+            indices.push(pCoil); indices.push(pEqd);
+            indices.push(pTL  ); indices.push(pTR )
+        }
+    };
+
+    return [vertices, indices];
 }
+
+function equidDraw(){
+        const coil = getField("coil");
+    if (coil == undefined){
+        return;
+    }
+    // const { x: cX, r: cR, fi: cF, al: cA } = coil;
+
+    const eqd = getField("equidistanta");
+    if (eqd == undefined){
+        return;
+    }
+    // const { x: eX, r: eR, fi: eF, al: eD } = eqd;
+
+    window.equidMesh  = addLineSegments(getT(coil, eqd, 0, coil.x.length, true), 0x00ff00, true);
+
+    window.rolleyMesh = addLineSegments(getT(coil, eqd), 0xffffff);
+
+}
+
+function rolleyUpdate(){
+    const t = getT(window.animateCoil, window.animateEqd, window.animateIndex);
+    const pos = window.rolleyMesh.geometry.attributes.position;
+    pos.array.set(t[0]);
+    pos.needsUpdate = true;
+}
+window.rolleyUpdate = rolleyUpdate;
 
 document.getElementById('equidDraw').addEventListener(
     'click', () => { equidDrawOnClick(); }
@@ -655,6 +724,7 @@ function equidDrawOnClick() {
         EqudestantaFromCoil()
             .then(() => {
                 equidDraw();
+                setAnimate();
                 loaded();
             });
             // .catch(error => {
@@ -720,6 +790,8 @@ function drawAll() {
     coilDraw();
     tapeDraw();
     equidDraw();
+
+    setAnimate();
 }
 
 
@@ -768,7 +840,7 @@ function coilLoadOnClick(event) {
 };
 function coilLoadOnFileLoad(event) {
     setField("coil", loadFromYaml(event.target.result));
-    drawAll()
+    coilDraw();
 }
 
 
