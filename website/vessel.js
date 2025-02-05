@@ -304,7 +304,7 @@ function mandrelDraw() {
 
     const {render, isSmoothed} = mandrelRender();
 
-    window.mandrelMesh = addMesh(render, true,  isSmoothed ? 0x0000ff: 0x4bc0c0);
+    window.mandrelMesh = addMesh(render, true,  isSmoothed ? 0x2973B2: 0x48A6A7);
 
     mandrelChartUpdate(mandrelGet(true ));
     mandrelChartUpdate(mandrelGet(false));
@@ -497,7 +497,7 @@ function mandrelDirOnClick() {
 // Line coil
 
 function coilDraw() {
-    window.coilMesh = addLineSegments(coilRender("coil"));
+    window.coilMesh = addLine(coilRender("coil"));
 }
 
 document.getElementById('coilDraw').addEventListener(
@@ -526,7 +526,7 @@ function coilFromMandrel() {
 
     const vessel_data = getVesselData();
 
-    return lambdaCall("vitokLight", [vessel_data, mandrel])
+    return lambdaCall("vitok", [vessel_data, mandrel])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
             setField("coil", res);
@@ -699,9 +699,9 @@ function equidDraw(){
     }
     // const { x: eX, r: eR, fi: eF, al: eD } = eqd;
 
-    window.equidMesh  = addLineSegments(getT(coil, eqd, 0, coil.x.length, true), 0x00ff00, true);
+    window.equidMesh  = addLine(getT(coil, eqd, 0, coil.x.length, true), 0x9ACBD0, true);
 
-    window.rolleyMesh = addLineSegments(getT(coil, eqd), 0xffffff);
+    window.rolleyMesh = addLine(getT(coil, eqd), 0xff0000);
 
 }
 

@@ -427,7 +427,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 }
 window.addMesh = addMesh
 
-function addLineSegments([vertices, indices], color = 0xff0000, transparent = false) {
+function addLine([vertices, indices], color = 0xff0000, transparent = false) {
   if (vertices.length == 0) return;
 
   const geometry = new THREE.BufferGeometry();
@@ -449,7 +449,7 @@ function addLineSegments([vertices, indices], color = 0xff0000, transparent = fa
 
   return lines;
 }
-window.addLineSegments = addLineSegments
+window.addLine = addLine
 
 function addMeshLine([vertices, indices], color = 0xff0000) {
   if (vertices.length == 0) return;

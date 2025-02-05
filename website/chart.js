@@ -142,7 +142,7 @@ function createScatterConfig() {
             // { x: 3, y: 6 },
             // { x: 4, y: 8 },
           ], // Массив точек с координатами x, y
-          borderColor: '#4bc0c0',
+          borderColor: '#48A6A7',
           borderDash: [5, 5], // Пунктирная линия
           showLine: true, // Отображаем соединяющую линию
           tension: 0.0, // Сглаживание линии
@@ -158,7 +158,7 @@ function createScatterConfig() {
             // { x: 3, y: 5.5 },
             // { x: 4, y: 7.5 },
           ],
-          borderColor: '#0000ff',
+          borderColor: '#2973B2',
           showLine: true, // Показываем линию
           tension: 0.0,
           pointRadius: function(context) {
