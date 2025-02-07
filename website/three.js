@@ -326,7 +326,7 @@ function addFloor() {
   const geometry = new THREE.PlaneGeometry(100, 100, 10, 10);
   const mesh = new THREE.Mesh(geometry, material);
   mesh.rotation.x = -Math.PI / 2;
-  mesh.position.y = -3;
+  mesh.position.y = 0;
 
   resizeMesh(mesh);
 
@@ -515,8 +515,8 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
     // mesh.position.sub(center);
 
 
-    console.log("size", size)
-    console.log("center", center)
+    // console.log("size", size)
+    // console.log("center", center)
 
 
 
@@ -587,6 +587,10 @@ function frameUpdate(){
   pos.needsUpdate = true;
 
   resizeMesh(frameMesh)
+
+
+  floorMesh.position.y = -2 * scale.y.max * scale.factor;
+
 }
 
 function addFrame(){
@@ -734,7 +738,10 @@ window.removeMesh = removeMesh
 function clearScene() {
   const toRemove = [];
   scene.traverse((object) => {
-    if (object.type == "Mesh" || object.type == "LineSegments") {
+    if (
+        (object.type == "Mesh" || object.type == "LineSegments")
+     && (object != window.floorMesh && object != window.frameMesh)
+    ) {
       toRemove.push(object);
     }
   });
