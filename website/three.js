@@ -7,7 +7,7 @@ let scene = null;
 let camera = null;
 let controls = null;
 let canvas = null;
-let scale = { x: {}, y: {}, z: {}, factor: 1 };
+window.scale = { x: {}, y: {}, z: {}, factor: 1 };
 
 // let spotLight = null;
 
@@ -135,8 +135,12 @@ function setupScene() {
     0.1,         // Ближняя плоскость
     1000         // Дальняя плоскость
   );
-  camera.position.set(500., 500., 400.);
+  camera.position.set(200., 200., 500.);
   camera.lookAt(0, 0, 0);
+
+// Первая координата (X) → Вдоль горизонтальной оси (вправо-влево)
+// Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
+// Третья координата (Z) → Вдоль глубины сцены (вперёд-назад)
 
 
 
@@ -200,18 +204,10 @@ function setupScene() {
   controls.target = new THREE.Vector3(0, 1, 0);
   controls.update();
 
-  // const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
-  // groundGeometry.rotateX(-Math.PI / 2);
-  // const groundMaterial = new THREE.MeshStandardMaterial({
-  //   color: 0x556655,
-  //   side: THREE.DoubleSide
-  // });
-  // const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-  // groundMesh.castShadow = false;
-  // groundMesh.receiveShadow = true;
-  // scene.add(groundMesh);
-
   resizeScene();
+
+  window.floorMesh = addFloor();
+  addFrame();
 }
 
 function resizeMesh(mesh) {
@@ -227,6 +223,117 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // models
+
+function addFloor() {
+  // const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
+  // groundGeometry.rotateX(-Math.PI / 2);
+  // const groundMaterial = new THREE.MeshStandardMaterial({
+  //   color: 0x556655,
+  //   side: THREE.DoubleSide
+  // });
+  // const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+  // groundMesh.castShadow = false;
+  // groundMesh.receiveShadow = true;
+  // scene.add(groundMesh);
+
+
+  // floor
+
+  // const floor = new THREE.GridHelper(100, 100);
+  // floor.material.transparent = true;
+  // floor.material.opacity = 0.5;
+  // floor.matrixAutoUpdate = false; // Отключаем автообновление матрицы
+  // floor.matrix.makeTranslation(0, -2, 0); // Смещаем вручную
+  // scene.add(floor);
+
+  // const floor = new THREE.GridHelper(100, 100);
+  // floor.material.transparent = true;
+  // floor.material.opacity = 0.5;
+  // floor.position.y = -2; // Опускаем на -100 по оси Y
+  // scene.add(floor);
+
+  // const planeGeometry = new THREE.PlaneGeometry(100, 100);
+  // const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.5 });
+  // // const planeMaterial = new THREE.MeshStandardMaterial({
+  // //   // map: colorTexture,
+  // //   // normalMap: normalTexture,
+  // //   // roughnessMap: roughnessTexture,
+  // //   roughness: 0.3, // Подстройка уровня шероховатости
+  // //   metalness: 0.5, // Придаёт металлический блеск
+  // // });
+  // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  // plane.rotation.x = -Math.PI / 2; // Разворачиваем в горизонтальное положение
+  // plane.position.y = -2; // Опускаем под кубик
+  // plane.receiveShadow = true; // Позволяет принимать тени
+  // scene.add(plane);
+
+
+  const vertexShader = `
+  varying vec2 vUv; // Передаём координаты в фрагментный шейдер
+  void main() {
+      vUv = uv; // Запоминаем координаты
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+  `;
+  
+  const fragmentShader = `
+  varying vec2 vUv;
+  uniform vec2 uCenter; // Центр затухания
+  uniform float uFade;  // Коэффициент затухания
+  uniform float uGridSize; // Размер квадратов в сетке
+
+  void main() {
+      // Основное затухание (круг)
+      float dist = distance(vUv, uCenter);
+      float alpha = smoothstep(1.0, 0.0, dist * uFade); 
+
+      // Квадратная сетка
+      vec2 grid = mod(vUv * uGridSize, 1.0); // Создаём повторяющиеся клетки
+      float lineThickness = 0.02; // Толщина линий сетки
+      float gridLines = max(step(grid.x, lineThickness), step(grid.y, lineThickness)); // Линии по X и Y
+
+      // Итоговая прозрачность (сетку тоже делаем затухающей)
+      float gridAlpha = gridLines * alpha; // Используем основное затухание для сетки
+
+      // Основной цвет (бирюзовый)
+      vec3 baseColor = vec3(72. / 256., 166. / 256., 167. / 256.);
+      // Цвет сетки (чёрный)
+      vec3 gridColor = vec3(154. / 256., 203. / 256., 208. / 256.);
+
+      // Смешиваем цвет сетки и основного фона
+      vec3 finalColor = mix(baseColor, gridColor, gridAlpha);
+
+      gl_FragColor = vec4(finalColor, alpha);
+  }`;
+
+  // gl_FragColor = vec4(41. / 256., 115. / 256., 178. / 256., alpha);
+  // gl_FragColor = vec4(154. / 256., 203. / 256., 208. / 256., alpha);
+  // gl_FragColor = vec4(72. / 256., 166. / 256., 167. / 256., alpha);
+
+  const material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+          uCenter: { value: new THREE.Vector2(0.5, 0.5) }, // Центр текстурных координат (0.5, 0.5 = середина)
+          uFade: { value: 4.0 }, // Насколько быстро затухает прозрачность
+          uGridSize: { value: 70.0 },  // Количество квадратов на единицу
+          // uLineThickness: { value: 0.05 }, // Толщина линий
+        },
+      transparent: true
+  });
+  
+  // Создаём обычный `PlaneGeometry` и накладываем на него градиентный шейдер
+  const geometry = new THREE.PlaneGeometry(100, 100, 10, 10);
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.y = -3;
+
+  resizeMesh(mesh);
+
+  scene.add(mesh);
+
+  return mesh;
+}
 
 function fromfile() {
   const loader = new GLTFLoader().setPath('scene/');
@@ -293,7 +400,6 @@ function addBox() {
 
   scene.add(cube);
 }
-
 
 function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
   if (vertices.length == 0) {
@@ -409,7 +515,10 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
     // mesh.position.sub(center);
 
 
-    // console.log("center", center)
+    console.log("size", size)
+    console.log("center", center)
+
+
 
     controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // Центр вращения 0, 0, 0
     controls.update();
@@ -418,7 +527,9 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
     // spotLight.position.set(0, size.y, 0);  // Размещаем свет выше объекта
     // scene.add(pointLight);
 
-
+    if(frameMesh){
+      frameUpdate()
+    }
   }
 
   resizeMesh(mesh);
@@ -450,6 +561,43 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
   return lines;
 }
 window.addLine = addLine
+
+function frameUpdate(){
+  const Rm = scale.y.max;
+  const Xn = scale.x.min - Rm;
+  const Xm = scale.x.max + Rm;
+  const Yd = 2 * Rm;
+  const Zd = - 2 * Rm;
+
+  const vertices = [
+    Xn, 0., 0.,
+    Xn, Zd, 0.,
+    Xn, Zd, Yd,
+    Xm, Zd, Yd,
+    Xm, Zd, 0.,
+    Xm, 0., 0.,
+
+    //  Xi, -Zd,  Yd,
+    //  Xi,   0,  Yd,
+    //  Xi,   0,  Ri,
+  ];
+
+  const pos = window.frameMesh.geometry.attributes.position;
+  pos.array.set(vertices);
+  pos.needsUpdate = true;
+
+  resizeMesh(frameMesh)
+}
+
+function addFrame(){
+  const vertices = Array(6 * 3).fill(0);
+  const indices = [
+    0, 1,  1, 2,  2, 3,  3, 4,  4, 5,  5, 0,
+    // 6, 7,  7, 8, 
+  ];
+
+  window.frameMesh = addLine([vertices, indices], 0xffffff);
+}
 
 function addMeshLine([vertices, indices], color = 0xff0000) {
   if (vertices.length == 0) return;
@@ -512,7 +660,7 @@ function animate(timestamp) {
       window.equidMesh.rotation.x = fi;
 
     if (window.rolleyMesh)
-      rolleyUpdate();
+      rolleyUpdate(window.animateCoil, window.animateEqd, window.animateIndex);
       window.rolleyMesh.rotation.x = fi;
   }
 
