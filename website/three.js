@@ -60,6 +60,7 @@ function resizeScene() {
   camera.right = d * aspect;
   camera.top = d;
   camera.bottom = -d;
+//  camera.near = 0.001;
   // camera.aspect = width / height;
   camera.updateProjectionMatrix();
 }
@@ -132,11 +133,15 @@ function setupScene() {
   // Ортографическая камера для изометрии
   camera = new THREE.OrthographicCamera(
     -1, 1, 1, -1,
-    0.1,         // Ближняя плоскость
+    0.1,   // Ближняя плоскость
     1000         // Дальняя плоскость
   );
   camera.position.set(200., 200., 500.);
+  camera.near = 0.0000001;
   camera.lookAt(0, 0, 0);
+
+
+  console.log(camera.near);
 
 // Первая координата (X) → Вдоль горизонтальной оси (вправо-влево)
 // Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
@@ -502,7 +507,7 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
     const maxSize = Math.max(scale.x.max - scale.x.min, scale.y.max - scale.y.min, scale.z.max - scale.z.min)
 
-    scale.factor = 10 / maxSize;
+    scale.factor = 20 / maxSize;
 
     // console.log("scale.factor === ", maxSize, " ===> ", scale.factor)
 
@@ -551,8 +556,12 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
     materialproperties.opacity = 0.25;
   }
   const material = new THREE.LineBasicMaterial(materialproperties);
+  // material.depthTest = false;
 
   const lines = new THREE.LineSegments(geometry, material);
+
+  lines.frustumCulled = false;
+  // lines.renderOrder = 999;
 
   scene.add(lines);
 
@@ -664,7 +673,7 @@ function animate(timestamp) {
       window.equidMesh.rotation.x = fi;
 
     if (window.rolleyMesh)
-      rolleyUpdate(window.animateCoil, window.animateEqd, window.animateIndex);
+      rolleyUpdate(window.animateIndex);
       window.rolleyMesh.rotation.x = fi;
   }
 
@@ -721,9 +730,12 @@ function animate(timestamp) {
 
 
 function removeMesh(object) {
+  if (!object) return;
+
   if (object.geometry) {
     object.geometry.dispose(); // Освобождаем ресурсы геометрии
   }
+
   if (object.material) {
     if (Array.isArray(object.material)) {
       object.material.forEach((material) => material.dispose()); // Освобождаем ресурсы материалов
@@ -731,6 +743,7 @@ function removeMesh(object) {
       object.material.dispose();
     }
   }
+
   scene.remove(object); // Удаляем объект из сцены
 }
 window.removeMesh = removeMesh

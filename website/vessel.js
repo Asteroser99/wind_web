@@ -156,7 +156,6 @@ document.getElementById('mandrelImportCSV').addEventListener(
 mandrelImportCSVInput.addEventListener(
     'change', function (event) {
         const file = event.target.files[0];
-        console.log("file", file);
         if (!file){
             loaded();
             return 
@@ -299,8 +298,7 @@ document.getElementById('mandrelExportCSVSmoothed').addEventListener(
 // mandrelDraw
 
 function mandrelDraw() {
-    if (window.mandrelMesh)
-        removeMesh(window.mandrelMesh);
+    removeMesh(window.mandrelMesh);
 
     const {render, isSmoothed} = mandrelRender();
 
@@ -344,8 +342,8 @@ function mandrelRender() {
             const px = x[i];
             const py = r[i] * Math.sin(fii);
             const pz = r[i] * Math.cos(fii);
-
             points.push(px, py, pz);
+
             row.push(points.length / 3 - 1);
         }
         indices.push(row);
@@ -492,8 +490,6 @@ function mandrelDirOnClick() {
 }
 
 
-
-
 // Line coil
 
 function coilDraw() {
@@ -541,18 +537,13 @@ function coilRender(coilName) {
     if (coil == undefined){
         return [[], []];
     }
-    const { x, r, fi, al } = coil;
+    const n = coil.x.length
 
     const vertices = [];
     const indices = [];
 
-    for (let i = 0; i < x.length; i++) {
-        const pfi = fi[i];
-        const px = x[i];
-        const py = r[i] * Math.sin(pfi);
-        const pz = r[i] * Math.cos(pfi);
-
-        vertices.push(px, py, pz);
+    for (let i = 0; i < n; i++) {
+        pushPoint(coil, i, vertices);
 
         if (i > 0) {
             indices.push(i - 1);
@@ -619,7 +610,6 @@ function tapeDrawOnClick() {
 function tapeFromCoil() {
     const vessel_data = getVesselData();
     const coil = getField("coil");
-    // coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]}
 
     return lambdaCall("gltfCoil", ["TapeN", vessel_data, coil])
         .then(gltf => {
@@ -642,37 +632,34 @@ function tapeDraw() {
 
 // Equidestanta
 
-function getT(coil, eqd, begin=0, end=0, long = false){
+function pushPoint(source, i, vertices){
+    const cXi = source.x[i];
+    const cYi = source.r[i] * Math.sin(source.fi[i]);
+    const cZi = source.r[i] * Math.cos(source.fi[i]);
+    vertices.push(cXi, cYi, cZi);
+}
+
+function getT(begin=0, end=0, long = false){
     if(end == 0)
         end = begin + 1;
 
     const vertices = [];
-    const indices = [];
+    const indices  = [];
     for (let i = begin; i < end; i++) {
-        const lR = 7.0;
         const pN = 4; // point count
         const j = (i - begin) * pN;
 
         const pCoil = j + 0;
-        const cXi = coil.x[i];
-        const cYi = coil.r[i] * Math.sin(coil.fi[i]);
-        const cZi = coil.r[i] * Math.cos(coil.fi[i]);
-        vertices.push(cXi, cYi, cZi);
+        pushPoint(window.animateCoil, i, vertices);
 
-        const pEqd = j + 1;
-        const eXi = eqd.x[i];
-        const eYi = eqd.r[i] * Math.sin(eqd.fi[i]);
-        const eZi = eqd.r[i] * Math.cos(eqd.fi[i]);
-        vertices.push(eXi, eYi, eZi);
+        const pEqd  = j + 1;
+        pushPoint(window.animateEqd, i, vertices);
 
-        // [2, 3] - rolley
-        const ds = lR * Math.sin(eqd.al[i])
-        const dc = lR * Math.cos(eqd.al[i])
         const pTL = j + 2;
-        vertices.push(eXi + dc, eYi, eZi + ds);
-        const pTR = j + 3;
-        vertices.push(eXi - dc, eYi, eZi - ds);
+        pushPoint(window.animateRolley0, i, vertices);
 
+        const pTR = j + 3;
+        pushPoint(window.animateRolley1, i, vertices);
 
         if (long && i > 0) {
             indices.push(pEqd - pN); indices.push(pEqd);
@@ -688,55 +675,69 @@ function getT(coil, eqd, begin=0, end=0, long = false){
 
 function equidDraw(){
     const coil = getField("coil");
-    if (coil == undefined){
-        return;
-    }
-    const eqd = getField("equidistanta");
-    if (eqd == undefined){
-        return;
-    }
+    const eqd  = getField("equidistanta");
 
-    window.equidMesh  = addLine(getT(coil, eqd, 0, coil.x.length, true), 0x9ACBD0); // , true
+    if (!coil || !eqd){
+        window.animate = false;
+        return
+    }
+    window.animate = true;
+
+    window.animateCoil    = coil;
+    window.animateEqd     = eqd ;
+    window.animateRolley0 = getField("rolley0");
+    window.animateRolley1 = getField("rolley1");
+
+    document.getElementById("animateSlider").max = window.animateCoil.x.length;
+    window.animateUpdateTime = 0;
+
+    removeMesh(window.equidMesh);
+    window.equidMesh = addLine(getT(0, coil.x.length, true), 0x9ACBD0);
 
     {
+        removeMesh(window.rolleyMesh);
         const vertices = Array(4 * 3).fill(0);
         const indices = [0, 1,  2, 3];
         window.rolleyMesh = addLine([vertices, indices], 0xff0000);
     };
 
     {
+        removeMesh(window.carretMesh);
         const vertices = Array(4 * 3).fill(0);
         const indices = [0, 1,  2, 3];
         window.carretMesh = addLine([vertices, indices], 0x00ff00);
     };
 
-    rolleyUpdate(coil, eqd, 0);
+    rolleyUpdate(0);
 }
 
-function rolleyUpdate(coil, eqd, i){
+function rolleyUpdate(i){
     if (!window.scale) return;
-    let pos
 
-    const rolleyVert = getT(coil, eqd, i)[0];
-    pos = window.rolleyMesh.geometry.attributes.position;
-    pos.array.set(rolleyVert);
-    pos.needsUpdate = true;
+    {
+        const rolleyVert = getT(i)[0];
+        const pos = window.rolleyMesh.geometry.attributes.position;
+        pos.array.set(rolleyVert);
+        pos.needsUpdate = true;
+    }
 
-    const Fr = scale.y.max * 2;
+    {
+        const Fr = scale.y.max * 2;
 
-    const Xi = eqd.x[i]
-    const Yi = 0;
-    const Zi = eqd.r[i]
-    
-    const vert = [];
-    vert.push(Xi,  Yi, Zi);
-    vert.push(Xi,  Yi, Zi + Fr);
-    vert.push(Xi,  Yi, Fr);
-    vert.push(Xi, -Fr, Fr);
-    
-    pos = window.carretMesh.geometry.attributes.position;
-    pos.array.set(vert);
-    pos.needsUpdate = true;
+        const Xi = window.animateEqd.x[i]
+        const Yi = 0;
+        const Zi = window.animateEqd.r[i]
+        
+        const vert = [];
+        vert.push(Xi,  Yi, Zi);
+        vert.push(Xi,  Yi, Zi + Fr);
+        vert.push(Xi,  Yi, Fr);
+        vert.push(Xi, -Fr, Fr);
+        
+        const pos = window.carretMesh.geometry.attributes.position;
+        pos.array.set(vert);
+        pos.needsUpdate = true;
+    }
 }
 window.rolleyUpdate = rolleyUpdate;
 
@@ -751,7 +752,6 @@ function equidDrawOnClick() {
         EqudestantaFromCoil()
             .then(() => {
                 equidDraw();
-                setAnimate();
                 loaded();
             });
             // .catch(error => {
@@ -765,10 +765,12 @@ function equidDrawOnClick() {
 function EqudestantaFromCoil() {
     const coil = getField("coil");
 
-    return lambdaCall("equidistanta", [coil])
+    return lambdaCall("equidistantaRolley", [coil])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
-            setField("equidistanta", res);
+            setField("equidistanta", res[0]);
+            setField("rolley0", res[1]);
+            setField("rolley1", res[2]);
         })
         .catch(error => {
             showError(error);
@@ -817,8 +819,6 @@ function drawAll() {
     coilDraw();
     tapeDraw();
     equidDraw();
-
-    setAnimate();
 }
 
 

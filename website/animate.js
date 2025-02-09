@@ -7,20 +7,12 @@ animateButton.addEventListener("click", () => {
     animateButton.classList.toggle("active", window.animateAuto);
 });
 
-function setAnimate() {
-    window.animateCoil = getField("coil");
-    window.animateEqd  = getField("equidistanta");
-
-    if (!window.animateCoil || !window.animateEqd){
-        window.animate = false;
-        return
+document.addEventListener("keydown", function(event) {
+    if (event.code === "Space") {
+        event.preventDefault(); // Чтобы страница не прокручивалась
+        animateButton.click();
     }
-
-    window.animate = true;
-    document.getElementById("animateSlider").max = window.animateCoil.x.length;
-    window.animateUpdateTime = 0;
-}
-window.setAnimate = setAnimate
+});
 
 function animateOnLoad(){
     window.animateAuto = false;
