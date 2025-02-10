@@ -17,19 +17,27 @@ function fibboRenderTable() {
             <td>${item.Coils}</td>
             <td>${item.Correction.toFixed(3)}</td>
         `;
-        row.addEventListener("click", () => fibboSelectRow(row, index));
+        row.addEventListener("click", () => fibboSelectRow(index));
+        row.dataset.index = index;
         tableBody.appendChild(row);
     });
+
+    fibboSelectRow(getField("fibboIndex"))
 }
 window.fibboRenderTable = fibboRenderTable;
 
-function fibboSelectRow(row, index) {
-    const selected = document.querySelector("#data-table tbody .selected");
+function fibboSelectRow(index) {
+    const tableBody = document.querySelector("#data-table tbody");
+    const row = tableBody.querySelector(`tr[data-index='${index}']`);
+    if (!row) return;
+
+    setField("fibboIndex", index);
+
+    const selected = tableBody.querySelector(".selected");
     if (selected) {
         selected.classList.remove("selected");
     }
     row.classList.add("selected");
-    row.dataset.index = index;
 
     drawPattern();
 }
@@ -197,8 +205,10 @@ window.drawPattern = drawPattern
 function patternsOnLoad() {
     window.pCanvas = document.getElementById("patterns-canvas");
     window.pContext = window.pCanvas.getContext("2d");
-    
+
     window.addEventListener("resize", resizePattern);
     resizePattern();
+    
+    fibboRenderTable();
 }
 window.patternsOnLoad = patternsOnLoad

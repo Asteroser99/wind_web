@@ -64,11 +64,12 @@ MeshLine
     <div class="main-container">
         <div class="tab-container">
             <div class="tabs">
-                <button class="tab-link active" onclick="openTab(event, 'tab-vessel'  )">Vessel</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab-mandrel' )">Mandrel</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab-coil'    )">Coil</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab-patterns')">Patterns</button>
-                <button class="tab-link"        onclick="openTab(event, 'tab-info'    )">Info</button>
+                <button id="button-vessel"   class="tab-link active" onclick="openTab('vessel'  )">Vessel</button>
+                <button id="button-mandrel"  class="tab-link"        onclick="openTab('mandrel' )">Mandrel</button>
+                <button id="button-coil"     class="tab-link"        onclick="openTab('coil'    )">Coil</button>
+                <button id="button-patterns" class="tab-link"        onclick="openTab('patterns')">Patterns</button>
+                <button id="button-winding"  class="tab-link"        onclick="openTab('winding' )">Winding</button>
+                <button id="button-info"     class="tab-link"        onclick="openTab('info'    )">Info</button>
             </div>
 
             <div id="tabs-content" class="tabs-content active">
@@ -95,7 +96,7 @@ MeshLine
                     <h2>Mandrel</h2>
                     <p>Import CSV</p>
 
-                    <label for="csv-column">CSV column:</label>
+                    <label for="csv-column" value="1">CSV column:</label>
                     <input type="number" id="csv-column" style="text-align: right;">
 
                     <button id="mandrelImportCSV" class="action-button">Import</button>
@@ -121,6 +122,8 @@ MeshLine
                 <div id="tab-coil" class="tab-content">
                     <h2>Coil</h2>
                     <div id="control-panel">
+                        <button id="coilLoad" class="action-button">Load coil</button>
+
                         <label for="poleInput">Pole:</label>
                         <input type="number" id="poleInput" 
                             min="0" max="999" step="0.001" 
@@ -130,9 +133,7 @@ MeshLine
                         
                         <button id="coilDraw"  class="action-button">Generate coil</button>
                         <button id="tapeDraw"  class="action-button">Draw Tape</button>
-                        <button id="equidDraw" class="action-button">Generate equidestanta</button>
                     
-                        <button id="coilLoad" class="action-button">Load coil</button>
                         <input id="coilLoadInput" type="file" accept=".yaml" style="display: none;" />
                         <!-- <div id="numbers">
                           <p>Numeric Values</p>
@@ -178,6 +179,12 @@ MeshLine
                     </table>
                 </div>
 
+                <div id="tab-winding" class="tab-content">
+                    <h2>Winding</h2>
+                    <p>Winding configuration</p>
+                    <button id="equidDraw" class="action-button">Generate equidestanta</button>
+                </div>
+
                 <div id="tab-info" class="tab-content">
                     <h2>Info</h2>
                     <p>This is the info</p>
@@ -194,13 +201,17 @@ MeshLine
             <canvas id="patterns-canvas"></canvas>
         </div>
 
+        <div id="scene-thumbnail-container">
+            <canvas id="scene-thumbnail"></canvas>
+        </div>
         <div id="scene-canvas-div" class="static-content active">
-            <div class="controls">
+            <div class="animateControls">
                 <button id="animateButton" class="toggle-button"></button>
                 <input type="range" id="animateSlider" min="0" max="100" step="1" value="0">
             </div>
             <canvas id="scene-canvas"></canvas>
         </div>
+    
 
         <div id="info-canvas-div" class="static-content">
             <main>

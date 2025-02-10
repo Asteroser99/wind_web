@@ -493,6 +493,7 @@ function mandrelDirOnClick() {
 // Line coil
 
 function coilDraw() {
+    removeMesh(window.coilMesh);
     window.coilMesh = addLine(coilRender("coil"));
 }
 
@@ -626,6 +627,7 @@ function tapeDraw() {
     if (gltf == undefined){
         return;
     }
+    removeMesh(window.tapeMesh);
     window.tapeMesh = addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
 }
 

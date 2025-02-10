@@ -16,48 +16,51 @@ function loaded(){
 window.loaded = loaded
 
 
-export function openTab(event, tabId) {
+export function openTab(tabId) {
+    if(!tabId) return;
+    setField("page", tabId);
+
     let hideIt = false;
-    const activeTab = document.querySelector('.tab-content.active');
+    const activeTab  = document.querySelector('.tab-content.active' );
     const activeTabs = document.querySelector('.tabs-content.active');
-    if (activeTab.id == tabId && activeTabs) {
-        hideIt = true
-    }
 
-    const tabLinks = document.querySelectorAll('.tab-link');
-    tabLinks.forEach(link => link.classList.remove('active'));
+    if (activeTab.id == "tab-" + tabId && activeTabs) hideIt = true;
 
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
 
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+    document.getElementById("button-" + tabId).classList.add('active');
+    document.getElementById("tab-"    + tabId).classList.add('active');
 
     let contentId = "scene-canvas-div";
-    if (tabId == "tab-mandrel") {
+    if        (tabId == "mandrel" ) {
         contentId = "mandrel-canvas-div";
-    } else if (tabId == "tab-patterns") {
+    } else if (tabId == "patterns") {
         contentId = "patterns-canvas-div";
-    } else if (tabId == "tab-info") {
+    } else if (tabId == "info"    ) {
         hideIt = true;
         contentId = "info-canvas-div";
     }
 
-    document.getElementById("tabs-content").classList.remove('active');
-    if (!hideIt) {
-        document.getElementById("tabs-content").classList.add('active');
-    }
+    document.getElementById("tabs-content").classList.toggle('active', !hideIt);
 
-    const staticContents = document.querySelectorAll('.static-content');
-    staticContents.forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.static-content').forEach(tab => tab.classList.remove('active'));
+
     if (contentId != "") {
         document.getElementById(contentId).classList.add('active');
     }
+
     if (contentId == "scene-canvas-div") {
-        resizeScene();
-    } else if (contentId == "patterns-canvas-div") {
-        resizePattern();
+        document.getElementById("scene-thumbnail-container").style.display = "none";
+        document.getElementById("scene-canvas-div").appendChild(document.getElementById("scene-canvas"));
+    } else {
+        document.getElementById("scene-thumbnail-container").style.display = "block";
+        document.getElementById("scene-thumbnail-container").appendChild(document.getElementById("scene-canvas"));
     }
+
+    if (contentId == "patterns-canvas-div") resizePattern();
+
+    resizeScene();
 }
 window.openTab = openTab;
 
@@ -197,17 +200,22 @@ function inputValue(id, val = null, isInt = false){
 }
 window.inputValue = inputValue
 
-
-window.onload = function () {
+function windowOnLoad(){
     // const colNumEl = document.getElementById('csv-column');
     // colNumEl.value = 1;
     inputValue('csv-column', 1);
 
+}
+
+
+window.onload = function () {
+    windowOnLoad();
     vesselOnLoad();
     cognitoOnLoad();
-    fibboRenderTable();
     patternsOnLoad();
     animateOnLoad();
+
+    openTab(getField("page"))
 
     loaded();
 };

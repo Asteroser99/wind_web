@@ -54,12 +54,13 @@ function resizeScene() {
 
   renderer.setSize(width, height);
 
-  const d = 6;
+  const d = 15;
   const aspect = width / height;
   camera.left = -d * aspect;
   camera.right = d * aspect;
   camera.top = d;
   camera.bottom = -d;
+
 //  camera.near = 0.001;
   // camera.aspect = width / height;
   camera.updateProjectionMatrix();
@@ -133,21 +134,15 @@ function setupScene() {
   // Ортографическая камера для изометрии
   camera = new THREE.OrthographicCamera(
     -1, 1, 1, -1,
-    0.1,   // Ближняя плоскость
-    1000         // Дальняя плоскость
+    0.1, 1000
   );
-  camera.position.set(200., 200., 500.);
-  camera.near = 0.0000001;
+  camera.position.set(10., 20., 20.);
+  // camera.near = 0.0000001;
   camera.lookAt(0, 0, 0);
 
-
-  console.log(camera.near);
-
-// Первая координата (X) → Вдоль горизонтальной оси (вправо-влево)
-// Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
-// Третья координата (Z) → Вдоль глубины сцены (вперёд-назад)
-
-
+  // Первая координата (X) → Вдоль горизонтальной оси (вправо-влево)
+  // Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
+  // Третья координата (Z) → Вдоль глубины сцены (вперёд-назад)
 
   const x = 20; // Расстояние от центра до вершины тетраэдра
   const sh = x / Math.sqrt(3);
@@ -473,6 +468,11 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
 
   if (setScale) {
 
+    const box = new THREE.Box3().setFromObject(mesh);
+    const size = box.getSize(new THREE.Vector3());
+
+    const center = box.getCenter(new THREE.Vector3());  // Центр объекта
+
     let minX = 0, maxX = -0;
     let minY = 0, maxY = -0;
     let minZ = 0, maxZ = -0;
@@ -499,11 +499,21 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
     scale.y = { max: maxY, min: minY }
     scale.z = { max: maxZ, min: minZ }
 
-    // console.log("scale === ", scale)
+    scale.x.size = size.x;
+    scale.y.size = size.y;
+    scale.z.size = size.z;
+
+    scale.x.center = center.x;
+    scale.y.center = center.y;
+    scale.z.center = center.z;
+
+    // console.log("scale   === ", scale)
+    // console.log("size    === ", size)
+    // console.log("center  === ", center)
 
 
-    const min = Math.min(scale.x.min, scale.y.min, scale.z.min)
-    const max = Math.max(scale.x.max, scale.y.max, scale.z.max)
+    // const min = Math.min(scale.x.min, scale.y.min, scale.z.min)
+    // const max = Math.max(scale.x.max, scale.y.max, scale.z.max)
 
     const maxSize = Math.max(scale.x.max - scale.x.min, scale.y.max - scale.y.min, scale.z.max - scale.z.min)
 
@@ -512,10 +522,6 @@ function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
     // console.log("scale.factor === ", maxSize, " ===> ", scale.factor)
 
 
-    const box = new THREE.Box3().setFromObject(mesh);
-    const size = box.getSize(new THREE.Vector3());
-
-    const center = box.getCenter(new THREE.Vector3());  // Центр объекта
 
     // mesh.position.sub(center);
 
@@ -597,16 +603,14 @@ function frameUpdate(){
 
   resizeMesh(frameMesh)
 
-
   floorMesh.position.y = -2 * scale.y.max * scale.factor;
-
+  floorMesh.position.x = scale.x.center * scale.factor;
 }
 
 function addFrame(){
   const vertices = Array(6 * 3).fill(0);
   const indices = [
     0, 1,  1, 2,  2, 3,  3, 4,  4, 5,  5, 0,
-    // 6, 7,  7, 8, 
   ];
 
   window.frameMesh = addLine([vertices, indices], 0xffffff);
