@@ -92,7 +92,7 @@ const getVessel = () => {
 };
 
 
-// vessel_data
+// vessel
 
 function getVesselData(){
     const fibboSel = fibboGetSelectedValues()
@@ -107,6 +107,40 @@ function getVesselData(){
     };
 }
 window.getVesselData = getVesselData
+
+// vesselLoad
+
+const vesselLoadInput = document.getElementById('vesselLoadInput');
+document.getElementById('vesselLoad').addEventListener(
+    'click', () => { vesselLoadInput.click(); }
+);
+vesselLoadInput.addEventListener(
+    'change', function (event) { vesselLoadOnClick(event) }
+);
+function vesselLoadOnClick(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = vesselLoadOnFileLoad;
+
+    reader.readAsText(file);
+};
+function vesselLoadOnFileLoad(event) {
+    setVessel(loadFromYaml(event.target.result));
+    drawAll()
+}
+
+function loadFromYaml(yamlString){
+    let parsedData = null;
+    try {
+        parsedData = jsyaml.load(yamlString);
+    } catch (error) {
+        showError(error);
+    }
+    return parsedData;
+}
+
 
 
 // lambdaCall
@@ -136,14 +170,16 @@ function lambdaCall(name, param) {
         });
 }
 
+
+// Mandrel
+
 function SetPole() {
     const mandrel = getField("mandrel")
     const {x, r} = mandrel
     if (r.length > 0) inputValue('poleInput', r[0]);
 }
 
-
-// Mandrel
+// ImportCSV
 
 const mandrelImportCSVInput = document.getElementById('mandrelImportCSVInput');
 document.getElementById('mandrelImportCSV').addEventListener(
@@ -273,7 +309,6 @@ async function saveCsvWithDialog(data) {
     }
 }
 
-// Преобразование массива объектов в CSV
 function convertArrayToCsv(data) {
     const keys = Object.keys(data); // Получаем заголовки (x, r)
     const rows = [];
@@ -286,7 +321,6 @@ function convertArrayToCsv(data) {
     return keys.join(",") + "\n" + rows.join("\n");
 }
 
-
 document.getElementById('mandrelExportCSV').addEventListener(
     'click', () => saveCsvWithDialog(getField("mandrel"))
 );
@@ -296,18 +330,7 @@ document.getElementById('mandrelExportCSVSmoothed').addEventListener(
 );
 
 
-// mandrelDraw
-
-function mandrelDraw() {
-    removeMesh(window.mandrelMesh);
-
-    const {render, isSmoothed} = mandrelRender();
-
-    window.mandrelMesh = addMesh(render, true,  isSmoothed ? 0x2973B2: 0x48A6A7);
-
-    mandrelChartUpdate(mandrelGet(true ));
-    mandrelChartUpdate(mandrelGet(false));
-}
+// mandrel
 
 function mandrelGet(isSmoothed = null){
     if (isSmoothed == null){
@@ -319,7 +342,8 @@ function mandrelGet(isSmoothed = null){
         if (mandrel)
             return {mandrel, isSmoothed: false};
         
-        throw new Error("no mandrel");
+        // throw new Error("no mandrel");
+        return undefined
 
     } else {
         return {mandrel: getField(isSmoothed ? "smoothed" : "mandrel"), isSmoothed};
@@ -328,7 +352,9 @@ function mandrelGet(isSmoothed = null){
 }
 
 function mandrelRender() {
-    const { mandrel: { x: x, r: r }, isSmoothed } = mandrelGet();
+    const mandrelData = mandrelGet();
+    if (!mandrelData) return undefined;
+    const { mandrel: { x: x, r: r }, isSmoothed } = mandrelData;
 
     const resolution = 100;
     const indices = [];
@@ -367,37 +393,21 @@ function mandrelRender() {
     return {render: [points, faces], isSmoothed}
 }
 
-// smooth
+function mandrelDraw() {
+    removeMesh(window.mandrelMesh);
 
-document.getElementById('mandrelSmooth').addEventListener(
-    'click', () => { mandrelSmoothOnClick(); }
-);
+    const renderData = mandrelRender();
+    if (!renderData) return;
+    const {render, isSmoothed} = renderData;
 
-function mandrelSmoothOnClick() {
-    loading();
+    window.mandrelMesh = addMesh(render, true,  isSmoothed ? 0x2973B2: 0x48A6A7);
 
-    mandrelSmooth()
-        .then(() => {
-            mandrelDraw()
-            loaded();
-        })
-        .catch(error => {
-            showError(error);
-        });
+    mandrelChartUpdate(mandrelGet(true ));
+    mandrelChartUpdate(mandrelGet(false));
 }
 
-function mandrelSmooth() {
-    const mandrel = getField("mandrel");
-    if (mandrel == undefined) return null;
-    return lambdaCall("smooth_full", [mandrel])
-        .then((res) => {
-            setField("smoothed", res);
-            mandrelDraw();
-        })
-        .catch(error => {
-            showError(error);
-        });
-}
+
+// mandrel transformation
 
 // reverse
 
@@ -470,8 +480,7 @@ function mandrelSwapOnClick() {
     mandrelDraw();
 }
 
-
-// swap
+// reDir
 
 document.getElementById('mandrelDir').addEventListener(
     'click', () => { mandrelDirOnClick(); }
@@ -491,54 +500,75 @@ function mandrelDirOnClick() {
 }
 
 
-// Line coil
+// smooth
 
-function coilDraw() {
-    removeMesh(window.coilMesh);
-    window.coilMesh = addLine(coilRender("coil"));
-}
-
-document.getElementById('coilDraw').addEventListener(
-    'click', () => { coilDrawOnClick(); }
+document.getElementById('mandrelSmooth').addEventListener(
+    'click', () => { mandrelSmoothOnClick(); }
 );
 
-function coilDrawOnClick() {
+function mandrelSmoothOnClick() {
     loading();
 
-    try {
-        coilFromMandrel()
-            .then(() => {
-                coilDraw();
-                loaded();
-            });
-            // .catch(error => {
-            //     showError(error);
-            // });
-    } catch (error) {
-        showError(error);
-    }
-}
-
-function coilFromMandrel() {
-    const { mandrel, isSmoothed } = mandrelGet();
-
-    const vessel_data = getVesselData();
-
-    return lambdaCall("vitok", [vessel_data, mandrel])
-        .then(res => {
-            if(!res) throw new Error("Empty lambdaCall result");
-            setField("coil", res);
+    mandrelSmooth()
+        .then(() => {
+            mandrelDraw()
+            loaded();
         })
         .catch(error => {
             showError(error);
         });
 }
 
-function coilRender(coilName) {
-    const coil = getField(coilName);
-    if (coil == undefined){
-        return [[], []];
+function mandrelSmooth() {
+    const mandrel = getField("mandrel");
+    if (mandrel == undefined) return null;
+    return lambdaCall("smooth_full", [mandrel])
+        .then((res) => {
+            setField("smoothed", res);
+            mandrelDraw();
+        })
+        .catch(error => {
+            showError(error);
+        });
+}
+
+
+// Coil
+
+document.getElementById('coilCalc').addEventListener(
+    'click', () => { coilCalc(); }
+);
+
+function coilCalc() {
+    loading();
+
+    try {
+        const vessel_data = getVesselData();
+        const { mandrel, isSmoothed } = mandrelGet();
+
+        return lambdaCall("vitok", [vessel_data, mandrel])
+            .then(res => {
+                setField("coil", res);
+
+                coilDraw();
+
+                loaded();
+
+                tapeCalc(getField("coil"), "tape");
+
+                patternsCalc();
+            })
+            .catch(error => {
+                showError(error);
+            });
+    } catch (error) {
+        showError(error);
     }
+}
+
+function coilRender(coil) {
+    console.log(coil);
+
     const n = coil.x.length
 
     const vertices = [];
@@ -556,80 +586,59 @@ function coilRender(coilName) {
     return [vertices, indices];
 }
 
-
-// vesselLoad
-
-const vesselLoadInput = document.getElementById('vesselLoadInput');
-document.getElementById('vesselLoad').addEventListener(
-    'click', () => { vesselLoadInput.click(); }
-);
-vesselLoadInput.addEventListener(
-    'change', function (event) { vesselLoadOnClick(event) }
-);
-function vesselLoadOnClick(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = vesselLoadOnFileLoad;
-
-    reader.readAsText(file);
-};
-function vesselLoadOnFileLoad(event) {
-    setVessel(loadFromYaml(event.target.result));
-    drawAll()
-}
-
-function loadFromYaml(yamlString){
-    let parsedData = null;
-    try {
-        parsedData = jsyaml.load(yamlString);
-    } catch (error) {
-        showError(error);
-    }
-    return parsedData;
+function coilDraw() {
+    removeMesh(window.coilMesh);
+    window.coilMesh = addLine(coilRender(getField("coil")));
 }
 
 
 // Tape coil
 
-document.getElementById('tapeDraw').addEventListener(
-    'click', () => { tapeDrawOnClick(); }
+document.getElementById('tapeCalc').addEventListener(
+    'click', () => { tapeCalc(getField("coil"), "tape"); }
 );
 
-function tapeDrawOnClick() {
+function tapeCalc(coil, tapeName, color = 0xffff00) {
     loading();
-    tapeFromCoil()
-        .then(() => {
-            tapeDraw();
+    const vessel_data = getVesselData();
+
+    return lambdaCall("tape", [vessel_data, coil])
+        .then(res => {
+            setField(tapeName, res);
+            tapeDraw(tapeName, color);
             loaded();
         })
-        .catch(error => {
-            showError(error);
-        });
 }
 
-function tapeFromCoil() {
-    const vessel_data = getVesselData();
-    const coil = getField("coil");
-
-    return lambdaCall("gltfCoil", ["TapeN", vessel_data, coil])
-        .then(gltf => {
-            if(!gltf) throw new Error("Empty lambdaCall result");
-            setField("tape", gltf);
-        })
-        .catch(error => {
-            showError(error);
-        });
+function tapeDraw(tapeName, color = 0xffff00) {
+    const render = tapeRender(tapeName)
+    if (!render) return;
+    removeMesh(window[tapeName + "Mesh"]);
+    window[tapeName + "Mesh"] = addMesh(render, false, color);
 }
 
-function tapeDraw() {
-    const gltf = getField("tape");
-    if (gltf == undefined){
-        return;
+function tapeRender(tapeName) {
+    const tape = getField(tapeName);
+    if (!tape){
+        return [[], []];
     }
-    removeMesh(window.tapeMesh);
-    window.tapeMesh = addMesh([gltf.verticesArray, gltf.indicesArray], false, 0xffff00);
+    const [coilR, coilL] = tape;
+    const n = coilR.x.length
+
+    const vertices = [];
+    const indices  = [];
+
+    for (let i = 0; i < n; i++) {
+        pushPoint(coilR, i, vertices);
+        pushPoint(coilL, i, vertices);
+
+        if (i > 0) {
+            indices.push(i * 2 - 2); indices.push(i * 2 - 1); indices.push(i * 2 + 0);
+            indices.push(i * 2 - 1); indices.push(i * 2 + 1); indices.push(i * 2 + 0);
+        }
+    }
+
+    return [vertices, indices];
 }
 
 
@@ -783,28 +792,21 @@ function EqudestantaFromCoil() {
 
 // Patterns
 
-document.getElementById('getPatterns').addEventListener(
-    'click', () => {
-        loading();
-        getPatterns()
-            .then(() => {
-                fibboRenderTable();
-                loaded();
-            })
-            .catch(error => {
-                showError(error);
-            });
-    }
+document.getElementById('patternsCalc').addEventListener(
+    'click', () => { patternsCalc();}
 );
 
+function patternsCalc() {
+    loading();
 
-function getPatterns() {
     const vessel_data = getVesselData();
     const coil = getField("coil");
-    return lambdaCall("fibbo", [vessel_data, coil])
-        .then(res => {
-            if(!res) throw new Error("Empty lambdaCall result");
+
+    lambdaCall("fibbo", [vessel_data, coil])
+        .then((res) => {
             setField("fibbo", res);
+            fibboRenderTable();
+            loaded();
         })
         .catch(error => {
             showError(error);
@@ -814,9 +816,22 @@ function getPatterns() {
 
 // Correct coils
 
+function getCorrectedCoil() {
+    const coil = getField("coil");
+    const correctedCoil = getField("correctedCoil");
+    if (!correctedCoil){
+        return undefined;
+    }
+
+    correctedCoil["x"] = coil["x"];
+    correctedCoil["r"] = coil["r"];
+
+    return correctedCoil;
+}
+
 function correctedCoilDraw() {
     removeMesh(window.correctedCoilMesh);
-    window.correctedCoilMesh = addLine(coilRender("correctedCoil"));
+    window.correctedCoilMesh = addLine(coilRender(getCorrectedCoil()));
 }
 
 document.getElementById('correctCoil').addEventListener(
@@ -828,11 +843,15 @@ document.getElementById('correctCoil').addEventListener(
 
         lambdaCall("conte", [vessel_data, coil])
             .then(res => {
-                // if(!res) throw new Error("Empty lambdaCall result");
-                setField("correctedCoil", res);
+                setField("correctedCoil", {
+                    fi: res[0],
+                    al: res[1],
+                });
                 console.log(res);
                 correctedCoilDraw();
                 loaded();
+
+                tapeCalc(getCorrectedCoil(), "tapeCorrected", 0xfea02a);
             })
             .catch(error => {
                 showError(error);
@@ -846,7 +865,7 @@ document.getElementById('correctCoil').addEventListener(
 function drawAll() {
     mandrelDraw();
     coilDraw();
-    tapeDraw();
+    tapeDraw("tape");
     equidDraw();
 }
 
@@ -945,7 +964,7 @@ document.getElementById('clear').addEventListener(
 
 function vesselOnLoad() {
     getVessel();
-    if (Object.keys(vessel).length === 0) {
+    if (!vessel.mandrel) {
         vesselloadFromURL("Example1");
     } else {
         drawAll();
