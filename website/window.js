@@ -41,7 +41,7 @@ export function openTab(tabId) {
         hideIt = true;
         contentId = "info-canvas-div";
     }
-
+    
     document.getElementById("tabs-content").classList.toggle('active', !hideIt);
 
     document.querySelectorAll('.static-content').forEach(tab => tab.classList.remove('active'));
@@ -50,12 +50,45 @@ export function openTab(tabId) {
         document.getElementById(contentId).classList.add('active');
     }
 
+
+    // file
+
+    const fileContainer = document.getElementById("file-container");
+    const files = Array.from(fileContainer.children);
+
+    files.forEach(file => {
+        const originalParentId = file.dataset.originalParent;
+        if (originalParentId) {
+            const originalParent = document.getElementById(originalParentId);
+            if (originalParent) {
+                originalParent.appendChild(file);
+            }
+        }
+    });
+
+    const fileId = `file-${tabId}`;
+    const fileElement = document.getElementById(fileId);
+    // const fileContainer = document.getElementById("file-container");
+
+    if (fileElement) {
+        // Сохраняем исходное местоположение
+        if (!fileElement.dataset.originalParent) {
+            fileElement.dataset.originalParent = fileElement.parentElement.id;
+        }
+        
+        // Перемещаем элемент
+        fileContainer.appendChild(fileElement);
+    }
+
+
+    // thumbnail
+    const thumbnail = document.getElementById("scene-thumbnail-container");
     if (contentId == "scene-canvas-div") {
-        document.getElementById("scene-thumbnail-container").style.display = "none";
+        thumbnail.style.display = "none";
         document.getElementById("scene-canvas-div").appendChild(document.getElementById("scene-canvas"));
     } else {
-        document.getElementById("scene-thumbnail-container").style.display = "block";
-        document.getElementById("scene-thumbnail-container").appendChild(document.getElementById("scene-canvas"));
+        thumbnail.style.display = "block";
+        thumbnail.appendChild(document.getElementById("scene-canvas"));
     }
 
     if (contentId == "patterns-canvas-div") resizePattern();
@@ -117,34 +150,16 @@ function showError(error) {
     if (!errorContainer) {
         errorContainer = document.createElement("div");
         errorContainer.id = "error-container";
-        errorContainer.style.position = "fixed";
-        errorContainer.style.bottom = "10px";
-        errorContainer.style.right = "15px";  // Отступ 5px от правого края
-        errorContainer.style.background = "rgba(255, 0, 0, 0.8)";
-        errorContainer.style.color = "white";
-        errorContainer.style.padding = "15px";
-        errorContainer.style.borderRadius = "5px";
-        errorContainer.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
-        // errorContainer.style.width = "auto"; // Автоширина под текст
-        // errorContainer.style.maxWidth = "70%"; // Ограничение максимальной ширины
-        errorContainer.style.width = "40%";
-        errorContainer.style.textAlign = "left";
             
         let closeButton = document.createElement("span");
         closeButton.innerHTML = "&times;";
-        closeButton.style.cursor = "pointer";
-        closeButton.style.float = "right";
-        closeButton.style.fontSize = "16px";
-        closeButton.style.marginLeft = "10px";
+        closeButton.id = "error-close-button";
         closeButton.onclick = function () {
             errorContainer.remove();
         };
 
         let ul = document.createElement("ul");
         ul.id = "error-list";
-        ul.style.margin = "0";
-        ul.style.padding = "0";
-        ul.style.listStyleType = "none";
 
         errorContainer.appendChild(closeButton);
         errorContainer.appendChild(ul);

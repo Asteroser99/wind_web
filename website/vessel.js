@@ -128,6 +128,7 @@ function lambdaCall(name, param) {
         headers
     )
         .then((response) => {
+            if(!response.data) throw new Error("Empty lambdaCall result");
             return response.data;
         })
         .catch((error) => {
@@ -783,26 +784,23 @@ function EqudestantaFromCoil() {
 // Patterns
 
 document.getElementById('getPatterns').addEventListener(
-    'click', () => { getPatternsOnClick(); }
+    'click', () => {
+        loading();
+        getPatterns()
+            .then(() => {
+                fibboRenderTable();
+                loaded();
+            })
+            .catch(error => {
+                showError(error);
+            });
+    }
 );
 
-function getPatternsOnClick() {
-    loading();
-    getPatterns()
-        .then(() => {
-            fibboRenderTable();
-            loaded();
-        })
-        .catch(error => {
-            showError(error);
-        });
-}
 
 function getPatterns() {
     const vessel_data = getVesselData();
-    let coil = getField("coil");
-    coil = {x: coil["x"], r: coil["r"], fi: coil["fi"], al: coil["al"]};
-
+    const coil = getField("coil");
     return lambdaCall("fibbo", [vessel_data, coil])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
@@ -812,6 +810,35 @@ function getPatterns() {
             showError(error);
         });
 }
+
+
+// Correct coils
+
+function correctedCoilDraw() {
+    removeMesh(window.correctedCoilMesh);
+    window.correctedCoilMesh = addLine(coilRender("correctedCoil"));
+}
+
+document.getElementById('correctCoil').addEventListener(
+    'click', () => {
+        loading();
+
+        const vessel_data = getVesselData();
+        const coil = getField("coil");
+
+        lambdaCall("conte", [vessel_data, coil])
+            .then(res => {
+                // if(!res) throw new Error("Empty lambdaCall result");
+                setField("correctedCoil", res);
+                console.log(res);
+                correctedCoilDraw();
+                loaded();
+            })
+            .catch(error => {
+                showError(error);
+            });
+    }
+);
 
 
 // ALL
