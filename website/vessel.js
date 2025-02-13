@@ -567,7 +567,8 @@ function coilCalc() {
 }
 
 function coilRender(coil) {
-    console.log(coil);
+    if (!coil) 
+        return undefined;
 
     const n = coil.x.length
 
@@ -587,16 +588,18 @@ function coilRender(coil) {
 }
 
 function coilDraw() {
+    const render = coilRender(getField("coil"));
+    if(!render) return;
     removeMesh(window.coilMesh);
-    window.coilMesh = addLine(coilRender(getField("coil")));
+    window.coilMesh = addLine(render);
 }
 
 
 // Tape coil
 
-document.getElementById('tapeCalc').addEventListener(
-    'click', () => { tapeCalc(getField("coil"), "tape"); }
-);
+// document.getElementById('tapeCalc').addEventListener(
+//     'click', () => { tapeCalc(getField("coil"), "tape"); }
+// );
 
 function tapeCalc(coil, tapeName, color = 0xffff00) {
     loading();
@@ -622,6 +625,9 @@ function tapeRender(tapeName) {
     if (!tape){
         return [[], []];
     }
+
+    console.log(tape)
+
     const [coilR, coilL] = tape;
     const n = coilR.x.length
 
@@ -792,9 +798,9 @@ function EqudestantaFromCoil() {
 
 // Patterns
 
-document.getElementById('patternsCalc').addEventListener(
-    'click', () => { patternsCalc();}
-);
+// document.getElementById('patternsCalc').addEventListener(
+//     'click', () => { patternsCalc();}
+// );
 
 function patternsCalc() {
     loading();

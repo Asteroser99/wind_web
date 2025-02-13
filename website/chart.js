@@ -173,7 +173,7 @@ function createScatterConfig() {
       maintainAspectRatio: false,  // Отключаем сохранение пропорций
       plugins: {
         legend: {
-          position: 'top',
+          position: 'bottom',
         },
         zoom: {
           zoom: {

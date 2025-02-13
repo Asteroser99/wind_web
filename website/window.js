@@ -15,6 +15,33 @@ function loaded(){
 }
 window.loaded = loaded
 
+function moveButtons(prefix, tabId) {
+    const fileContainer = document.getElementById(prefix + "-container");
+    const files = Array.from(fileContainer.children);
+
+    files.forEach(file => {
+        const originalParentId = file.dataset.originalParent;
+        if (originalParentId) {
+            const originalParent = document.getElementById(originalParentId);
+            if (originalParent) {
+                originalParent.appendChild(file);
+            }
+        }
+    });
+
+    const fileId = `${prefix}-${tabId}`;
+    const fileElement = document.getElementById(fileId);
+
+    if (fileElement) {
+        // Сохраняем исходное местоположение
+        if (!fileElement.dataset.originalParent) {
+            fileElement.dataset.originalParent = fileElement.parentElement.id;
+        }
+        
+        // Перемещаем элемент
+        fileContainer.appendChild(fileElement);
+    }
+}
 
 export function openTab(tabId) {
     if(!tabId) return;
@@ -33,8 +60,15 @@ export function openTab(tabId) {
     document.getElementById("tab-"    + tabId).classList.add('active');
 
     let contentId = "scene-canvas-div";
-    if        (tabId == "mandrel" ) {
+    if        (tabId == "vessel" ) {
+        hideIt = true;
+    } else if (tabId == "mandrel" ) {
+        hideIt = true;
         contentId = "mandrel-canvas-div";
+    } else if (tabId == "coil") {
+        hideIt = true;
+    } else if (tabId == "winding") {
+        hideIt = true;
     } else if (tabId == "patterns") {
         contentId = "patterns-canvas-div";
     } else if (tabId == "info"    ) {
@@ -52,33 +86,8 @@ export function openTab(tabId) {
 
 
     // file
-
-    const fileContainer = document.getElementById("file-container");
-    const files = Array.from(fileContainer.children);
-
-    files.forEach(file => {
-        const originalParentId = file.dataset.originalParent;
-        if (originalParentId) {
-            const originalParent = document.getElementById(originalParentId);
-            if (originalParent) {
-                originalParent.appendChild(file);
-            }
-        }
-    });
-
-    const fileId = `file-${tabId}`;
-    const fileElement = document.getElementById(fileId);
-    // const fileContainer = document.getElementById("file-container");
-
-    if (fileElement) {
-        // Сохраняем исходное местоположение
-        if (!fileElement.dataset.originalParent) {
-            fileElement.dataset.originalParent = fileElement.parentElement.id;
-        }
-        
-        // Перемещаем элемент
-        fileContainer.appendChild(fileElement);
-    }
+    moveButtons("file", tabId);
+    moveButtons("actions", tabId);
 
 
     // thumbnail

@@ -79,6 +79,14 @@ p {
     height: 100vh;
 }
 
+#canvas-container {
+    position: relative;
+    display: flex;
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+}
+
 .tab-container {
     display: flex;
     height: 100%;
@@ -164,11 +172,26 @@ canvas {
 }
 
 
+/* actions menu */
+
+#actions-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    /* width: 250px;
+    height: 250px; */
+    /* border: 1px solid #9ACBD0; */
+    /* background-color: white; */
+    /* display: none; */
+    z-index: 999;
+}
+
+
 /* file menu */
 
 #file-container {
     position: absolute;
-    top: 120px;
+    top: 10px;
     right: 10px;
     /* width: 250px;
     height: 250px; */
@@ -176,6 +199,7 @@ canvas {
     /* background-color: white; */
     /* display: none; */
     z-index: 999;
+    text-align: right;
 }
 
 
@@ -273,7 +297,7 @@ tr.selected {
 
 .animateControls {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
     background: rgba(0, 0, 0, 0.05); /* Полупрозрачный фон */
