@@ -554,7 +554,7 @@ function coilCalc() {
 
                 loaded();
 
-                tapeCalc(getField("coil"), "tape");
+                tapeCalc(getField("coil"), "tape", 0xfea02a);
 
                 patternsCalc();
             })
@@ -614,7 +614,7 @@ function tapeCalc(coil, tapeName, color = 0xffff00) {
 }
 
 function tapeDraw(tapeName, color = 0xffff00) {
-    const render = tapeName != "tapeCorrected" ? tapeRender(tapeName) : correctedTapeRender();
+    const render = tapeName != "tapeCorrected" ? tapeRender(tapeName) : tapeCorrectedRender();
     if (!render) return;
     removeMesh(window[tapeName + "Mesh"]);
     window[tapeName + "Mesh"] = addMesh(render, false, color);
@@ -646,8 +646,8 @@ function tapeRender(tapeName) {
 }
 
 
-function correctedTapeRender() {
-    const coil = getField("coil");
+function tapeCorrectedRender() {
+    const coilK = getField("coilCorrected");
 
     const tape = getField("tapeCorrected");
     if (!tape){
@@ -655,7 +655,7 @@ function correctedTapeRender() {
     }
     const [coilR, coilL] = tape;
 
-    const n = coil.x.length
+    const n = coilK.x.length
 
     const vertices = [];
     const indices  = [];
@@ -673,7 +673,7 @@ function correctedTapeRender() {
             indices.push(j * 2 - 2); indices.push(j * 2 - 1); indices.push(j * 2 + 0);
             indices.push(j * 2 - 1); indices.push(j * 2 + 1); indices.push(j * 2 + 0);
         }
-        shift += coil.fi[n - 1]
+        shift += coilK.fi[n - 1]
     }
 
     return [vertices, indices];
@@ -854,22 +854,22 @@ function patternsCalc() {
 
 // Correct coils
 
-function getCorrectedCoil() {
+function coilCorrectedGet() {
     const coil = getField("coil");
-    const correctedCoil = getField("correctedCoil");
-    if (!correctedCoil){
+    const coilCorrected = getField("coilCorrected");
+    if (!coilCorrected){
         return undefined;
     }
 
-    correctedCoil["x"] = coil["x"];
-    correctedCoil["r"] = coil["r"];
+    coilCorrected["x"] = coil["x"];
+    coilCorrected["r"] = coil["r"];
 
-    return correctedCoil;
+    return coilCorrected;
 }
 
-function correctedCoilDraw() {
+function coilCorrectedDraw() {
     removeMesh(window.correctedCoilMesh);
-    window.correctedCoilMesh = addLine(coilRender(getCorrectedCoil()));
+    window.correctedCoilMesh = addLine(coilRender(coilCorrectedGet()));
 }
 
 document.getElementById('correctCoil').addEventListener(
@@ -881,14 +881,14 @@ document.getElementById('correctCoil').addEventListener(
 
         lambdaCall("conte", [vessel_data, coil])
             .then(res => {
-                setField("correctedCoil", {
+                setField("coilCorrected", {
                     fi: res[0],
                     al: res[1],
                 });
-                correctedCoilDraw();
+                coilCorrectedDraw();
                 loaded();
 
-                tapeCalc(getCorrectedCoil(), "tapeCorrected", 0xfea02a);
+                tapeCalc(coilCorrectedGet(), "tapeCorrected");
             })
             .catch(error => {
                 showError(error);
