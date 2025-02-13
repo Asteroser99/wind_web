@@ -614,7 +614,7 @@ function tapeCalc(coil, tapeName, color = 0xffff00) {
 }
 
 function tapeDraw(tapeName, color = 0xffff00) {
-    const render = tapeRender(tapeName)
+    const render = tapeName != "tapeCorrected" ? tapeRender(tapeName) : correctedTapeRender();
     if (!render) return;
     removeMesh(window[tapeName + "Mesh"]);
     window[tapeName + "Mesh"] = addMesh(render, false, color);
@@ -625,10 +625,8 @@ function tapeRender(tapeName) {
     if (!tape){
         return [[], []];
     }
-
-    console.log(tape)
-
     const [coilR, coilL] = tape;
+
     const n = coilR.x.length
 
     const vertices = [];
@@ -648,12 +646,46 @@ function tapeRender(tapeName) {
 }
 
 
+function correctedTapeRender() {
+    const coil = getField("coil");
+
+    const tape = getField("tapeCorrected");
+    if (!tape){
+        return [[], []];
+    }
+    const [coilR, coilL] = tape;
+
+    const n = coil.x.length
+
+    const vertices = [];
+    const indices  = [];
+
+    const fibboSel = fibboGetSelectedValues()
+
+    let j = 0;
+    pushPoint(coilR, j, vertices);
+    pushPoint(coilL, j, vertices);
+
+    for (let round = 0, j = 1, shift = 0.; round < fibboSel["Coils"]; round++) {
+        for (let i = 1; i < n; i++, j++) {
+            pushPoint(coilR, i, vertices, shift);
+            pushPoint(coilL, i, vertices, shift);
+            indices.push(j * 2 - 2); indices.push(j * 2 - 1); indices.push(j * 2 + 0);
+            indices.push(j * 2 - 1); indices.push(j * 2 + 1); indices.push(j * 2 + 0);
+        }
+        shift += coil.fi[n - 1]
+    }
+
+    return [vertices, indices];
+}
+
+
 // Equidestanta
 
-function pushPoint(source, i, vertices){
+function pushPoint(source, i, vertices, shift = 0.){
     const cXi = source.x[i];
-    const cYi = source.r[i] * Math.sin(source.fi[i]);
-    const cZi = source.r[i] * Math.cos(source.fi[i]);
+    const cYi = source.r[i] * Math.sin(source.fi[i] + shift);
+    const cZi = source.r[i] * Math.cos(source.fi[i] + shift);
     vertices.push(cXi, cYi, cZi);
 }
 
@@ -853,7 +885,6 @@ document.getElementById('correctCoil').addEventListener(
                     fi: res[0],
                     al: res[1],
                 });
-                console.log(res);
                 correctedCoilDraw();
                 loaded();
 
