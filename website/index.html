@@ -73,12 +73,14 @@ MeshLine
             </div>
 
             <div id="tabs-content" class="tabs-content active">
-                <div id="tab-vessel" class="tab-content active">
+                <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
                         <h3>Examples</h3>
                         <button id="vesselExample1" class="action-button">Example 1</button>
                         <br>
                         <button id="vesselExample2" class="action-button">Example 2</button>
+                        <br>
+                        <button id="test" class="image-button" title="test">test</button>
                     </div>
 
                     <div id="file-vessel">
@@ -101,21 +103,22 @@ MeshLine
                         <button id="mandrelSwap" class="action-button">Swap</button><br>
                         <button id="mandrelDir" class="action-button">Redirect</button><br>
                         
-                        <p>Smoothing</p>
+                        <h3>Smoothing</h3>
                         <button id="mandrelSmooth" class="action-button">Smooth</button>
                     </div>
 
                     <div id="file-mandrel">
-                        <p>Load CSV</p>
-                        <label for="csv-column" value="1">CSV column:</label>
+                        <h3>Import CSV</h3>
                         <br>
-                        <input type="number" id="csv-column" style="text-align: right;">
+
+                        <label for="csv-column" value="1">Column:</label>
+                        <input type="number" id="csv-column" style="text-align: right; width: 30px">
                         <br>
 
                         <button id="mandrelImportCSV" class="action-button">Import</button>
                         <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
     
-                        <p>Save CSV</p>
+                        <h3>Export CSV</h3>
                         <button id="mandrelExportCSV" class="action-button">Raw</button>
                         <button id="mandrelExportCSVSmoothed" class="action-button">Smoothed</button>
     
@@ -133,7 +136,7 @@ MeshLine
                             style="text-align: right;">
                         <br>
 
-                        <button id="coilCalc"  class="action-button">Generate coil</button>
+                        <button id="coilCalc" class="action-button">Generate coil</button>
                         <!-- <button id="tapeCalc"  class="action-button">Draw Tape</button> -->
                     </div>
 

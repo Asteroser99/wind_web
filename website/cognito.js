@@ -1,8 +1,10 @@
 const clientId    = '760tl57va0f4esqlrn9kdprdqe';
 const domain      = 'https://eu-central-1jasxje83x.auth.eu-central-1.amazoncognito.com';
-const redirectUri = 'https://winding.surge.sh/';
-//const redirectUri = 'http://127.0.0.1:5500/website/';
 const scope       = "email+openid+phone";
+
+const redirectUri = 'https://winding.surge.sh/';
+// const redirectUri = 'http://127.0.0.1:5500/website/';
+// const redirectUri = `${window.location.origin}${window.location.pathname}`;
 
 const poolData = {
     UserPoolId: 'eu-central-1_jaSxje83x',
@@ -80,7 +82,10 @@ function cognitoOnLoad() {
       // remove code from url
       const urlParams = new URLSearchParams(window.location.search);
       urlParams.delete('code');
-      const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
+      const strUrlParams = urlParams.toString();
+      if (strUrlParams.length > 0) strUrlParams = "?" + strUrlParams;
+
+      const newUrl = `${window.location.origin}${window.location.pathname}${strUrlParams}`;
       window.history.replaceState(null, '', newUrl);
 
     }).catch((error) => {

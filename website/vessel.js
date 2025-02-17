@@ -146,15 +146,28 @@ function loadFromYaml(yamlString){
 // lambdaCall
 
 function lambdaCall(name, param) {
-    const path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
-    const accessToken = localStorage.getItem('accessToken'); // Получаем токен из локального хранилища
+    let path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
 
+    const origin = window.location.origin;
+    if(origin == "http://127.0.0.1:5500"){ // local web server
+        path = 'http://127.0.0.1:5000/';   // local flask server
+    }
+
+    const accessToken = localStorage.getItem('accessToken'); // Получаем токен из локального хранилища
     const headers = {
         headers: {
             auth: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
         },
     }
+
+    // return fetch(
+    //     path + name, {
+    //         method: 'POST',
+    //         headers,
+    //         body: JSON.stringify(param)
+    //     }
+    // )
 
     return axios.post(
         path + name,
@@ -169,6 +182,20 @@ function lambdaCall(name, param) {
             showError(error);
         });
 }
+
+document.getElementById('test').addEventListener(
+    'click', () => {
+        loading();
+        lambdaCall("helloWorld", [0., "1", 2])
+        .then((res) => {
+            console.log(res);
+            loaded();
+        })
+        .catch(error => {
+            showError(error);
+        });
+    }
+);
 
 
 // Mandrel
@@ -335,6 +362,7 @@ document.getElementById('mandrelExportCSVSmoothed').addEventListener(
 function mandrelGet(isSmoothed = null){
     if (isSmoothed == null){
         let mandrel = getField("smoothed");
+
         if (mandrel)
             return {mandrel, isSmoothed: true};
         
@@ -410,114 +438,100 @@ function mandrelDraw() {
 // mandrel transformation
 
 // reverse
-
 document.getElementById('mandrelReverse').addEventListener(
-    'click', () => { mandrelReverseOnClick(); }
-);
-
-function mandrelReverseOnClick() {
-    const mandrel = getField("mandrel");
-    if (mandrel == undefined){
-        return null;
-    }
-    let { x, r } = mandrel;
-
-    x = x.map(value => -value);
+    'click', () => {
+        const { mandrel, isSmoothed } = mandrelGet();
+        if (mandrel == undefined){
+            return null;
+        }
+        let { x, r } = mandrel;
     
-    setField("mandrel", { x, r });
-
-    SetPole();
-    mandrelDraw();
-}
+        x = x.map(value => -value);
+        
+        setField((isSmoothed ? "smoothed" : "mandrel"), { x, r });
+    
+        SetPole();
+        mandrelDraw();
+    }
+);
 
 // mirror
-
 document.getElementById('mandrelMirror').addEventListener(
-    'click', () => { mandrelMirrorOnClick(); }
-);
-
-function mandrelMirrorOnClick() {
-    const mandrel = getField("mandrel");
-    if (mandrel == undefined){
-        return null;
-    }
-    let { x, r } = mandrel;
-
-    // 1. shift X to 0
-    const shiftValue = x[0];
-    const xSh = x.map(val => val - shiftValue);
-
-    // 2. mirror by Y
-    const xReflected = xSh.map((val, index) => (index === 0 ? val : -val)).reverse().slice(0, xSh.length - 1);
-    const rReflected = [...r].reverse().slice(0, r.length - 1);
+    'click', () => {
+        const { mandrel, isSmoothed } = mandrelGet();
+        if (mandrel == undefined){
+            return null;
+        }
+        let { x, r } = mandrel;
     
-    // 3. combine halfs
-    x = [...xReflected, ...xSh];
-    r = [...rReflected, ...r];
-
-    setField("mandrel", { x, r });
-
-    SetPole();
-    mandrelDraw();
-}
+        // 1. shift X to 0
+        const shiftValue = x[0];
+        const xSh = x.map(val => val - shiftValue);
+    
+        // 2. mirror by Y
+        const xReflected = xSh.map((val, index) => (index === 0 ? val : -val)).reverse().slice(0, xSh.length - 1);
+        const rReflected = [...r].reverse().slice(0, r.length - 1);
+        
+        // 3. combine halfs
+        x = [...xReflected, ...xSh];
+        r = [...rReflected, ...r];
+    
+        setField((isSmoothed ? "smoothed" : "mandrel"), { x, r });
+    
+        SetPole();
+        mandrelDraw();
+    }
+);
 
 // swap
-
 document.getElementById('mandrelSwap').addEventListener(
-    'click', () => { mandrelSwapOnClick(); }
-);
-
-function mandrelSwapOnClick() {
-    const mandrel = getField("mandrel");
-    if (mandrel == undefined){
-        return null;
+    'click', () => {
+        const { mandrel, isSmoothed } = mandrelGet();
+        if (mandrel == undefined){
+            return null;
+        }
+        let { x, r } = mandrel;
+    
+        setField((isSmoothed ? "smoothed" : "mandrel"), { x: r, r: x });
+    
+        SetPole();
+        mandrelDraw();
     }
-    let { x, r } = mandrel;
-
-    setField("mandrel", { x: r, r: x });
-
-    SetPole();
-    mandrelDraw();
-}
+);
 
 // reDir
-
 document.getElementById('mandrelDir').addEventListener(
-    'click', () => { mandrelDirOnClick(); }
-);
-
-function mandrelDirOnClick() {
-    const mandrel = getField("mandrel");
-    if (mandrel == undefined){
-        return null;
+    'click', () => {
+        const { mandrel, isSmoothed } = mandrelGet();
+        if (mandrel == undefined){
+            return null;
+        }
+        let { x, r } = mandrel;
+    
+        setField((isSmoothed ? "smoothed" : "mandrel"), { x: x.reverse(), r: r.reverse() });
+    
+        SetPole();
+        mandrelDraw();
     }
-    let { x, r } = mandrel;
-
-    setField("mandrel", { x: x.reverse(), r: r.reverse() });
-
-    SetPole();
-    mandrelDraw();
-}
+);
 
 
 // smooth
 
 document.getElementById('mandrelSmooth').addEventListener(
-    'click', () => { mandrelSmoothOnClick(); }
+    'click', () => {
+        loading();
+
+        mandrelSmooth()
+            .then(() => {
+                mandrelDraw()
+                loaded();
+            })
+            .catch(error => {
+                showError(error);
+            });
+    }
 );
-
-function mandrelSmoothOnClick() {
-    loading();
-
-    mandrelSmooth()
-        .then(() => {
-            mandrelDraw()
-            loaded();
-        })
-        .catch(error => {
-            showError(error);
-        });
-}
 
 function mandrelSmooth() {
     const mandrel = getField("mandrel");
@@ -576,7 +590,7 @@ function coilRender(coil) {
     const indices = [];
 
     for (let i = 0; i < n; i++) {
-        pushPoint(coil, i, vertices);
+        pointXYZ(coil, i, vertices);
 
         if (i > 0) {
             indices.push(i - 1);
@@ -614,27 +628,36 @@ function tapeCalc(coil, tapeName, color = 0xffff00) {
 }
 
 function tapeDraw(tapeName, color = 0xffff00) {
-    const render = tapeName != "tapeCorrected" ? tapeRender(tapeName) : tapeCorrectedRender();
+    // const render = tapeName != "tapeCorrected" ? tapeRender(tapeName) : tapeCorrectedRender();
+    const render = tapeRender(tapeName);
     if (!render) return;
     removeMesh(window[tapeName + "Mesh"]);
     window[tapeName + "Mesh"] = addMesh(render, false, color);
 }
 
-function tapeRender(tapeName) {
+function tapeRender(tapeName, mode = "first") {
+    // mode: "first" | "round" | "all"
+
+    const coil = getField(tapeName.replace("tape", "coil"));
+    
     const tape = getField(tapeName);
     if (!tape){
         return [[], []];
     }
     const [coilR, coilL] = tape;
 
-    const n = coilR.x.length
+    const n = coil.x.length
 
     const vertices = [];
     const indices  = [];
 
+    if (mode != "first"){
+        const fibboSel = fibboGetSelectedValues()
+    }
+
     for (let i = 0; i < n; i++) {
-        pushPoint(coilR, i, vertices);
-        pushPoint(coilL, i, vertices);
+        pointXYZ(coilR, i, vertices);
+        pointXYZ(coilL, i, vertices);
 
         if (i > 0) {
             indices.push(i * 2 - 2); indices.push(i * 2 - 1); indices.push(i * 2 + 0);
@@ -663,13 +686,13 @@ function tapeCorrectedRender() {
     const fibboSel = fibboGetSelectedValues()
 
     let j = 0;
-    pushPoint(coilR, j, vertices);
-    pushPoint(coilL, j, vertices);
+    pointXYZ(coilR, j, vertices);
+    pointXYZ(coilL, j, vertices);
 
     for (let round = 0, j = 1, shift = 0.; round < fibboSel["Coils"]; round++) {
         for (let i = 1; i < n; i++, j++) {
-            pushPoint(coilR, i, vertices, shift);
-            pushPoint(coilL, i, vertices, shift);
+            pointXYZ(coilR, i, vertices, shift);
+            pointXYZ(coilL, i, vertices, shift);
             indices.push(j * 2 - 2); indices.push(j * 2 - 1); indices.push(j * 2 + 0);
             indices.push(j * 2 - 1); indices.push(j * 2 + 1); indices.push(j * 2 + 0);
         }
@@ -682,10 +705,32 @@ function tapeCorrectedRender() {
 
 // Equidestanta
 
-function pushPoint(source, i, vertices, shift = 0.){
-    const cXi = source.x[i];
-    const cYi = source.r[i] * Math.sin(source.fi[i] + shift);
-    const cZi = source.r[i] * Math.cos(source.fi[i] + shift);
+function getBetaI(x, r, i){
+    let j = i;
+
+    if (i == 0         ) j = i + 1;
+    if (i == len(x) - 1) j = i - 1;
+
+    let beta = Math.atan((r[j] - r[j-1]) / (x[j] - x[j-1]));
+
+    if (Math.abs(beta) < 0.001) beta = 0.0;
+
+    return beta;
+}
+
+function pointXYZ(coil, i, vertices, fiShift = 0., th = 0.){
+    let sb = 0., cb = 0.;
+
+    if (th != 0.) {
+        bi = getBetaI(coil["x"], coil["r"], i);
+        sb = np.sin(bi);
+        cb = np.cos(bi);
+    };
+
+    const cXi = coil.x[i];
+    const cYi = coil.r[i] * Math.sin(coil.fi[i] + fiShift);
+    const cZi = coil.r[i] * Math.cos(coil.fi[i] + fiShift);
+
     vertices.push(cXi, cYi, cZi);
 }
 
@@ -700,16 +745,16 @@ function getT(begin=0, end=0, long = false){
         const j = (i - begin) * pN;
 
         const pCoil = j + 0;
-        pushPoint(window.animateCoil, i, vertices);
+        pointXYZ(window.animateCoil, i, vertices);
 
         const pEqd  = j + 1;
-        pushPoint(window.animateEqd, i, vertices);
+        pointXYZ(window.animateEqd, i, vertices);
 
         const pTL = j + 2;
-        pushPoint(window.animateRolley0, i, vertices);
+        pointXYZ(window.animateRolley0, i, vertices);
 
         const pTR = j + 3;
-        pushPoint(window.animateRolley1, i, vertices);
+        pointXYZ(window.animateRolley1, i, vertices);
 
         if (long && i > 0) {
             indices.push(pEqd - pN); indices.push(pEqd);
@@ -872,29 +917,29 @@ function coilCorrectedDraw() {
     window.correctedCoilMesh = addLine(coilRender(coilCorrectedGet()));
 }
 
-document.getElementById('correctCoil').addEventListener(
-    'click', () => {
-        loading();
+document.getElementById('correctCoil').addEventListener('click', () => {
+    loading();
 
-        const vessel_data = getVesselData();
-        const coil = getField("coil");
+    const vessel_data = getVesselData();
+    const coil = getField("coil");
 
-        lambdaCall("conte", [vessel_data, coil])
-            .then(res => {
-                setField("coilCorrected", {
-                    fi: res[0],
-                    al: res[1],
-                });
-                coilCorrectedDraw();
-                loaded();
-
-                tapeCalc(coilCorrectedGet(), "tapeCorrected");
-            })
-            .catch(error => {
-                showError(error);
+    lambdaCall("conte", [vessel_data, coil])
+        .then(res => {
+            setField("coilCorrected", {
+                fi: res[0],
+                al: res[1],
             });
-    }
-);
+
+            coilCorrectedDraw();
+
+            loaded();
+
+            tapeCalc(coilCorrectedGet(), "tapeCorrected");
+        })
+        .catch(error => {
+            showError(error);
+        });
+});
 
 
 // ALL

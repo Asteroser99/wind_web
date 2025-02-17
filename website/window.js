@@ -51,7 +51,7 @@ export function openTab(tabId) {
     const activeTab  = document.querySelector('.tab-content.active' );
     const activeTabs = document.querySelector('.tabs-content.active');
 
-    if (activeTab.id == "tab-" + tabId && activeTabs) hideIt = true;
+    if (activeTab && activeTab.id == "tab-" + tabId && activeTabs) hideIt = true;
 
     document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
