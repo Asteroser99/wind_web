@@ -130,7 +130,6 @@ function vesselLoadOnFileLoad(event) {
     setVessel(loadFromYaml(event.target.result));
     drawAll()
 }
-
 function loadFromYaml(yamlString){
     let parsedData = null;
     try {
@@ -140,7 +139,6 @@ function loadFromYaml(yamlString){
     }
     return parsedData;
 }
-
 
 
 // lambdaCall
@@ -638,13 +636,18 @@ function tapeDraw(tapeName, color = 0xffff00) {
     const render = tapeRender(tapeName);
     if (!render) return;
     removeMesh(window[tapeName + "Mesh"]);
-    window[tapeName + "Mesh"] = addMesh(render, false, color);
+    window[tapeName + "Line"] = addLine([render[0], render[1]], color = 0xd38629);
+    window[tapeName + "Mesh"] = addMesh([render[0], render[2]], false, color = 0xffff00);
 }
+
 
 function tapeRender(tapeName, mode = "first") {
     // mode: "first" | "round" | "all"
 
-    const coil = getField(tapeName.replace("tape", "coil"));
+    // console.log(mode);
+
+    const coil = tapeName == "tape" ? getField("coil") : coilCorrectedGet();
+    const n = coil.x.length;
     
     const tape = getField(tapeName);
     if (!tape){
@@ -652,60 +655,46 @@ function tapeRender(tapeName, mode = "first") {
     }
     const [coilR, coilL] = tape;
 
-    const n = coil.x.length
-
     const vertices = [];
-    const indices  = [];
+    const indLine  = [];
+    const indPlain = [];
 
-    if (mode != "first"){
+    // let Coils = 1
+    // if (mode != "first"){
         const fibboSel = fibboGetSelectedValues()
-    }
+        let Coils = fibboSel["Coils"]
 
-    for (let i = 0; i < n; i++) {
-        pointXYZ(coilR, i, vertices);
-        pointXYZ(coilL, i, vertices);
+        console.log(fibboSel, Coils)
+    // }
 
-        if (i > 0) {
-            indices.push(i * 2 - 2); indices.push(i * 2 - 1); indices.push(i * 2 + 0);
-            indices.push(i * 2 - 1); indices.push(i * 2 + 1); indices.push(i * 2 + 0);
-        }
-    }
+    const th = 0.05, thd = th / n;
 
-    return [vertices, indices];
-}
+    let i = 0, j = 0;
+    pointXYZ(coilR, i, vertices);
+    pointXYZ(coilL, i, vertices);
 
+    j++;
+    for (let round = 0, fiShift = 0., thi = th; round < Coils; round++) {
 
-function tapeCorrectedRender() {
-    const coilK = getField("coilCorrected");
+        // console.log("( round", round);
 
-    const tape = getField("tapeCorrected");
-    if (!tape){
-        return [[], []];
-    }
-    const [coilR, coilL] = tape;
+        for (i = 1; i < n; i++, j++, thi += thd) {
+            pointXYZ(coilR, i, vertices, fiShift, thi);
+            pointXYZ(coilL, i, vertices, fiShift, thi);
 
-    const n = coilK.x.length
+            indLine .push(j * 2 - 2); indLine .push(j * 2 + 0);
+            indLine .push(j * 2 - 1); indLine .push(j * 2 + 1);
 
-    const vertices = [];
-    const indices  = [];
+            indPlain.push(j * 2 - 2); indPlain.push(j * 2 - 1); indPlain.push(j * 2 + 0);
+            indPlain.push(j * 2 - 1); indPlain.push(j * 2 + 1); indPlain.push(j * 2 + 0);
+        };
 
-    const fibboSel = fibboGetSelectedValues()
+        fiShift += coil.fi[n - 1];
 
-    let j = 0;
-    pointXYZ(coilR, j, vertices);
-    pointXYZ(coilL, j, vertices);
+        // console.log(") round", round);
+    };
 
-    for (let round = 0, j = 1, shift = 0.; round < fibboSel["Coils"]; round++) {
-        for (let i = 1; i < n; i++, j++) {
-            pointXYZ(coilR, i, vertices, shift);
-            pointXYZ(coilL, i, vertices, shift);
-            indices.push(j * 2 - 2); indices.push(j * 2 - 1); indices.push(j * 2 + 0);
-            indices.push(j * 2 - 1); indices.push(j * 2 + 1); indices.push(j * 2 + 0);
-        }
-        shift += coilK.fi[n - 1]
-    }
-
-    return [vertices, indices];
+    return [vertices, indLine, indPlain];
 }
 
 
@@ -714,8 +703,8 @@ function tapeCorrectedRender() {
 function getBetaI(x, r, i){
     let j = i;
 
-    if (i == 0         ) j = i + 1;
-    if (i == len(x) - 1) j = i - 1;
+    if (i == 0           ) j = i + 1;
+    if (i == x.length - 1) j = i - 1;
 
     let beta = Math.atan((r[j] - r[j-1]) / (x[j] - x[j-1]));
 
@@ -725,17 +714,21 @@ function getBetaI(x, r, i){
 }
 
 function pointXYZ(coil, i, vertices, fiShift = 0., th = 0.){
-    let sb = 0., cb = 0.;
+    let sbth = 0., cbth = 0.;
+
+    // if (i < 5) console.log(i, th)
 
     if (th != 0.) {
-        bi = getBetaI(coil["x"], coil["r"], i);
-        sb = np.sin(bi);
-        cb = np.cos(bi);
+        const bi = getBetaI(coil["x"], coil["r"], i);
+        sbth = th * Math.sin(bi);
+        cbth = th * Math.cos(bi);
     };
 
-    const cXi = coil.x[i];
-    const cYi = coil.r[i] * Math.sin(coil.fi[i] + fiShift);
-    const cZi = coil.r[i] * Math.cos(coil.fi[i] + fiShift);
+    const fi  = coil.fi[i] + fiShift;
+
+    const cXi = (coil.x[i] - sbth);
+    const cYi = (coil.r[i] + cbth) * Math.sin(fi);
+    const cZi = (coil.r[i] + cbth) * Math.cos(fi);
 
     vertices.push(cXi, cYi, cZi);
 }
@@ -953,8 +946,9 @@ document.getElementById('correctCoil').addEventListener('click', () => {
 function drawAll() {
     mandrelDraw();
     coilDraw();
-    tapeDraw("tape");
-    equidDraw();
+    // tapeDraw("tape");
+    tapeDraw("tapeCorrected");
+    // equidDraw();
 }
 
 
