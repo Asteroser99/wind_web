@@ -133,7 +133,7 @@ function drawPattern() {
     pContext.arc(0, 0, rd / 2., 0, 2 * Math.PI);
     pContext.stroke();
 
-    const coil = getField("coil");
+    const coil = coilGet("Initial");
     if (coil == undefined) return;
     let { x, r, fi, al } = coil;
 

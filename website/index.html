@@ -120,6 +120,7 @@ MeshLine
     
                         <h3>Export CSV</h3>
                         <button id="mandrelExportCSV" class="action-button">Raw</button>
+                        <br>
                         <button id="mandrelExportCSVSmoothed" class="action-button">Smoothed</button>
     
                     </div>
@@ -193,9 +194,18 @@ MeshLine
             </div>
 
             <div id="scene-canvas-div" class="static-content active">
-                <div class="animateControls">
-                    <button id="animateButton" class="toggle-button"></button>
-                    <input type="range" id="animateSlider" min="0" max="100" step="1" value="0">
+                <div>
+                    <div class="animateControls">
+                        <div class="modebar">
+                            <button class="mode-button active" data-mode="first">First coil</button>
+                            <button class="mode-button" data-mode="round">First round</button>
+                            <button class="mode-button" data-mode="all">Full winding</button>
+                        </div>
+                        <div class="player-bar">
+                            <button id="animateButton" class="toggle-button"></button>
+                            <input type="range" id="animateSlider" min="0" max="100" step="1" value="0">
+                        </div>
+                    </div>
                 </div>
                 <canvas id="scene-canvas"></canvas>
             </div>

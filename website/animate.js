@@ -1,5 +1,5 @@
 // let animateSlider = document.getElementById("animateSlider");
-// animateSlider.addEventListener("input", () => window.angle = parseFloat(animateSlider.value));
+// animateSlider.addEventListener("input", () => window.animateAngle = parseFloat(animateSlider.value));
 
 const animateButton = document.getElementById("animateButton");
 animateButton.addEventListener("click", () => {
@@ -14,12 +14,23 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
+
 function animateOnLoad(){
     window.animateAuto = false;
-    window.angle = 0;
+    window.animateAngle = 0;
 
-    // window.angle += 0.01;
-    // animateSlider.value = window.angle;
+    const buttons = document.querySelectorAll(".mode-button");
+    buttons.forEach(button => {
+        button.addEventListener("click", () => {
+            buttons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+            setField("windingMode", button.getAttribute("data-mode"));
+            coilDraws();
+        });
+    });
+
+    // window.animateAngle += 0.01;
+    // animateSlider.value = window.animateAngle;
     // if (window.animateAuto) {
     //     requestAnimationFrame(animateOnLoad);
     // }

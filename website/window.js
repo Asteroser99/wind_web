@@ -186,8 +186,8 @@ function showError(error) {
         // && error.response && error.response.status === 401
     ) {
         message = "Session expired or network error<br>Try to relogin";
-    } else if (error.code === "ERR_BAD_RESPONSE" && error.name === "AxiosError"
-        && error.response && error.response.status === 500
+    } else if (error.name === "AxiosError" // error.code === "ERR_BAD_RESPONSE" && 
+        && error.response && error.response.status != 200
         && error.response.data
     ) {
         message = error.response.data.replaceAll("\n", "<br>");

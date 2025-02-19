@@ -335,8 +335,8 @@ function addFloor() {
   return mesh;
 }
 
-function fromfile() {
-  const loader = new GLTFLoader().setPath('scene/');
+function addMeshfromfile() {
+  const loader = new GLTFLoader().setPath('img/');
   loader.load('scene.gltf', (gltf) => {
     const mesh = gltf.scene;
 
@@ -401,7 +401,7 @@ function addBox() {
   scene.add(cube);
 }
 
-function addMesh([vertices, indices], setScale = false, color = 0x4444FF) {
+function addMesh([vertices, indices], color = 0x4444FF, setScale = false) {
   if (vertices.length == 0) {
     return
   }
@@ -649,8 +649,6 @@ function animate(timestamp) {
   // cube.rotation.x += 0.01;
   // cube.rotation.y += 0.01;
 
-  // coilMesh.rotation.x += 0.01;
-
   // timestamp
   if (window.animate && timestamp - window.animateUpdateTime > 100) {
     window.animateUpdateTime = timestamp;
@@ -667,12 +665,26 @@ function animate(timestamp) {
   
     const fi = window.animateEqd.fi[window.animateIndex]
   
-    if (window.coilMesh)
-      window.coilMesh.rotation.x = fi;
+    if (window.coilInitialLine)
+      window.coilInitialLine.rotation.x = fi;
   
-    if (window.tapeMesh)
-      window.tapeMesh.rotation.x = fi;
+    if (window.tapeInitialMesh)
+      window.tapeInitialMesh.rotation.x = fi;
   
+    if (window.tapeInitialLine)
+      window.tapeInitialLine.rotation.x = fi;
+
+    
+    if (window.coilCorrectedLine)
+      window.coilCorrectedLine.rotation.x = fi;
+  
+    if (window.tapeCorrectedMesh)
+      window.tapeCorrectedMesh.rotation.x = fi;
+  
+    if (window.tapeCorrectedLine)
+      window.tapeCorrectedLine.rotation.x = fi;
+  
+
     if (window.equidMesh)
       window.equidMesh.rotation.x = fi;
 
