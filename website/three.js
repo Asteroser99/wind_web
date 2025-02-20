@@ -686,11 +686,14 @@ function animate(timestamp) {
   
 
     if (window.equidMesh)
-      window.equidMesh.rotation.x = fi;
+      window.equidMesh.rotation.x = 0.0;
 
     if (window.rolleyMesh)
       rolleyUpdate(window.animateIndex);
-      window.rolleyMesh.rotation.x = fi;
+      window.rolleyMesh.rotation.x = 0.0;
+
+
+
   }
 
   controls.update();
