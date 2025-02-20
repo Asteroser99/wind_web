@@ -73,59 +73,62 @@ MeshLine
             </div>
 
             <div id="tabs-content" class="tabs-content active">
+
+                <!-- Vessel -->
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
                         <h3>Examples</h3>
-                        <button id="vesselExample1" class="action-button">Example 1</button>
-                        <br>
-                        <button id="vesselExample2" class="action-button">Example 2</button>
-                        <br>
-                        <button id="test" class="image-button" title="test">test</button>
+                        <button id="vesselExample1" class="image-button" title="Load Example 1"><img src="./img/load.png">&nbsp;Example 1</button><br>
+                        <button id="vesselExample2" class="image-button" title="Load Example 2"><img src="./img/load.png">&nbsp;Example 2</button><br>
+                        <!-- <button id="test" class="image-button" title="test">test</button> -->
                     </div>
 
                     <div id="file-vessel">
-                        <button id="vesselSave" class="image-button" title="Save all data"><img src="./img/save.png"></button>
-                        <button id="vesselLoad" class="image-button" title="Load all data"><img src="./img/load.png"></button>
-                        <input id="vesselLoadInput" type="file" accept=".yaml" style="display: none;" />
-                        <br>
+                        <button id="vesselSave" class="image-button" title="Save session">Save session&nbsp;<img src="./img/save.png"></button><br>
 
-                        <button id="clear" class="action-button">Clear all</button>
+                        <button id="vesselLoad" class="image-button" title="Load session">Load session&nbsp;<img src="./img/load.png"></button><br>
+                        <input id="vesselLoadInput" type="file" accept=".yaml" style="display: none;" />
+
+                        <button id="vesselClear" class="image-button" title="Clear session">Clear session&nbsp;<img src="./img/clear.png"></button>
                     </div>
                 </div>
 
+                <!-- Mandrel -->
                 <div id="tab-mandrel" class="tab-content">
-                    <h2>Mandrel</h2>
-
-                    <div id="actions-mandrel">
+                    <div id="actions-mandrel" style="background: rgba(256, 256, 256, 0.9);">
                         <h3>Transformation</h3>
-                        <button id="mandrelReverse" class="action-button">Reverse</button><br>
-                        <button id="mandrelMirror" class="action-button">Mirror</button><br>
-                        <button id="mandrelSwap" class="action-button">Swap</button><br>
-                        <button id="mandrelDir" class="action-button">Redirect</button><br>
+                        <button id="mandrelReverse" class="image-button" title="Reverse"><img src="./img/transform.png">&nbsp;Reverse</button><br>
+                        <button id="mandrelMirror" class="image-button" title="Mirror"><img src="./img/transform.png">&nbsp;Mirror</button><br>
+                        <button id="mandrelSwap" class="image-button" title="Swap"><img src="./img/transform.png">&nbsp;Swap</button><br>
+                        <button id="mandrelRedirect" class="image-button" title="Redirect"><img src="./img/transform.png">&nbsp;Redirect</button><br>
                         
                         <h3>Smoothing</h3>
-                        <button id="mandrelSmooth" class="action-button">Smooth</button>
+                        <button id="mandrelSmooth" class="image-button" title="Smooth raw mandrel"><img src="./img/calc.png">&nbsp;Smooth</button><br>
                     </div>
 
-                    <div id="file-mandrel">
-                        <h3>Import CSV</h3>
+                    <div id="file-mandrel" style="background: rgba(256, 256, 256, 0.9);">
+                        <h2>CSV</h2>
+                        <h3>Import/Export</h3>
                         <br>
 
-                        <label for="csv-column" value="1">Column:</label>
-                        <input type="number" id="csv-column" style="text-align: right; width: 30px">
-                        <br>
+                        <div>
+                            <label for="csv-column" value="1">Column:</label>
+                            <input type="number" id="csv-column" style="text-align: right; width: 30px">
+                            <br>
 
-                        <button id="mandrelImportCSV" class="action-button">Import</button>
-                        <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
-    
-                        <h3>Export CSV</h3>
-                        <button id="mandrelExportCSV" class="action-button">Raw</button>
-                        <br>
-                        <button id="mandrelExportCSVSmoothed" class="action-button">Smoothed</button>
+                            <button id="mandrelImportCSV" class="image-button" title="Raw mandrel import">Import&nbsp;<img src="./img/load.png"></button>
+                            <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
+                            <br>
+
+                            <button id="mandrelExportCSV" class="image-button" title="Raw mandrel export">Raw&nbsp;<img src="./img/save.png"></button>
+                            <br>
+                            <button id="mandrelExportCSVSmoothed" class="image-button" title="Smoothed mandrel export">Smoothed&nbsp;<img src="./img/save.png"></button>
+                        </div>
     
                     </div>
                 </div>
 
+                <!-- Coil -->
                 <div id="tab-coil" class="tab-content">
                     <div id="actions-coil">
                         <h3>Coil</h3>
@@ -137,22 +140,18 @@ MeshLine
                             style="text-align: right;">
                         <br>
 
-                        <button id="coilCalc" class="action-button">Generate coil</button>
-                        <!-- <button id="tapeCalc"  class="action-button">Draw Tape</button> -->
+                        <button id="coilCalc" class="image-button" title="Generate coil"><img src="./img/calc.png">&nbsp;Generate coil</button><br>
                     </div>
 
                     <div id="file-coil">
+                        <button id="coilLoad" class="image-button" title="Load coil from yaml file">Load coil&nbsp;<img src="./img/load.png"></button>
                         <input id="coilLoadInput" type="file" accept=".yaml" style="display: none;" />
-                        <button id="coilLoad" class="image-button" title="Load coil"><img src="./img/load.png"></button>
                     </div>
                 </div>
 
+                <!-- Patterns -->
                 <div id="tab-patterns" class="tab-content">
-                    <h2>Pattern</h2>
-                    <p>Pattern configuration</p>
-
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
-
                     <table id="data-table">
                         <thead>
                             <tr>
@@ -165,16 +164,18 @@ MeshLine
                     </table>
 
                     <div id="actions-patterns">
-                        <button id="correctCoil" class="action-button">Correct coil</button>
+                        <button id="coilCorrect" class="image-button" title="Correct coil"><img src="./img/calc.png">&nbsp;Correct coil</button><br>
                     </div>
                 </div>
 
+                <!-- Winding -->
                 <div id="tab-winding" class="tab-content">
                     <div id="actions-winding">
-                        <button id="equidDraw" class="action-button">Generate equidistanta</button>
+                        <button id="equidDraw" class="image-button" title="Wind"><img src="./img/calc.png">&nbsp;Wind</button>
                     </div>
                 </div>
 
+                <!-- Info -->
                 <div id="tab-info" class="tab-content">
                     <h2>Info</h2>
                     <p>This is the info</p>

@@ -186,19 +186,19 @@ function lambdaCall(name, param) {
         });
 }
 
-document.getElementById('test').addEventListener(
-    'click', () => {
-        loading();
-        lambdaCall("helloWorld", [0., "1", 2])
-        .then((res) => {
-            console.log(res);
-            loaded();
-        })
-        .catch(error => {
-            showError(error);
-        });
-    }
-);
+// document.getElementById('test').addEventListener(
+//     'click', () => {
+//         loading();
+//         lambdaCall("helloWorld", [0., "1", 2])
+//         .then((res) => {
+//             console.log(res);
+//             loaded();
+//         })
+//         .catch(error => {
+//             showError(error);
+//         });
+//     }
+// );
 
 
 // Mandrel
@@ -508,7 +508,7 @@ document.getElementById('mandrelSwap').addEventListener(
 );
 
 // reDir
-document.getElementById('mandrelDir').addEventListener(
+document.getElementById('mandrelRedirect').addEventListener(
     'click', () => {
         const { mandrel, isSmoothed } = mandrelGet();
         if (mandrel == undefined){
@@ -973,7 +973,7 @@ function coilGet(suffix) {
 window.coilGet = coilGet
 
 
-document.getElementById('correctCoil').addEventListener('click', () => {
+document.getElementById('coilCorrect').addEventListener('click', () => {
     loading();
 
     const vessel_data = getVesselData();
@@ -1094,7 +1094,7 @@ function vesselloadFromURL(name) {
 
 
 // Clear
-document.getElementById('clear').addEventListener(
+document.getElementById('vesselClear').addEventListener(
     'click', () => {
         clearVessel();
         clearScene();
