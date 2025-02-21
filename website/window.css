@@ -355,6 +355,12 @@ tr.selected {
 }
 
 
+.program-bar {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
 /* error */
 #error-container { 
     position: fixed;

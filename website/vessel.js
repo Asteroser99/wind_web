@@ -755,7 +755,8 @@ function pointXYZ(coil, i, vertices, fiShift = 0., th = 0., rShift = 0.0){
     };
 
     const fi  = coil.fi[i] + fiShift;
-    const r   = coil.r[i] + rShift;
+    const r   = coil.r [i] + rShift ;
+
     const cXi = (coil.x[i] - sbth);
     const cYi = (r + cbth) * Math.sin(fi);
     const cZi = (r + cbth) * Math.cos(fi);
@@ -773,14 +774,14 @@ function getT(begin=0, end=0, long = false){
         const pN = 4; // point count
         const j = (i - begin) * pN;
 
-        const fiShift = -window.animateEqd["fi"][i]
-        const rShift =  -window.animateEqd["r"][i] + 120.
+        const fiShift = (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
+        const rShift  = (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
 
         const pCoil = j + 0;
-        pointXYZ(window.animateCoil, i, vertices, fiShift, 0.0, rShift);
+        pointXYZ(window.animateCoil   , i, vertices, fiShift, 0.0, rShift);
 
         const pEqd  = j + 1;
-        pointXYZ(window.animateEqd, i, vertices, fiShift, 0.0, rShift);
+        pointXYZ(window.animateEqd    , i, vertices, fiShift, 0.0, rShift);
 
         const pTL = j + 2;
         pointXYZ(window.animateRolley0, i, vertices, fiShift, 0.0, rShift);
@@ -792,9 +793,13 @@ function getT(begin=0, end=0, long = false){
             indices.push(pEqd - pN); indices.push(pEqd);
         }
         if (i % 5 == 0) {
-            //indices.push(pCoil); indices.push(pEqd);
-            indices.push(pTL  ); indices.push(pTR )
-            indices.push(pTL  ); indices.push(pTR )
+            if (inputValue('testModeInput') == 0){
+                indices.push(pCoil); indices.push(pEqd);
+                indices.push(pTL  ); indices.push(pTR )
+            } else {
+                indices.push(pTL  ); indices.push(pTR )
+                indices.push(pTL  ); indices.push(pTR )
+            }
         }
     };
 
@@ -865,11 +870,8 @@ function rolleyUpdate(i){
 
     if (window.rolleyMesh0){
         const eqd = window.animateEqd
-        window.rolleyMesh0.rotation.z = -(eqd["al"][i]) + Math.PI*0.5
+        window.rolleyMesh0.rotation.z = -(eqd["al"][i]) + Math.PI * 0.5;
         window.rolleyMesh0.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
-        // console.log(eqd["x"][i])
-
-        // const angleZ = eqd["al"][i]
     }
 
     // if (i == 20){
@@ -881,16 +883,17 @@ function rolleyUpdate(i){
 
     {
         const Fr = scale.y.max * 2;
+        // const Fd = Fr / 8;
 
         const Xi = window.animateEqd.x[i]
         const Yi = 0;
         const Zi = window.animateEqd.r[i]
         
         const vert = [];
-        vert.push(Xi,  Yi, Zi);
-        vert.push(Xi,  Yi, Zi + Fr);
-        vert.push(Xi,  Yi, Fr);
-        vert.push(Xi, -Fr, Fr);
+        vert.push(Xi,  Yi,  Zi);
+        vert.push(Xi,  Yi,  Zi + Fr);
+        vert.push(Xi,  Yi,  Fr);
+        vert.push(Xi, -Fr,  Fr);
         
         const pos = window.carretMesh.geometry.attributes.position;
         pos.array.set(vert);
@@ -919,7 +922,7 @@ function EqudestantaFromCoil() {
         return
     }
 
-    return lambdaCall("equidistantaRolley", [coilCorrected])
+    return lambdaCall("equidistantaRolley", [coilCorrected, inputValue('safetyRInput')])
         .then(res => {
             if(!res) throw new Error("Empty lambdaCall result");
             setField("equidistanta", res[0]);

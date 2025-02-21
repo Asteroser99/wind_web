@@ -195,7 +195,7 @@ function setupScene() {
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.enablePan = false;
+  controls.enablePan = true;
   controls.minDistance = 3;
   controls.maxDistance = 30;
   // controls.minPolarAngle = 0.5;
@@ -664,6 +664,9 @@ function animate(timestamp) {
     }
   
     const fi = window.animateEqd.fi[window.animateIndex]
+
+    const animateText = `i ${window.animateIndex} | x ${window.animateCoil.x[window.animateIndex].toFixed(3)} | fi ${fi.toFixed(3)}`;
+    document.querySelector(".program-p").textContent = animateText;
   
     if (window.coilInitialLine)
       window.coilInitialLine.rotation.x = fi;
@@ -686,14 +689,11 @@ function animate(timestamp) {
   
 
     if (window.equidMesh)
-      window.equidMesh.rotation.x = 0.0;
+      window.equidMesh. rotation.x = (inputValue('testModeInput') == 0 ? fi : 0);
 
     if (window.rolleyMesh)
       rolleyUpdate(window.animateIndex);
-      window.rolleyMesh.rotation.x = 0.0;
-
-
-
+      window.rolleyMesh.rotation.x = (inputValue('testModeInput') == 0 ? fi : 0);
   }
 
   controls.update();
