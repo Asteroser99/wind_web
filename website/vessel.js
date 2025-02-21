@@ -743,7 +743,7 @@ function getBetaI(x, r, i){
     return beta;
 }
 
-function pointXYZ(coil, i, vertices, fiShift = 0., th = 0., rShift = 0.0){
+function pointXYZ(coil, i, vertices, fiShift = 0., th = 0., yShift = 0.0){
     let sbth = 0., cbth = 0.;
 
     // if (i < 5) console.log(i, th)
@@ -755,10 +755,10 @@ function pointXYZ(coil, i, vertices, fiShift = 0., th = 0., rShift = 0.0){
     };
 
     const fi  = coil.fi[i] + fiShift;
-    const r   = coil.r [i] + rShift ;
+    const r   = coil.r [i];
 
     const cXi = (coil.x[i] - sbth);
-    const cYi = (r + cbth) * Math.sin(fi);
+    const cYi = (r + cbth) * Math.sin(fi) + yShift;
     const cZi = (r + cbth) * Math.cos(fi);
 
     vertices.push(cXi, cYi, cZi);
@@ -775,19 +775,19 @@ function getT(begin=0, end=0, long = false){
         const j = (i - begin) * pN;
 
         const fiShift = (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
-        const rShift  = (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
+        const yShift  = (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
 
         const pCoil = j + 0;
-        pointXYZ(window.animateCoil   , i, vertices, fiShift, 0.0, rShift);
+        pointXYZ(window.animateCoil   , i, vertices, fiShift, 0.0, yShift);
 
         const pEqd  = j + 1;
-        pointXYZ(window.animateEqd    , i, vertices, fiShift, 0.0, rShift);
+        pointXYZ(window.animateEqd    , i, vertices, fiShift, 0.0, yShift);
 
         const pTL = j + 2;
-        pointXYZ(window.animateRolley0, i, vertices, fiShift, 0.0, rShift);
+        pointXYZ(window.animateRolley0, i, vertices, fiShift, 0.0, yShift);
 
         const pTR = j + 3;
-        pointXYZ(window.animateRolley1, i, vertices, fiShift, 0.0, rShift);
+        pointXYZ(window.animateRolley1, i, vertices, fiShift, 0.0, yShift);
 
         if (long && i > 0) {
             indices.push(pEqd - pN); indices.push(pEqd);
@@ -870,7 +870,7 @@ function rolleyUpdate(i){
 
     if (window.rolleyMesh0){
         const eqd = window.animateEqd
-        window.rolleyMesh0.rotation.z = -(eqd["al"][i]) + Math.PI * 0.5;
+        window.rolleyMesh0.rotation.z = eqd["al"][i];
         window.rolleyMesh0.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
     }
 

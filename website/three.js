@@ -664,8 +664,14 @@ function animate(timestamp) {
     }
   
     const fi = window.animateEqd.fi[window.animateIndex]
+    const dl = window.animateEqd.al[window.animateIndex]
 
-    const animateText = `i ${window.animateIndex} | x ${window.animateCoil.x[window.animateIndex].toFixed(3)} | fi ${fi.toFixed(3)}`;
+    const animateText = ""
+      + `i ${window.animateIndex} | `
+      + `x ${window.animateCoil.x[window.animateIndex].toFixed(3)} | `
+      + `φ ${fi.toFixed(3)} | `
+      + `Δ ${(dl * 180. / Math.PI).toFixed(0)}`
+    ;
     document.querySelector(".program-p").textContent = animateText;
   
     if (window.coilInitialLine)
