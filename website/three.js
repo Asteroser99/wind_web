@@ -670,7 +670,7 @@ function animate(timestamp) {
       + `i ${window.animateIndex} | `
       + `x ${window.animateCoil.x[window.animateIndex].toFixed(3)} | `
       + `φ ${fi.toFixed(3)} | `
-      + `Δ ${(dl * 180. / Math.PI).toFixed(0)}`
+      + `Δ ${(dl * 180. / Math.PI).toFixed(1)}`
     ;
     document.querySelector(".program-p").textContent = animateText;
   

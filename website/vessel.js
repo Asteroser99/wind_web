@@ -870,7 +870,7 @@ function rolleyUpdate(i){
 
     if (window.rolleyMesh0){
         const eqd = window.animateEqd
-        window.rolleyMesh0.rotation.z = eqd["al"][i];
+        window.rolleyMesh0.rotation.z = eqd["al"][i]; //Math.PI * 0.5 - 
         window.rolleyMesh0.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
     }
 
