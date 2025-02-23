@@ -806,9 +806,53 @@ function getT(begin=0, end=0, long = false){
     return [vertices, indices];
 }
 
+function createBoxWithOctagonHole() {
+    const vertices = [];
+    const indices = [];
+
+    const w = 2, h = 2, d = 2;
+
+    const boxVertices = [
+        [-w, -h, -d], [w, -h, -d], [w, h, -d], [-w, h, -d],  // Задняя грань
+        [-w, -h, d], [w, -h, d], [w, h, d], [-w, h, d],  // Передняя грань
+    ];
+
+    for (let v of boxVertices) vertices.push(...v);
+
+    const boxIndices = [
+        0, 1, 2, 2, 3, 0,  // Задняя грань
+        4, 5, 6, 6, 7, 4,  // Передняя грань
+        0, 1, 5, 5, 4, 0,  // Нижняя грань
+        2, 3, 7, 7, 6, 2,  // Верхняя грань
+        1, 2, 6, 6, 5, 1,  // Правая грань
+        0, 3, 7, 7, 4, 0   // Левая грань
+    ];
+    
+    indices.push(...boxIndices);
+
+    const octagon = [];
+    const radius = 0.5;
+    for (let i = 0; i < 8; i++) {
+        let angle = (Math.PI / 4) * i;
+        octagon.push([Math.cos(angle) * radius, Math.sin(angle) * radius, d]);
+    }
+
+    let startIdx = vertices.length / 3;
+    for (let v of octagon) vertices.push(...v);
+
+    for (let i = 0; i < 8; i++) {
+        indices.push(4, startIdx + i, startIdx + (i + 1) % 8); // Треугольники
+    }
+
+    return [vertices, indices];
+}
+
 function equidDraw(){
     const coilK = coilGet("Corrected");
     const eqd  = getField("equidistanta");
+
+    const Fr = scale.y.max * 2;
+    const Fd = Fr / 100;
 
     if (!coilK || !eqd){
         window.animate = false;
@@ -834,15 +878,77 @@ function equidDraw(){
     };
 
     {
-        removeMesh(window.carretMesh);
+        removeMesh(window.carretLine);
         const vertices = Array(4 * 3).fill(0);
         const indices = [0, 1,  2, 3];
-        window.carretMesh = addLine([vertices, indices], 0x00ff00);
+        window.carretLine = addLine([vertices, indices], 0x00ff00);
     };
 
-    rolleyUpdate(0);
-}
+    {
+        const Xi = 0;
+        const Yi = 0;
+        const Zi = Fr;
 
+        const vert = [];
+        vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 8);
+        vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 8);
+        vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 8);
+        vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 8);
+
+        vert.push(Xi - Fd * 2,  Yi - Fd,  Fr);
+        vert.push(Xi - Fd * 2,  Yi + Fd,  Fr);
+        vert.push(Xi + Fd * 2,  Yi + Fd,  Fr);
+        vert.push(Xi + Fd * 2,  Yi - Fd,  Fr);
+        
+        const indices = [];
+        indices.push(0, 1, 2,  2, 3, 0);
+        indices.push(4, 5, 6,  6, 7, 4);
+
+        indices.push(0, 4, 5,  5, 1, 0);
+        indices.push(1, 5, 6,  6, 2, 1);
+        indices.push(2, 6, 7,  7, 3, 2);
+        indices.push(3, 7, 4,  4, 0, 3);
+
+        removeMesh(window.carretMesh);
+        window.carretMesh = addMesh([vert, indices], 0x00ff00);
+        window.carretMesh.position.z = Zi * scale.factor
+    };
+
+
+    {
+        const Xi = 0;
+        const Yi = 0;
+        const Zi = Fr * 1;
+
+        const vert = [];
+        vert.push(Xi - Fd * 8,  Yi - Fr    ,  Zi - Fd * 4);
+        vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
+        vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
+        vert.push(Xi + Fd * 8,  Yi - Fr    ,  Zi - Fd * 4);
+
+        vert.push(Xi - Fd * 8,  Yi - Fr    ,  Zi + Fd * 4);
+        vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
+        vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
+        vert.push(Xi + Fd * 8,  Yi - Fr    ,  Zi + Fd * 4);
+        
+        const indices = [];
+        indices.push(0, 1, 2,  2, 3, 0);
+        indices.push(4, 5, 6,  6, 7, 4);
+
+        indices.push(0, 4, 5,  5, 1, 0);
+        indices.push(1, 5, 6,  6, 2, 1);
+        indices.push(2, 6, 7,  7, 3, 2);
+        indices.push(3, 7, 4,  4, 0, 3);
+
+        removeMesh(window.standMesh);
+        console.log(window.standMesh)
+        window.standMesh = addMesh([vert, indices], 0x00ff00);
+    }
+
+    
+    rolleyUpdate(0);
+
+}
 
 function addRolley() {
     const bend = 10.
@@ -861,6 +967,8 @@ function addRolley() {
 function rolleyUpdate(i){
     if (!window.scale) return;
 
+    const eqd = window.animateEqd
+
     {
         const rolleyVert = getT(i)[0];
         const pos = window.rolleyMesh.geometry.attributes.position;
@@ -869,14 +977,13 @@ function rolleyUpdate(i){
     }
 
     if (window.rolleyMesh0){
-        const eqd = window.animateEqd
         window.rolleyMesh0.rotation.z = eqd["al"][i]; //Math.PI * 0.5 - 
         window.rolleyMesh0.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
     }
 
     // if (i == 20){
-    //     const angleZ = window.animateEqd["al"][i]
-    //     const RB = addRolley(angleZ, window.animateEqd["x"][i], 0, window.animateEqd["r"][i]);
+    //     const angleZ = eqd["al"][i]
+    //     const RB = addRolley(angleZ, eqd["x"][i], 0, eqd["r"][i]);
     //     console.log(RB);
     // }
 
@@ -885,9 +992,9 @@ function rolleyUpdate(i){
         const Fr = scale.y.max * 2;
         // const Fd = Fr / 8;
 
-        const Xi = window.animateEqd.x[i]
+        const Xi = eqd.x[i]
         const Yi = 0;
-        const Zi = window.animateEqd.r[i]
+        const Zi = eqd.r[i]
         
         const vert = [];
         vert.push(Xi,  Yi,  Zi);
@@ -895,10 +1002,19 @@ function rolleyUpdate(i){
         vert.push(Xi,  Yi,  Fr);
         vert.push(Xi, -Fr,  Fr);
         
-        const pos = window.carretMesh.geometry.attributes.position;
+        const pos = window.carretLine.geometry.attributes.position;
         pos.array.set(vert);
         pos.needsUpdate = true;
+
+        window.carretMesh.position.x = Xi * scale.factor;
+        window.carretMesh.position.z = Zi * scale.factor;
+        window.carretMesh.rotation.z = eqd["al"][i];
+
+
+        window.standMesh.position.x = Xi * scale.factor;
+
     }
+
 }
 window.rolleyUpdate = rolleyUpdate;
 
@@ -1008,6 +1124,41 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
             showError(error);
         });
 });
+
+
+document.getElementById('CNCExport').addEventListener(
+    'click', () => CNCExport()
+);
+
+async function CNCExport() {
+    try {
+        // Проверяем поддержку API
+        if (!window.showSaveFilePicker) {
+            alert("File System Access API is not supported by your browser.");
+            return;
+        }
+
+        // Открываем диалоговое окно выбора места сохранения
+        const handle = await window.showSaveFilePicker({
+            suggestedName: "CNC.txt",
+            types: [
+                {
+                    description: "Text file",
+                    accept: { "text/csv": [".txt"] }
+                }
+            ]
+        });
+
+        // Записываем данные в файл
+        const writable = await handle.createWritable();
+        await writable.write("CNC");
+        await writable.close();
+
+        console.log("Файл успешно сохранен!");
+    } catch (error) {
+        console.error("Ошибка сохранения:", error);
+    }
+}
 
 
 // ALL
