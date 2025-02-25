@@ -18,7 +18,7 @@ body {
     background-color: #9ACBD0;
     color: #23486A;
     font-weight: bold;
-    height: 70px
+    height: 65px
 }
 
 .title {
@@ -28,9 +28,11 @@ body {
     text-align: left;
 }
 
-.logo {
-    padding: 10px 12px;
+.div-logo {
+    padding: 0px;
     background-color: #F2EFE7;
+    width: 65px;
+    height: 100%;
 }
 
 h2 {
@@ -87,6 +89,31 @@ p {
     width: 100%;
 }
 
+
+.head-tab-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid #2973B2;
+    /* width: 100%;
+    height: 100%; */
+
+    padding: 0px;
+    background-color: #9acbd0;
+    width: 65px;
+    min-width: 65px;
+    height: 100%;
+}
+.head-tab-link:hover {
+    background-color: #48A6A7;
+}
+
+.head-tab-link.active {
+    background-color: #2973B2;
+}
+
+
 .tab-container {
     display: flex;
     height: 100%;
@@ -97,7 +124,7 @@ p {
 }
 
 .tabs {
-    width: 74px;
+    width: 65px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -110,7 +137,7 @@ p {
     color: #F2EFE7;
     border: none;
     outline: none;
-    padding: 15px 25px;
+    padding: 15px 21px;
     cursor: pointer;
     text-align: center;
     border: 1px solid #2973B2;
@@ -183,7 +210,7 @@ canvas {
     /* border: 1px solid #9ACBD0; */
     /* background-color: white; */
     /* display: none; */
-    z-index: 999;
+    z-index: 10;
 }
 
 
@@ -198,7 +225,7 @@ canvas {
     /* border: 1px solid #9ACBD0; */
     /* background-color: white; */
     /* display: none; */
-    z-index: 999;
+    z-index: 10;
     text-align: right;
 }
 
@@ -216,7 +243,7 @@ canvas {
     border: 1px solid #9ACBD0;
     background-color: white;
     display: none;
-    z-index: 998;
+    z-index: 5;
 }
 
 #scene-thumbnail {
@@ -298,7 +325,7 @@ tr.selected {
     /* padding: 10px; */
     display: flex;
     /* gap: 10px; */
-    z-index: 10; /* Поверх canvas */
+    z-index: 10;
 
     /* display: flex; */
     flex-direction: column; /*Вертикальное расположение*/
@@ -377,7 +404,7 @@ tr.selected {
     */
     width: 40%;
     text-align: left;
-    z-index: 999;
+    z-index: 20;
 }
 
 #error-close-button { 
@@ -391,4 +418,42 @@ tr.selected {
     margin: 0;
     padding: 0;
     list-style-type: none;
+}
+
+
+#help-container {
+    padding: 10px;
+    box-sizing: border-box;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    /* align-items: center; */
+    /* justify-content: center; */
+    text-align: justify;
+    font-size: 20px;
+    z-index: 30;
+    overflow: auto;
+}
+
+.help-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #9ACBD0;
+    color: white;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+}
+
+.help-close-btn:hover {
+    background: #2973B2;
 }

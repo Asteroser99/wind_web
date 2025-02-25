@@ -44,7 +44,7 @@ function moveButtons(prefix, tabId) {
 }
 
 export function openTab(tabId) {
-    if(!tabId) return;
+    if (!tabId) return;
     setField("page", tabId);
 
     let hideIt = false;
@@ -53,6 +53,7 @@ export function openTab(tabId) {
 
     if (activeTab && activeTab.id == "tab-" + tabId && activeTabs) hideIt = true;
 
+    document.getElementById("button-vessel").classList.remove("active");
     document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
 
@@ -71,9 +72,10 @@ export function openTab(tabId) {
         hideIt = true;
     } else if (tabId == "patterns") {
         contentId = "patterns-canvas-div";
-    } else if (tabId == "info"    ) {
         hideIt = true;
-        contentId = "info-canvas-div";
+    // } else if (tabId == "info"    ) {
+    //     hideIt = true;
+    //     contentId = "info-canvas-div";
     }
     
     document.getElementById("tabs-content").classList.toggle('active', !hideIt);
@@ -85,9 +87,9 @@ export function openTab(tabId) {
     }
 
 
-    // file
-    moveButtons("file", tabId);
+    moveButtons("file"   , tabId);
     moveButtons("actions", tabId);
+    moveButtons("help"   , tabId);
 
 
     // thumbnail
@@ -228,6 +230,22 @@ function windowOnLoad(){
     // const colNumEl = document.getElementById('csv-column');
     // colNumEl.value = 1;
     inputValue('csv-column', 1);
+
+
+    const helpOverlay = document.getElementById("help-container");
+    helpOverlay.style.display = "none"
+    function toggleHelp() {
+        const helpIsOpen = helpOverlay.style.display === "flex"
+        helpOverlay.style.display = helpIsOpen ? "none" : "flex";
+        document.getElementById("file-container"   ).style.display = helpIsOpen ? "flex" : "none";
+        document.getElementById("actions-container").style.display = helpIsOpen ? "flex" : "none";
+    }
+
+    const toggleButton = document.getElementById("toggle-help");
+    toggleButton.addEventListener("click", toggleHelp);
+
+    const closeButton = document.getElementById("close-help");
+    closeButton.addEventListener("click", toggleHelp);
 
 }
 

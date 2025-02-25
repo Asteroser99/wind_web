@@ -131,79 +131,74 @@ function configMandrel() {
 
 function createScatterConfig() {
   return {
-    type: 'scatter', // или 'line'
+    type: "line", // или "scatter"
     data: {
       datasets: [
         {
-          label: 'Raw',
-          data: [
-            // { x: 1, y: 2 },
-            // { x: 2, y: 4 },
-            // { x: 3, y: 6 },
-            // { x: 4, y: 8 },
-          ], // Массив точек с координатами x, y
-          borderColor: '#48A6A7',
-          borderDash: [5, 5], // Пунктирная линия
-          showLine: true, // Отображаем соединяющую линию
-          tension: 0.0, // Сглаживание линии
-          pointRadius: function(context) {
+          label: "Raw",
+          data: [],
+          borderColor: "#48A6A7",
+          borderDash: [5, 5],
+          showLine: true,
+          tension: 0.0,
+          pointRadius: function (context) {
             return context.dataIndex === 0 ? 8 : 4;
           },
         },
         {
-          label: 'Smoothed',
-          data: [
-            // { x: 1, y: 1.5 },
-            // { x: 2, y: 3.5 },
-            // { x: 3, y: 5.5 },
-            // { x: 4, y: 7.5 },
-          ],
-          borderColor: '#2973B2',
-          showLine: true, // Показываем линию
+          label: "Smoothed",
+          data: [],
+          borderColor: "#2973B2",
+          showLine: true,
           tension: 0.0,
-          pointRadius: function(context) {
+          pointRadius: function (context) {
             return context.dataIndex === 0 ? 8 : 4;
           },
-
         },
       ],
     },
     options: {
-      responsive: true,  // График будет адаптироваться к изменениям размера контейнера
-      maintainAspectRatio: false,  // Отключаем сохранение пропорций
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'bottom',
+          position: "bottom",
         },
         zoom: {
-          zoom: {
-            wheel: {
-              enabled: true, // Включаем масштабирование колесиком мыши
-            },
-            pinch: {
-              enabled: true, // Включаем масштабирование с помощью pinch (для сенсорных экранов)
-            },
-            mode: 'xy', // Масштабирование по обеим осям
-          },
+          // limits: {
+          //   x: {min: -200, max: 200, minRange: 50},
+          //   y: {min: -200, max: 200, minRange: 50}
+          // },
           pan: {
             enabled: true, // Включаем панорамирование
-            mode: 'xy', // Панорамирование по обеим осям
+            mode: "xy", // Панорамирование по обеим осям
+            speed: 10, // Чувствительность
+            modifierKey: null, // ОТКЛЮЧАЕМ необходимость зажимать клавишу
+          },
+          zoom: {
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+            mode: "xy",
           },
         },
       },
       scales: {
         x: {
-          type: 'linear',
+          type: "linear",
           title: {
             display: true,
-            text: 'X Axis',
+            text: "X Axis",
           },
         },
         y: {
-          type: 'linear',
+          type: "linear",
           title: {
             display: true,
-            text: 'Y Axis',
+            text: "Y Axis",
           },
         },
       },

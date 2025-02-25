@@ -24,6 +24,7 @@
     <script type="module" src="./cognito.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script type="module" src="./chart.js"></script>
 
@@ -46,16 +47,19 @@ MeshLine
 </head>
 <body>
     <div class="header">
-        <div class="logo">
-            <img id="logo" src="./img/logo.gif" alt="Logo">
-        </div>
+        <!-- <div class="div-logo"> -->
+            <button id="button-vessel" class="head-tab-link active" onclick="openTab('vessel'  )">
+                <img id="logo" src="./img/logo.gif" alt="Logo">
+            </button>
+        <!-- </div> -->
         <div class="title"><h1>Filament winding</h1></div>
         <div class="buttons">
             <div id="user-info">
-                <p id="user-logged" class="user-logged">You are not logged in</p>
+                <p id="user-logged" class="user-logged"></p>
                 <p id="user-email" class="user-logged"></p>
-              </div>
+            </div>
 
+            <button id="toggle-help" class="header-btn">?</button>
             <button id="logIn"  class="header-btn">Login</button>
             <button id="logOff" class="header-btn">Logoff</button>
         </div>
@@ -64,13 +68,16 @@ MeshLine
     <div class="main-container">
         <div class="tab-container">
             <div class="tabs">
-                <button id="button-vessel"   class="tab-link active" onclick="openTab('vessel'  )">Vessel</button>
+                <!-- <button id="button-vessel"   class="tab-link active" onclick="openTab('vessel'  )">Vessel</button> -->
                 <button id="button-mandrel"  class="tab-link"        onclick="openTab('mandrel' )">Mandrel</button>
                 <button id="button-coil"     class="tab-link"        onclick="openTab('coil'    )">Coil</button>
                 <button id="button-patterns" class="tab-link"        onclick="openTab('patterns')">Patterns</button>
                 <button id="button-winding"  class="tab-link"        onclick="openTab('winding' )">Winding</button>
-                <button id="button-info"     class="tab-link"        onclick="openTab('info'    )">Info</button>
             </div>
+
+        </div>
+
+        <div id="canvas-container">
 
             <div id="tabs-content" class="tabs-content active">
 
@@ -90,6 +97,14 @@ MeshLine
                         <input id="vesselLoadInput" type="file" accept=".yaml" style="display: none;" />
 
                         <button id="vesselClear" class="image-button" title="Clear session">Clear session&nbsp;<img src="./img/clear.png"></button>
+                    </div>
+                    <div id="help-vessel">
+                        <main>
+                            <section>
+                                <h2>Integrated Workflow for Maximum Productivity</h2>
+                                <p>Our solution brings together mandrel design, coil generation, and CNC programming into a seamless workflow. By integrating all stages of the process, we help you reduce errors, save time, and achieve high-quality outputs, making it an ideal choice for industries demanding precision and efficiency.</p>
+                            </section>
+                        </main>
                     </div>
                 </div>
 
@@ -125,6 +140,14 @@ MeshLine
                             <button id="mandrelExportCSVSmoothed" class="image-button" title="Smoothed mandrel export">Smoothed&nbsp;<img src="./img/save.png"></button>
                         </div>
     
+                        <div id="help-mandrel">
+                            <main>
+                                <section>
+                                    <h2>Mandrel Design and Customization</h2>
+                                    <p>Our platform enables the precise design and customization of mandrels to suit a variety of coil winding requirements. Whether you are working with simple or complex geometries, we provide tools to create mandrels tailored to your specific needs, ensuring durability and compatibility with your equipment.</p>
+                                </section>
+                            </main>
+                        </div>
                     </div>
                 </div>
 
@@ -148,24 +171,40 @@ MeshLine
                         <button id="coilLoad" class="image-button" title="Load coil from yaml file">Load coil&nbsp;<img src="./img/load.png"></button>
                         <input id="coilLoadInput" type="file" accept=".yaml" style="display: none;" />
                     </div>
-                </div>
+                    <div id="help-coil">
+                        <main>
+                            <section>
+                                <h2>Efficient Coil Generation</h2>
+                                <p>Streamline your coil winding process with our advanced coil generation tools. Define parameters such as wire gauge, turns, and spacing to generate optimal coil designs. Our algorithms ensure accurate layouts for consistent performance across applications, from transformers to motors.</p>
+                            </section>
+                        </main>
+                    </div>
+            </div>
 
                 <!-- Patterns -->
                 <div id="tab-patterns" class="tab-content">
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
-                    <table id="data-table">
-                        <thead>
-                            <tr>
-                                <th>Turns</th>
-                                <th>Coils</th>
-                                <th>Corr. %</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
 
-                    <div id="actions-patterns">
+                    <div id="actions-patterns" style="background: rgba(256, 256, 256, 0.9);">
+                        <table id="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Turns</th>
+                                    <th>Coils</th>
+                                    <th>Corr. %</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
                         <button id="coilCorrect" class="image-button" title="Correct coil"><img src="./img/calc.png">&nbsp;Correct coil</button><br>
+                    </div>
+                    <div id="help-patterns">
+                        <main>
+                            <section>
+                                <h2>Patterns</h2>
+                            </section>
+                        </main>
                     </div>
                 </div>
 
@@ -196,18 +235,18 @@ MeshLine
                     <div id="file-winding">
                         <button id="CNCExport" class="image-button" title="Raw mandrel export">Download CNC&nbsp;<img src="./img/save.png"></button>
                     </div>
-                </div>
 
-                <!-- Info -->
-                <div id="tab-info" class="tab-content">
-                    <h2>Info</h2>
-                    <p>This is the info</p>
+                    <div id="help-winding">
+                        <main>
+                            <section>
+                                <h2>Winding and CNC Program Generation</h2>
+                                <p>Automate your CNC workflow with our program generation feature. Based on your mandrel and coil design, the system generates ready-to-use CNC code compatible with a wide range of machines. Reduce setup time and achieve precise results with minimal manual adjustments.</p>
+                            </section>
+                        </main>
+                    </div>
                 </div>
 
             </div>
-        </div>
-
-        <div id="canvas-container">
 
             <!-- Mandrel chart -->
             <div id="mandrel-canvas-div" class="static-content">
@@ -241,24 +280,6 @@ MeshLine
             </div>
 
             <div id="info-canvas-div" class="static-content">
-                <main>
-                    <section>
-                        <h2>Mandrel Design and Customization</h2>
-                        <p>Our platform enables the precise design and customization of mandrels to suit a variety of coil winding requirements. Whether you are working with simple or complex geometries, we provide tools to create mandrels tailored to your specific needs, ensuring durability and compatibility with your equipment.</p>
-                    </section>
-                    <section>
-                        <h2>Efficient Coil Generation</h2>
-                        <p>Streamline your coil winding process with our advanced coil generation tools. Define parameters such as wire gauge, turns, and spacing to generate optimal coil designs. Our algorithms ensure accurate layouts for consistent performance across applications, from transformers to motors.</p>
-                    </section>
-                    <section>
-                        <h2>CNC Program Generation</h2>
-                        <p>Automate your CNC workflow with our program generation feature. Based on your mandrel and coil design, the system generates ready-to-use CNC code compatible with a wide range of machines. Reduce setup time and achieve precise results with minimal manual adjustments.</p>
-                    </section>
-                    <section>
-                        <h2>Integrated Workflow for Maximum Productivity</h2>
-                        <p>Our solution brings together mandrel design, coil generation, and CNC programming into a seamless workflow. By integrating all stages of the process, we help you reduce errors, save time, and achieve high-quality outputs, making it an ideal choice for industries demanding precision and efficiency.</p>
-                    </section>
-                </main>
             </div>
     
             <div id="actions-container">
@@ -271,32 +292,10 @@ MeshLine
                 <canvas id="scene-thumbnail"></canvas>
             </div>
     
-        </div>
-
-
-        <!-- <div id="numbers">
-            <p>Numeric Values</p>
-            <p>X: <span id="value-x">0</span></p>
-            <p>Y: <span id="value-y">0</span></p>
-            <p>Z: <span id="value-z">0</span></p>
-    
-            <button id="edit-button">Edit Values</button>
-    
-            <div class="modal-overlay" id="modal-overlay"></div>
-        
-            <div class="modal" id="edit-modal">
-                <h2>Edit Values</h2>
-                <label for="input-x">X:</label>
-                <input type="number" id="input-x">
-                <label for="input-y">Y:</label>
-                <input type="number" id="input-y">
-                <label for="input-z">Z:</label>
-                <input type="number" id="input-z">
-                <button id="save-button">Save</button>
-                <button id="cancel-button">Cancel</button>
+            <div id="help-container">
+                <button class="help-close-btn" id="close-help">&times;</button>
             </div>
-
-        </div> -->
+        </div>
 
     </div>
 </body>
