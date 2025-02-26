@@ -219,6 +219,13 @@ function mandrelChartUpdate(mandrelS){
   }));
   mandrelChart.data.datasets[isSmoothed ? 1 : 0].data = data;
   mandrelChart.update();
+  mandrelChart.resetZoom();
+  
+  mandrelChart.zoom({ // doesn't work (
+    x: { scale: 0.4 },
+    y: { scale: 0.4 },
+    transition: true
+  });
 }
 window.mandrelChartUpdate = mandrelChartUpdate;
 

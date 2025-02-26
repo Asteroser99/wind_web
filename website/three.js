@@ -559,7 +559,7 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
   const materialproperties = { color: color };
   if (transparent) {
     materialproperties.transparent = true;
-    materialproperties.opacity = 0.25;
+    materialproperties.opacity = 0.9;
   }
   const material = new THREE.LineBasicMaterial(materialproperties);
   // material.depthTest = false;
@@ -696,11 +696,11 @@ function animate(timestamp) {
   
 
     if (window.equidMesh)
-      window.equidMesh. rotation.x = (inputValue('testModeInput') == 0 ? fi : 0);
+      window.equidMesh. rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
 
     if (window.rolleyMesh)
       rolleyUpdate(window.animateIndex);
-      window.rolleyMesh.rotation.x = (inputValue('testModeInput') == 0 ? fi : 0);
+      window.rolleyMesh.rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
   }
 
   controls.update();

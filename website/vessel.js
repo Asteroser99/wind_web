@@ -212,14 +212,14 @@ function SetPole() {
 
 // ImportCSV
 
-const mandrelImportCSVInput = document.getElementById('mandrelImportCSVInput');
-document.getElementById('mandrelImportCSV').addEventListener(
-    'click', () => {
-        mandrelImportCSVInput.value = "";
-        mandrelImportCSVInput.click();
-        loading();
-    }
-);
+// const mandrelImportCSVInput = document.getElementById('mandrelImportCSVInput');
+// document.getElementById('mandrelImportCSV').addEventListener(
+//     'click', () => {
+//         loading();
+//         mandrelImportCSVInput.value = "";
+//         mandrelImportCSVInput.click();
+//     }
+// );
 
 mandrelImportCSVInput.addEventListener(
     'change', function (event) {
@@ -235,19 +235,42 @@ mandrelImportCSVInput.addEventListener(
     }
 );
 
-function mandrelImportCSVOnFileLoad(event) {
-    const csvText = event.target.result;
 
-    const colNumEl = document.getElementById('csv-column');
-    const colNum = colNumEl.value - 1;
+function mandrelImportCSV(Name){
+    const fileInput = document.getElementById('fileInput');
+    fileInput.onchange = function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        mandrelImportCSVOnInputClick(file, Name)
+    };
+    
+    fileInput.value = "";
+    fileInput.type = "file";
+    fileInput.accept = ".csv";
+    fileInput.click();
+}
 
-    mandrelFromCSV(csvText, colNum);
+function mandrelImportCSVOnInputClick(file, Name){
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const colNumEl = document.getElementById('csv-column');
+        mandrelImportCSVOnFileLoad(Name, event.target.result, colNumEl.value - 1);
+    };
+    reader.readAsText(file);
+}
+window.mandrelImportCSV = mandrelImportCSV;
+
+function mandrelImportCSVOnFileLoad(name, text, colNum) {
+    const mandrel = mandrelFromCSV(text, colNum);
+    setField(name, mandrel);
 
     SetPole();
     mandrelDraw();
 
     loaded();
 };
+window.mandrelImportCSVOnFileLoad = mandrelImportCSVOnFileLoad;
 
 function mandrelFromCSV(csvText, colNum = 0) {
     const lines = csvText.trim().split("\n");
@@ -274,7 +297,7 @@ function mandrelFromCSV(csvText, colNum = 0) {
         k[1].push(parseFloat(v1.trim()));
     }
 
-    setField("mandrelRaw", { x, r });
+    return { x, r }
 }
 
 // Export CSV
@@ -310,15 +333,15 @@ function mandrelFromCSV(csvText, colNum = 0) {
 //     fileWriter.readAsDataURL(blob);
 // }
 
-async function saveCsvWithDialog(data) {
+async function saveCsvWithDialog(Name) {
+    const data = getField(Name)
+
     try {
-        // Проверяем поддержку API
         if (!window.showSaveFilePicker) {
-            alert("Ваш браузер не поддерживает File System Access API.");
+            alert("File System Access API is not supported by your browser");
             return;
         }
 
-        // Открываем диалоговое окно выбора места сохранения
         const handle = await window.showSaveFilePicker({
             suggestedName: "vessel.csv",
             types: [
@@ -329,16 +352,16 @@ async function saveCsvWithDialog(data) {
             ]
         });
 
-        // Записываем данные в файл
         const writable = await handle.createWritable();
         await writable.write(convertArrayToCsv(data));
         await writable.close();
 
-        console.log("Файл успешно сохранен!");
     } catch (error) {
-        console.error("Ошибка сохранения:", error);
+        showError(error);
+
     }
 }
+window.saveCsvWithDialog = saveCsvWithDialog
 
 function convertArrayToCsv(data) {
     const keys = Object.keys(data); // Получаем заголовки (x, r)
@@ -352,13 +375,13 @@ function convertArrayToCsv(data) {
     return keys.join(",") + "\n" + rows.join("\n");
 }
 
-document.getElementById('mandrelExportCSV').addEventListener(
-    'click', () => saveCsvWithDialog(getField("mandrelRaw"))
-);
+// document.getElementById('mandrelExportCSV').addEventListener(
+//     'click', () => saveCsvWithDialog(getField("mandrelRaw"))
+// );
 
-document.getElementById('mandrelExportCSVSmoothed').addEventListener(
-    'click', () => saveCsvWithDialog(getField("mandrelSmoothed"))
-);
+// document.getElementById('mandrelExportCSVSmoothed').addEventListener(
+//     'click', () => saveCsvWithDialog(getField("mandrelSmoothed"))
+// );
 
 
 // mandrel
@@ -441,6 +464,12 @@ function mandrelDraw() {
     mandrelChartUpdate(mandrelGet(true ));
     mandrelChartUpdate(mandrelGet(false));
 }
+
+function mandrelClear(name) {
+    setField(name, null);
+    mandrelDraw();
+}
+window.mandrelClear = mandrelClear;
 
 
 // mandrel transformation
@@ -619,7 +648,7 @@ function tapeCalc(coil, tapeName, color = 0xffff00) {
     loading();
     const vessel_data = getVesselData();
 
-    return lambdaCall("tape", [vessel_data, coil])
+    return lambdaCall("tape", [coil, vessel_data["Band"]])
         .then(res => {
             setField(tapeName, res);
             coilDraws();
@@ -774,8 +803,8 @@ function getT(begin=0, end=0, long = false){
         const pN = 4; // point count
         const j = (i - begin) * pN;
 
-        const fiShift = (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
-        const yShift  = (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
+        const fiShift = 0. // (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
+        const yShift  = 0. // (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
 
         const pCoil = j + 0;
         pointXYZ(window.animateCoil   , i, vertices, fiShift, 0.0, yShift);
@@ -793,13 +822,13 @@ function getT(begin=0, end=0, long = false){
             indices.push(pEqd - pN); indices.push(pEqd);
         }
         if (i % 5 == 0) {
-            if (inputValue('testModeInput') == 0){
+            // if (inputValue('testModeInput') == 0){
                 indices.push(pCoil); indices.push(pEqd);
                 indices.push(pTL  ); indices.push(pTR )
-            } else {
-                indices.push(pTL  ); indices.push(pTR )
-                indices.push(pTL  ); indices.push(pTR )
-            }
+            // } else {
+            //     indices.push(pTL  ); indices.push(pTR )
+            //     indices.push(pTL  ); indices.push(pTR )
+            // }
         }
     };
 
@@ -847,28 +876,46 @@ function createBoxWithOctagonHole() {
     return [vertices, indices];
 }
 
-function equidDraw(){
-    const coilK = coilGet("Corrected");
-    const eqd  = getField("equidistanta");
+function animationSetup(){
+    let coil = coilGet("Interpolated");
+    let eqd  = getField("equidistantaInterpolated");
+    let roll = getField("rolleyInterpolated");
+    let color = 0x9ACBD0
+
+    if (!coil) {
+        coil = coilGet("Corrected");
+        eqd  = getField("equidistanta");
+        roll = getField("rolley");
+        color = 0xfea02a
+    }
+
+    if (!coil || !eqd){
+        window.animate = false;
+        return
+    }
 
     const Fr = scale.y.max * 2;
     const Fd = Fr / 100;
 
-    if (!coilK || !eqd){
-        window.animate = false;
-        return
-    }
     window.animate = true;
 
-    window.animateCoil    = coilK;
+    window.animateCoil    = coil;
     window.animateEqd     = eqd ;
-    [window.animateRolley0, window.animateRolley1] = getField("rolley");
+    window.animateRolley0 = roll;
+
+    const roll1 = {"x": [], "r": [], "fi": [], "al": []};
+    for (let i = 0; i < roll.x.length; i++) {
+        roll1.x .push(eqd.x [i] * 2 - roll.x [i]);
+        roll1.r .push(eqd.r [i]);
+        roll1.fi.push(eqd.fi[i] * 2 - roll.fi[i]);
+    };
+    window.animateRolley1 = roll1;
 
     document.getElementById("animateSlider").max = window.animateCoil.x.length - 1;
     window.animateUpdateTime = 0;
 
     removeMesh(window.equidMesh);
-    window.equidMesh = addLine(getT(0, coilK.x.length, true), 0x9ACBD0);
+    window.equidMesh = addLine(getT(0, coil.x.length, true), color, true);
 
     {
         removeMesh(window.rolleyMesh);
@@ -941,7 +988,6 @@ function equidDraw(){
         indices.push(3, 7, 4,  4, 0, 3);
 
         removeMesh(window.standMesh);
-        console.log(window.standMesh)
         window.standMesh = addMesh([vert, indices], 0x00ff00);
     }
 
@@ -995,7 +1041,7 @@ function rolleyUpdate(i){
         const Xi = eqd.x[i]
         const Yi = 0;
         const Zi = eqd.r[i]
-        
+
         const vert = [];
         vert.push(Xi,  Yi,  Zi);
         vert.push(Xi,  Yi,  Zi + Fr);
@@ -1018,36 +1064,56 @@ function rolleyUpdate(i){
 }
 window.rolleyUpdate = rolleyUpdate;
 
-document.getElementById('equidDraw').addEventListener( 'click', () => {
+
+// Equdestanta
+document.getElementById('eqdDraw').addEventListener( 'click', () => {
     loading();
 
-    try {
-        EqudestantaFromCoil()
-            .then(() => {
-                equidDraw();
-                loaded();
-            });
-    } catch (error) {
-        showError(error);
-    }
-});
-
-function EqudestantaFromCoil() {
     const coilCorrected = coilGet("Corrected");
     if (!coilCorrected){
         return
     }
 
-    return lambdaCall("equidistantaRolley", [coilCorrected, inputValue('safetyRInput')])
+    lambdaCall("equidistantaRolley", [coilCorrected, inputValue('safetyRInput')])
         .then(res => {
-            if(!res) throw new Error("Empty lambdaCall result");
             setField("equidistanta", res[0]);
-            setField("rolley", [res[1], res[2]]);
+            setField("rolley", res[1]);
+
+            animationSetup();
+
+            loaded();
         })
         .catch(error => {
             showError(error);
         });
-}
+});
+
+
+// Interpolanta
+document.getElementById('itpDraw').addEventListener( 'click', () => {
+    loading();
+
+    const coilCorrected = coilGet("Corrected");
+    const eqd = getField("equidistanta");
+    if (!coilCorrected || !eqd){
+        showError("no data")
+        return
+    }
+
+    lambdaCall("interpolantaRolley", [coilCorrected, eqd, inputValue('lineCountInput')])
+        .then(res => {
+            setField("coilInterpolated"        , res[0]);
+            setField("equidistantaInterpolated", res[1]);
+            setField("rolleyInterpolated"      , res[2]);
+
+            animationSetup();
+
+            loaded();
+        })
+        .catch(error => {
+            showError(error);
+        });
+});
 
 
 // Patterns
@@ -1077,22 +1143,19 @@ function patternsCalc() {
 // Correct coils
 
 function coilGet(suffix) {
-    const coilInitial = getField("coilInitial");
-    if (suffix == "Initial") {
-        return coilInitial;
-    }
-
-    const coilCorrected = getField("coilCorrected");
-    if (!coilCorrected){
-        return undefined;
-    }
-
-    return {
-        x : coilInitial  ["x" ],
-        r : coilInitial  ["r" ],
-        fi: coilCorrected["fi"],
-        al: coilCorrected["al"],
+    let coil = getField("coil" + suffix);
+    
+    if (suffix == "Corrected") {
+        const coilInitial = getField("coilInitial");
+        coil = {
+            x : coilInitial["x" ],
+            r : coilInitial["r" ],
+            fi: coil["fi"],
+            al: coil["al"],
+        };
     };
+
+    return coil;
 }
 window.coilGet = coilGet
 
@@ -1166,7 +1229,7 @@ async function CNCExport() {
 function drawAll() {
     mandrelDraw();
     coilDraws()
-    equidDraw();
+    animationSetup();
 }
 
 

@@ -43,6 +43,25 @@ function moveButtons(prefix, tabId) {
     }
 }
 
+function inputValue(id, val = null, isInt = false){
+    const el = document.getElementById(id);
+
+    if (val != null){
+        el.value = val;
+    }
+
+    if(isInt)
+        val = parseInt(el.value)
+    else
+        val = parseFloat(el.value)
+    
+    return val;
+}
+window.inputValue = inputValue
+
+
+
+//
 export function openTab(tabId) {
     if (!tabId) return;
     setField("page", tabId);
@@ -208,24 +227,13 @@ function showError(error) {
 }
 window.showError = showError;
 
+
+
+let currentFunction  = null;
+let currentParameter = null;
+
+
 // OnLoad
-
-function inputValue(id, val = null, isInt = false){
-    const el = document.getElementById(id);
-
-    if (val != null){
-        el.value = val;
-    }
-
-    if(isInt)
-        val = parseInt(el.value)
-    else
-        val = parseFloat(el.value)
-    
-    return val;
-}
-window.inputValue = inputValue
-
 function windowOnLoad(){
     // const colNumEl = document.getElementById('csv-column');
     // colNumEl.value = 1;
@@ -247,8 +255,20 @@ function windowOnLoad(){
     const closeButton = document.getElementById("close-help");
     closeButton.addEventListener("click", toggleHelp);
 
-}
 
+    document.querySelectorAll('.function-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            currentFunction  = event.currentTarget.dataset.function;
+            currentParameter = event.currentTarget.dataset.parameter;
+
+            if (typeof window[currentFunction] === "function") {
+                window[currentFunction](currentParameter);
+            } else {
+                console.error(`Function ${currentFunction} is not found`);
+            }
+        });
+    });
+}
 
 window.onload = function () {
     windowOnLoad();

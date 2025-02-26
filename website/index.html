@@ -30,11 +30,7 @@
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
-<!-- 
-MeshLine
-<script src="https://unpkg.com/three@0.132.2/build/three.min.js"></script>
-<script src="https://unpkg.com/three.meshline@1.4.0/THREE.MeshLine.min.js"></script>
--->
+
     <script type="module" src="./three.js"></script>
     <link rel="stylesheet" href="./three.css">
 
@@ -131,13 +127,17 @@ MeshLine
                             <input type="number" id="csv-column" style="text-align: right; width: 30px">
                             <br>
 
-                            <button id="mandrelImportCSV" class="image-button" title="Raw mandrel import">Import&nbsp;<img src="./img/load.png"></button>
                             <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
-                            <br>
+                            Raw
+                            <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelRaw" title="Raw mandrel import"><img src="./img/load.png"></button>
+                            <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelRaw" title="Raw mandrel export"><img src="./img/save.png"></button>
+                            <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelRaw" title="Raw mandrel clear" ><img src="./img/clear.png"></button>
 
-                            <button id="mandrelExportCSV" class="image-button" title="Raw mandrel export">Raw&nbsp;<img src="./img/save.png"></button>
                             <br>
-                            <button id="mandrelExportCSVSmoothed" class="image-button" title="Smoothed mandrel export">Smoothed&nbsp;<img src="./img/save.png"></button>
+                            Smoothed
+                            <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelSmoothed" title="Smoothed mandrel import"><img src="./img/load.png"></button>
+                            <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelSmoothed" title="Smoothed mandrel export"><img src="./img/save.png"></button>
+                            <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelSmoothed" title="Smoothed mandrel clear" ><img src="./img/clear.png"></button>
                         </div>
     
                         <div id="help-mandrel">
@@ -179,7 +179,7 @@ MeshLine
                             </section>
                         </main>
                     </div>
-            </div>
+                </div>
 
                 <!-- Patterns -->
                 <div id="tab-patterns" class="tab-content">
@@ -211,11 +211,20 @@ MeshLine
                 <!-- Winding -->
                 <div id="tab-winding" class="tab-content">
                     <div id="actions-winding">
-                        <label for="testModeInput">Test mode:</label>
+                        <!-- <label for="testModeInput">Test mode:</label>
                         <input type="number" id="testModeInput"
                             min="0" max="9" step="1"
                             value="0" pattern="\d{1,0}"
                             title="Enter test mode"
+                            style="text-align: right;"
+                        >
+                        <br> -->
+
+                        <label for="lineCountInput">G-code line count:</label>
+                        <input type="number" id="lineCountInput"
+                            min="0" max="9999" step="1"
+                            value="200" pattern="\d{1,0}"
+                            title="Enter G-code line count"
                             style="text-align: right;"
                         >
                         <br>
@@ -229,11 +238,14 @@ MeshLine
                         >
                         <br>
 
-                        <button id="equidDraw" class="image-button" title="Wind"><img src="./img/calc.png">&nbsp;Wind</button>
+                        <button id="eqdDraw" class="image-button" title="Equdestanta" ><img src="./img/calc.png">&nbsp;Equidistanta </button>
+                        <br>
+                        <button id="itpDraw" class="image-button" title="Interpolanta"><img src="./img/calc.png">&nbsp;Interpolanta</button>
+                        
                     </div>
 
                     <div id="file-winding">
-                        <button id="CNCExport" class="image-button" title="Raw mandrel export">Download CNC&nbsp;<img src="./img/save.png"></button>
+                        <button id="CNCExport" class="image-button" title="Download CNC">Download CNC&nbsp;<img src="./img/save.png"></button>
                     </div>
 
                     <div id="help-winding">
@@ -245,7 +257,6 @@ MeshLine
                         </main>
                     </div>
                 </div>
-
             </div>
 
             <!-- Mandrel chart -->
@@ -295,6 +306,8 @@ MeshLine
             <div id="help-container">
                 <button class="help-close-btn" id="close-help">&times;</button>
             </div>
+
+            <input type="file" id="fileInput" style="display: none;">
         </div>
 
     </div>

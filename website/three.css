@@ -56,10 +56,20 @@ body {
 }
 
 
+.image-button.small img {
+  width:  25px;
+  height: 25px;
+}
+
+.image-button.small {
+  width:  25px;
+  height: 25px;
+  padding: 5px 5px;
+}
+
 .image-button {
   background: none;
   border: none;
-  padding: 0;
   cursor: pointer;
   display: inline-flex; /* Поддержка центрирования */
   align-items: center;
