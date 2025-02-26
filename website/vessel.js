@@ -1194,15 +1194,22 @@ document.getElementById('CNCExport').addEventListener(
 );
 
 async function CNCExport() {
-    try {
-        // Проверяем поддержку API
-        if (!window.showSaveFilePicker) {
-            alert("File System Access API is not supported by your browser.");
-            return;
-        }
+    loading();
+    const itpEqd = getField("equidistantaInterpolated");
+    if (!itpEqd) {
+        showError("No interpolated equidistanta yet");
+        return;
+    }
 
-        // Открываем диалоговое окно выбора места сохранения
-        const handle = await window.showSaveFilePicker({
+    // Проверяем поддержку API
+    if (!window.showSaveFilePicker) {
+        alert("File System Access API is not supported by your browser.");
+        return;
+    }
+
+    let handle;
+    try {
+        handle = await window.showSaveFilePicker({
             suggestedName: "CNC.txt",
             types: [
                 {
@@ -1211,17 +1218,25 @@ async function CNCExport() {
                 }
             ]
         });
-
-        // Записываем данные в файл
-        const writable = await handle.createWritable();
-        await writable.write("CNC");
-        await writable.close();
-
-        console.log("Файл успешно сохранен!");
     } catch (error) {
-        console.error("Ошибка сохранения:", error);
+        showError("File picker was cancelled or failed: " + error);
+        return;
+    }
+
+    try {
+        const txt = await lambdaCall("CNC", [itpEqd]);
+
+        const writable = await handle.createWritable();
+        await writable.write(txt);
+        await writable.close();
+        console.log("File saved");
+    } catch (error) {
+        showError("Failed to save file: " + error);
+    } finally {
+        loaded();
     }
 }
+
 
 
 // ALL
