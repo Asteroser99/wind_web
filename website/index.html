@@ -65,25 +65,25 @@
         <div class="tab-container">
             <div class="tabs">
                 <!-- <button id="button-vessel"   class="tab-link active" onclick="openTab('vessel'  )">Vessel</button> -->
-                <button id="button-mandrel"  class="tab-link"        onclick="openTab('mandrel' )">Mandrel</button>
-                <button id="button-coil"     class="tab-link"        onclick="openTab('coil'    )">Coil</button>
-                <button id="button-patterns" class="tab-link"        onclick="openTab('patterns')">Patterns</button>
-                <button id="button-winding"  class="tab-link"        onclick="openTab('winding' )">Winding</button>
+                <button id="button-mandrel"   class="tab-link" onclick="openTab('mandrel'  )">Mandrel</button>
+                <button id="button-coil"      class="tab-link" onclick="openTab('coil'     )">Coil</button>
+                <button id="button-patterns"  class="tab-link" onclick="openTab('patterns' )">Patterns</button>
+                <button id="button-winding"   class="tab-link" onclick="openTab('winding'  )">Winding</button>
+                <button id="button-thickness" class="tab-link" onclick="openTab('thickness')">Thickness</button>
             </div>
 
         </div>
 
         <div id="canvas-container">
 
-            <div id="tabs-content" class="tabs-content active">
+            <div id="tabs-content" class="tabs-content">
 
                 <!-- Vessel -->
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
                         <h3>Examples</h3>
                         <button id="vesselExample1" class="image-button" title="Load Example 1"><img src="./img/load.png">&nbsp;Example 1</button><br>
-                        <button id="vesselExample2" class="image-button" title="Load Example 2"><img src="./img/load.png">&nbsp;Example 2</button><br>
-                        <!-- <button id="test" class="image-button" title="test">test</button> -->
+                        <!-- <button id="vesselExample2" class="image-button" title="Load Example 2"><img src="./img/load.png">&nbsp;Example 2</button><br> -->
                     </div>
 
                     <div id="file-vessel">
@@ -107,62 +107,70 @@
                 <!-- Mandrel -->
                 <div id="tab-mandrel" class="tab-content">
                     <div id="actions-mandrel" style="background: rgba(256, 256, 256, 0.9);">
-                        <h3>Transformation</h3>
-                        <button id="mandrelReverse" class="image-button" title="Reverse"><img src="./img/transform.png">&nbsp;Reverse</button><br>
-                        <button id="mandrelMirror" class="image-button" title="Mirror"><img src="./img/transform.png">&nbsp;Mirror</button><br>
-                        <button id="mandrelSwap" class="image-button" title="Swap"><img src="./img/transform.png">&nbsp;Swap</button><br>
-                        <button id="mandrelRedirect" class="image-button" title="Redirect"><img src="./img/transform.png">&nbsp;Redirect</button><br>
-                        
-                        <h3>Smoothing</h3>
-                        <button id="mandrelSmooth" class="image-button" title="Smooth raw mandrel"><img src="./img/calc.png">&nbsp;Smooth</button><br>
+                        <h3>Transform</h3>
+                        <button id="mandrelSwap"     class="image-button small" title="Swap"    ><img src="./img/transform.png">&nbsp;Swap</button><br>
+                        <button id="mandrelReverse"  class="image-button small" title="Reverse" ><img src="./img/transform.png">&nbsp;Reverse</button><br>
+                        <button id="mandrelRedirect" class="image-button small" title="Redirect"><img src="./img/transform.png">&nbsp;Redirect</button><br>
+                        <button id="mandrelMirror"   class="image-button small" title="Mirror"  ><img src="./img/transform.png">&nbsp;Mirror</button><br>
                     </div>
 
-                    <div id="file-mandrel" style="background: rgba(256, 256, 256, 0.9);">
-                        <h2>CSV</h2>
-                        <h3>Import/Export</h3>
-                        <br>
+                    <div id="file-mandrel">
+                        <div id="file-mandrel-import-export" style="background: rgba(256, 256, 256, 0.9);">
+                            <h3>Import/Export</h3>
 
-                        <div>
-                            <label for="csv-column" value="1">Column:</label>
-                            <input type="number" id="csv-column" style="text-align: right; width: 30px">
-                            <br>
+                            <div>
+                                <label for="csv-column" value="1">CSV column:</label>
+                                <input type="number" id="csv-column" style="text-align: right; width: 30px" title="Column number, if there more than one columns of data in .csv file">
+                                <br>
 
-                            <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
-                            Raw
-                            <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelRaw" title="Raw mandrel import"><img src="./img/load.png"></button>
-                            <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelRaw" title="Raw mandrel export"><img src="./img/save.png"></button>
-                            <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelRaw" title="Raw mandrel clear" ><img src="./img/clear.png"></button>
+                                <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
 
-                            <br>
-                            Smoothed
-                            <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelSmoothed" title="Smoothed mandrel import"><img src="./img/load.png"></button>
-                            <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelSmoothed" title="Smoothed mandrel export"><img src="./img/save.png"></button>
-                            <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelSmoothed" title="Smoothed mandrel clear" ><img src="./img/clear.png"></button>
-                        </div>
-    
-                        <div id="help-mandrel">
-                            <main>
-                                <section>
-                                    <h2>Mandrel Design and Customization</h2>
-                                    <p>Our platform enables the precise design and customization of mandrels to suit a variety of coil winding requirements. Whether you are working with simple or complex geometries, we provide tools to create mandrels tailored to your specific needs, ensuring durability and compatibility with your equipment.</p>
-                                </section>
-                            </main>
+                                <div id="file-mandrel-import-export-raw">
+                                    Raw
+                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelRaw" title="Raw mandrel import"><img src="./img/load.png"></button>
+                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelRaw" title="Raw mandrel export"><img src="./img/save.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelRaw" title="Raw mandrel clear" ><img src="./img/clear.png"></button>
+                                </div>
+
+                                <div id="file-mandrel-import-export-thickness">
+                                    Winded
+                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelWinded" title="Winded mandrel import"><img src="./img/load.png"></button>
+                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelWinded" title="Winded mandrel export"><img src="./img/save.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelWinded" title="Winded mandrel clear" ><img src="./img/clear.png"></button>
+                                </div>
+
+                                <div id="file-mandrel-import-export-smoothed">
+                                    Smoothed
+                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelSmoothed" title="Smoothed mandrel import"><img src="./img/load.png"></button>
+                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelSmoothed" title="Smoothed mandrel export"><img src="./img/save.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelSmoothed" title="Smoothed mandrel clear" ><img src="./img/clear.png"></button>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
+
+                    <div id="help-mandrel">
+                        <main>
+                            <section>
+                                <h2>Mandrel Design and Customization</h2>
+                                <p>Our platform enables the precise design and customization of mandrels to suit a variety of coil winding requirements. Whether you are working with simple or complex geometries, we provide tools to create mandrels tailored to your specific needs, ensuring durability and compatibility with your equipment.</p>
+                            </section>
+                        </main>
+                    </div>
+
                 </div>
 
                 <!-- Coil -->
                 <div id="tab-coil" class="tab-content">
                     <div id="actions-coil">
-                        <h3>Coil</h3>
-                        <label for="poleInput">Pole &Ropf;:</label>
+                        <label for="poleInput">Pole &Ropf;:</label><br>
                         <input type="number" id="poleInput" 
                             min="0" max="999" step="0.001" 
                             value="10.000" pattern="\d{1,3}(\.\d{1,3})?" 
                             title="Enter pole radius"
                             style="text-align: right;"
-                        >
-                        <br>
+                        ><br>
 
                         <button id="coilCalc" class="image-button" title="Generate coil"><img src="./img/calc.png">&nbsp;Generate coil</button><br>
                     </div>
@@ -186,6 +194,7 @@
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
 
                     <div id="actions-patterns" style="background: rgba(256, 256, 256, 0.9);">
+                        <h3>Select pattern:</h3>
                         <table id="data-table">
                             <thead>
                                 <tr>
@@ -220,23 +229,21 @@
                         >
                         <br> -->
 
-                        <label for="lineCountInput">G-code line count:</label>
-                        <input type="number" id="lineCountInput"
-                            min="0" max="9999" step="1"
-                            value="200" pattern="\d{1,0}"
-                            title="Enter G-code line count"
-                            style="text-align: right;"
-                        >
-                        <br>
-
-                        <label for="safetyRInput">Safety &Ropf;:</label>
+                        <label for="safetyRInput">Safety &Ropf;:</label><br>
                         <input type="number" id="safetyRInput" 
                             min="0" max="999" step="0.1" 
                             value="50.0" pattern="\d{1,1}(\.\d{1,1})?"
                             title="Enter safety radius"
                             style="text-align: right;"
-                        >
-                        <br>
+                        ><br>
+
+                        <label for="lineCountInput">G-code length:</label><br>
+                        <input type="number" id="lineCountInput"
+                            min="0" max="9999" step="1"
+                            value="200" pattern="\d{1,0}"
+                            title="Enter G-code line count"
+                            style="text-align: right;"
+                        ><br>
 
                         <button id="eqdDraw" class="image-button" title="Equdestanta" ><img src="./img/calc.png">&nbsp;Equidistanta </button>
                         <br>
@@ -257,6 +264,18 @@
                         </main>
                     </div>
                 </div>
+
+                <!-- Thickness -->
+                <div id="tab-thickness" class="tab-content">
+                    <div id="actions-thickness" style="background: rgba(256, 256, 256, 0.9);">
+                        <button id="thicknessGet"  class="image-button" title="Get thickness"><img src="./img/calc.png">&nbsp;Get thickness</button><br>
+                        <button id="mandrelSmooth" class="image-button" title="Smooth raw mandrel"><img src="./img/calc.png">&nbsp;Smooth</button><br>
+                    </div>
+
+                    <div id="file-thickness">
+                    </div>
+                </div>
+
             </div>
 
             <!-- Mandrel chart -->

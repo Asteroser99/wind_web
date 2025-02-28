@@ -19,6 +19,7 @@ function fibboRenderTable() {
         `;
         row.addEventListener("click", () => fibboSelectRow(index));
         row.dataset.index = index;
+        row.classList.add("clickable-row");
         tableBody.appendChild(row);
     });
 

@@ -203,13 +203,6 @@ function lambdaCall(name, param) {
 
 // Mandrel
 
-function SetPole() {
-    const mandrel = getField("mandrelRaw")
-    if (!mandrel) return;
-    const {x, r} = mandrel
-    if (r.length > 0) inputValue('poleInput', r[0]);
-}
-
 // ImportCSV
 
 // const mandrelImportCSVInput = document.getElementById('mandrelImportCSVInput');
@@ -263,11 +256,7 @@ window.mandrelImportCSV = mandrelImportCSV;
 
 function mandrelImportCSVOnFileLoad(name, text, colNum) {
     const mandrel = mandrelFromCSV(text, colNum);
-    setField(name, mandrel);
-
-    SetPole();
-    mandrelDraw();
-
+    mandrelSet(name, mandrel.x, mandrel.y)
     loaded();
 };
 window.mandrelImportCSVOnFileLoad = mandrelImportCSVOnFileLoad;
@@ -335,6 +324,10 @@ function mandrelFromCSV(csvText, colNum = 0) {
 
 async function saveCsvWithDialog(Name) {
     const data = getField(Name)
+    if (!data) {
+        showError("No data to save");
+        return
+    }
 
     try {
         if (!window.showSaveFilePicker) {
@@ -386,7 +379,12 @@ function convertArrayToCsv(data) {
 
 // mandrel
 
-function mandrelGet(isSmoothed = null){
+function mandrelGet(name){
+    return getField("mandrel" + name);
+}
+window.mandrelGet = mandrelGet
+
+function mandrelGet_obsolete(isSmoothed = null){
     if (isSmoothed == null){
         let mandrel = getField("mandrelSmoothed");
 
@@ -397,7 +395,6 @@ function mandrelGet(isSmoothed = null){
         if (mandrel)
             return {mandrel, isSmoothed: false};
         
-        // throw new Error("no mandrel");
         return undefined
 
     } else {
@@ -445,29 +442,61 @@ function generatrixRender(mandrel, resolution) {
     return [points, faces]
 } 
 
-function mandrelRender() {
-    const mandrelData = mandrelGet();
-    if (!mandrelData) return undefined;
-    const { mandrel, isSmoothed } = mandrelData;
-    return {render: generatrixRender(mandrel, 90), isSmoothed}
+function mandrelTreeUpdate(name) {
+    removeMesh(window["mandrel" + name + "Mesh"]);
+  
+    const mandrel = mandrelGet(name);
+    if (mandrel){
+        const render = generatrixRender(mandrel, 90)
+    
+        let color;
+        let transpatent;
+        let setScale = false;
+        if        (name == "Raw"){
+            color = 0x2973B2;
+            transpatent = 1.;
+            setScale = true;
+        } else if (name == "Winded"){
+            color = 0x48A6A7;
+            transpatent = 0.5;
+        } else if (name == "Smoothed"){
+            color = 0x000000;
+            transpatent = 0.3;
+        }
+            
+        window["mandrel" + name + "Mesh"] = addMesh(render, color, transpatent, setScale);
+    }
+  
+}
+window.mandrelTreeUpdate = mandrelTreeUpdate;
+  
+function SetPole() {
+    const mandrel = getField("mandrelRaw")
+    if (!mandrel) return;
+    const {x, r} = mandrel
+    if (r.length > 0) inputValue('poleInput', r[0]);
 }
 
-function mandrelDraw() {
-    removeMesh(window.mandrelMesh);
+function mandrelSet(name, xOrMandrel, r = undefined){
+    const mandrel = r ? { x: xOrMandrel, r: r } : xOrMandrel;
+    setField("mandrel" + name, mandrel);
+    if (name == "Raw") SetPole();
+    mandrelDraw(name);
+}
 
-    const renderData = mandrelRender();
-    if (!renderData) return;
-    const {render, isSmoothed} = renderData;
+function mandrelDraw(name) {
+    mandrelTreeUpdate (name);
+    mandrelChartUpdate(name);
+}
 
-    window.mandrelMesh = addMesh(render, isSmoothed ? 0x2973B2: 0x48A6A7, true);
-
-    mandrelChartUpdate(mandrelGet(true ));
-    mandrelChartUpdate(mandrelGet(false));
+function mandrelsDraw() {
+    mandrelDraw("Raw")
+    mandrelDraw("Winded")
+    mandrelDraw("Smoothed")
 }
 
 function mandrelClear(name) {
-    setField(name, null);
-    mandrelDraw();
+    mandrelSet(name, undefined);
 }
 window.mandrelClear = mandrelClear;
 
@@ -477,28 +506,19 @@ window.mandrelClear = mandrelClear;
 // reverse
 document.getElementById('mandrelReverse').addEventListener(
     'click', () => {
-        const { mandrel, isSmoothed } = mandrelGet();
-        if (mandrel == undefined){
-            return null;
-        }
+        const mandrel = mandrelGet("Raw");
+        if (!mandrel) return null;
         let { x, r } = mandrel;
-    
         x = x.map(value => -value);
-        
-        setField((isSmoothed ? "mandrelSmoothed" : "mandrelRaw"), { x, r });
-    
-        SetPole();
-        mandrelDraw();
+        mandrelSet("Raw", x, r);
     }
 );
 
 // mirror
 document.getElementById('mandrelMirror').addEventListener(
     'click', () => {
-        const { mandrel, isSmoothed } = mandrelGet();
-        if (mandrel == undefined){
-            return null;
-        }
+        const mandrel = mandrelGet("Raw");
+        if (!mandrel) return null;
         let { x, r } = mandrel;
     
         // 1. shift X to 0
@@ -513,55 +533,48 @@ document.getElementById('mandrelMirror').addEventListener(
         x = [...xReflected, ...xSh];
         r = [...rReflected, ...r];
     
-        setField((isSmoothed ? "mandrelSmoothed" : "mandrelRaw"), { x, r });
-    
-        SetPole();
-        mandrelDraw();
+        mandrelSet("Raw", x, r);
     }
 );
 
 // swap
 document.getElementById('mandrelSwap').addEventListener(
     'click', () => {
-        const { mandrel, isSmoothed } = mandrelGet();
-        if (mandrel == undefined){
-            return null;
-        }
+        const mandrel = mandrelGet("Raw");
+        if (!mandrel) return null;
         let { x, r } = mandrel;
-    
-        setField((isSmoothed ? "mandrelSmoothed" : "mandrelRaw"), { x: r, r: x });
-    
-        SetPole();
-        mandrelDraw();
+        mandrelSet("Raw", r, x)
     }
 );
 
 // reDir
 document.getElementById('mandrelRedirect').addEventListener(
     'click', () => {
-        const { mandrel, isSmoothed } = mandrelGet();
-        if (mandrel == undefined){
-            return null;
-        }
+        const mandrel = mandrelGet("Raw");
+        if (!mandrel) return null;
         let { x, r } = mandrel;
-    
-        setField((isSmoothed ? "mandrelSmoothed" : "mandrelRaw"), { x: x.reverse(), r: r.reverse() });
-    
-        SetPole();
-        mandrelDraw();
+        mandrelSet("Raw", x.reverse(), r.reverse())
     }
 );
 
 
 // smooth
 
-document.getElementById('mandrelSmooth').addEventListener(
+document.getElementById('thicknessGet').addEventListener(
     'click', () => {
         loading();
 
-        mandrelSmooth()
-            .then(() => {
-                mandrelDraw()
+        const coilCorrected = coilGet("Corrected")
+        const coilMeridian = getField("coilMeridian");
+
+        if (!coilCorrected || !coilMeridian) {
+            showError("No data");
+            return;
+        }
+
+        return lambdaCall("thickness", [coilCorrected, coilMeridian])
+            .then((res) => {
+                mandrelSet("Winded", res);
                 loaded();
             })
             .catch(error => {
@@ -570,18 +583,28 @@ document.getElementById('mandrelSmooth').addEventListener(
     }
 );
 
-function mandrelSmooth() {
-    const mandrel = getField("mandrelRaw");
-    if (mandrel == undefined) return null;
-    return lambdaCall("smooth_full", [mandrel])
-        .then((res) => {
-            setField("mandrelSmoothed", res);
-            mandrelDraw();
-        })
-        .catch(error => {
-            showError(error);
-        });
-}
+// smooth
+
+document.getElementById('mandrelSmooth').addEventListener(
+    'click', () => {
+        loading();
+
+        const mandrel = mandrelGet("Winded");
+        if (!mandrel) {
+            showError("No winded mandrel");
+            return;
+        }
+
+        return lambdaCall("smooth_full", [mandrel])
+            .then((res) => {
+                mandrelSet("Smoothed", res);
+                loaded();
+            })
+            .catch(error => {
+                showError(error);
+            });
+    }
+);
 
 
 // Coil
@@ -593,14 +616,16 @@ document.getElementById('coilCalc').addEventListener(
 function coilCalc() {
     loading();
 
-    try {
-        const vessel_data = getVesselData();
-        const { mandrel, isSmoothed } = mandrelGet();
+    const vessel_data = getVesselData();
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
 
+    try {
         return lambdaCall("vitok", [vessel_data, mandrel])
             .then(res => {
-                const [coil, mediana] = res
+                const [coil, meridian] = res
                 setField("coilInitial", coil);
+                setField("coilMeridian", meridian);
 
                 loaded();
 
@@ -1144,6 +1169,8 @@ function patternsCalc() {
 
 function coilGet(suffix) {
     let coil = getField("coil" + suffix);
+
+    if (!coil) return undefined;
     
     if (suffix == "Corrected") {
         const coilInitial = getField("coilInitial");
@@ -1242,7 +1269,7 @@ async function CNCExport() {
 // ALL
 
 function drawAll() {
-    mandrelDraw();
+    mandrelsDraw();
     coilDraws()
     animationSetup();
 }
@@ -1302,9 +1329,9 @@ function coilLoadOnFileLoad(event) {
 document.getElementById('vesselExample1').addEventListener(
     'click', () => { vesselloadFromURL("Example1"); }
 );
-document.getElementById('vesselExample2').addEventListener(
-    'click', () => { vesselloadFromURL("Example2"); }
-);
+// document.getElementById('vesselExample2').addEventListener(
+//     'click', () => { vesselloadFromURL("Example2"); }
+// );
 
 async function loadFromYamlURL(url) {
     let response = null;
@@ -1335,7 +1362,7 @@ document.getElementById('vesselClear').addEventListener(
     'click', () => {
         clearVessel();
         clearScene();
-        clearChart();
+        drawAll();
     }
 );
 

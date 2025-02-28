@@ -208,6 +208,8 @@ function setupScene() {
 
   window.floorMesh = addFloor();
   addFrame();
+
+  scaleSet();
 }
 
 function resizeMesh(mesh) {
@@ -401,13 +403,10 @@ function addBox() {
   scene.add(cube);
 }
 
-function addMesh([vertices, indices], color = 0x4444FF, setScale = false) {
-  if (vertices.length == 0) {
-    return
-  }
-
-
-  // console.log("vertices", vertices)
+function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
+  if (!render) return;
+  const [vertices, indices] = render;
+  if (vertices.length == 0) return;
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
@@ -449,6 +448,7 @@ function addMesh([vertices, indices], color = 0x4444FF, setScale = false) {
   // roughnessTexture.wrapT = THREE.RepeatWrapping;
   // roughnessTexture.repeat.set(4, 4);
 
+
   // Создание материала
   const material = new THREE.MeshStandardMaterial({
     // map: colorTexture,
@@ -459,6 +459,12 @@ function addMesh([vertices, indices], color = 0x4444FF, setScale = false) {
     color: color,
     side: THREE.DoubleSide,
   });
+
+  if (transparent != 1.) {
+    material.transparent = true;
+    material.opacity = transparent;
+  }
+
 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 0, 0);
@@ -491,45 +497,13 @@ function addMesh([vertices, indices], color = 0x4444FF, setScale = false) {
       }
     }
 
-    // console.log("minX:", minX, "maxX:", maxX);
-    // console.log("minY:", minY, "maxY:", maxY);
-    // console.log("minZ:", minZ, "maxZ:", maxZ);
-
-    scale.x = { max: maxX, min: minX }
-    scale.y = { max: maxY, min: minY }
-    scale.z = { max: maxZ, min: minZ }
-
-    scale.x.size = size.x;
-    scale.y.size = size.y;
-    scale.z.size = size.z;
-
-    scale.x.center = center.x;
-    scale.y.center = center.y;
-    scale.z.center = center.z;
-
-    // console.log("scale   === ", scale)
-    // console.log("size    === ", size)
-    // console.log("center  === ", center)
-
-
-    // const min = Math.min(scale.x.min, scale.y.min, scale.z.min)
-    // const max = Math.max(scale.x.max, scale.y.max, scale.z.max)
-
-    const maxSize = Math.max(scale.x.max - scale.x.min, scale.y.max - scale.y.min, scale.z.max - scale.z.min)
-
-    scale.factor = 20 / maxSize;
-
-    // console.log("scale.factor === ", maxSize, " ===> ", scale.factor)
-
-
+    scaleSet(
+      { size: size.x, center: center.x, max: maxX, min: minX },
+      { size: size.y, center: center.y, max: maxY, min: minY },
+      { size: size.z, center: center.z, max: maxZ, min: minZ }
+    );
 
     // mesh.position.sub(center);
-
-
-    // console.log("size", size)
-    // console.log("center", center)
-
-
 
     controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // Центр вращения 0, 0, 0
     controls.update();
@@ -548,6 +522,29 @@ function addMesh([vertices, indices], color = 0x4444FF, setScale = false) {
   return mesh;
 }
 window.addMesh = addMesh
+
+function scaleSet(x = 0, y = 0, z = 0){
+  if(x == 0) x = { size: 0, center: 0, max: 0, min: 0 }
+  if(y == 0) y = { size: 0, center: 0, max: 0, min: 0 }
+  if(z == 0) z = { size: 0, center: 0, max: 0, min: 0 }
+
+  scale.x = x;
+  scale.y = y;
+  scale.z = z;
+
+  const maxSize = Math.max(scale.x.max - scale.x.min, scale.y.max - scale.y.min, scale.z.max - scale.z.min)
+
+  scale.factor = maxSize != 0 ? 20 / maxSize : 1
+
+  // console.log("minX:", minX, "maxX:", maxX);
+  // console.log("minY:", minY, "maxY:", maxY);
+  // console.log("minZ:", minZ, "maxZ:", maxZ);
+
+  // console.log("scale.factor === ", maxSize, " ===> ", scale.factor)
+  // console.log("size", size)
+  // console.log("center", center)
+}
+
 
 function addLine([vertices, indices], color = 0xff0000, transparent = false) {
   if (vertices.length == 0) return;

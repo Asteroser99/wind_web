@@ -53,7 +53,10 @@ p {
     /* padding: 5px; */
 } 
   
-  
+.clickable-row {
+    cursor: pointer;
+}
+
 .buttons {
     display: flex;
     gap: 10px;
@@ -307,8 +310,13 @@ tr.selected {
 }
 
 
+input {
+    text-align: right;
+    margin: 5px;
+}
 
 #mandrel-canvas {
+    margin: 5%;
     z-index: 0;
 }
 

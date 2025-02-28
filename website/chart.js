@@ -137,22 +137,32 @@ function createScatterConfig() {
         {
           label: "Raw",
           data: [],
-          borderColor: "#48A6A7",
+          borderColor: "#2973B2",
           borderDash: [5, 5],
           showLine: true,
           tension: 0.0,
           pointRadius: function (context) {
-            return context.dataIndex === 0 ? 8 : 4;
+            return context.dataIndex === 0 ? 3 : 0;
+          },
+        },
+        {
+          label: "Winded",
+          data: [],
+          borderColor: "#48A6A7",
+          showLine: true,
+          tension: 0.0,
+          pointRadius: function (context) {
+            return context.dataIndex === 0 ? 3 : 0;
           },
         },
         {
           label: "Smoothed",
           data: [],
-          borderColor: "#2973B2",
+          borderColor: "#000000",
           showLine: true,
           tension: 0.0,
           pointRadius: function (context) {
-            return context.dataIndex === 0 ? 8 : 4;
+            return context.dataIndex === 0 ? 3 : 0;
           },
         },
       ],
@@ -170,10 +180,10 @@ function createScatterConfig() {
           //   y: {min: -200, max: 200, minRange: 50}
           // },
           pan: {
-            enabled: true, // Включаем панорамирование
-            mode: "xy", // Панорамирование по обеим осям
-            speed: 10, // Чувствительность
-            modifierKey: null, // ОТКЛЮЧАЕМ необходимость зажимать клавишу
+            enabled: true,
+            mode: "xy",
+            speed: 10,
+            modifierKey: null,
           },
           zoom: {
             wheel: {
@@ -206,18 +216,26 @@ function createScatterConfig() {
   };
 }
 
-function mandrelChartUpdate(mandrelS){
-  if(!mandrelS) return;
-  const { mandrel, isSmoothed } = mandrelS;
-  
-  if(!mandrel) return;
-  const {x, r} = mandrel;
+function mandrelChartUpdate(name){
+  const mandrel = mandrelGet(name);
+  const {x, r} = mandrel ? mandrel : {x: [], r: []};
 
   const data = x.map((value, index) => ({ 
     x: value, 
     y: r[index] 
   }));
-  mandrelChart.data.datasets[isSmoothed ? 1 : 0].data = data;
+
+  let index;
+  if        (name == "Raw"){
+    index = 0;
+  } else if (name == "Winded"){
+    index = 1;
+  } else if (name == "Smoothed"){
+    index = 2;
+  }
+
+  mandrelChart.data.datasets[index].data = data;
+
   mandrelChart.update();
   mandrelChart.resetZoom();
   
@@ -228,14 +246,6 @@ function mandrelChartUpdate(mandrelS){
   });
 }
 window.mandrelChartUpdate = mandrelChartUpdate;
-
-
-function clearChart(){
-  mandrelChartUpdate({mandrel: {x: [], r: []}, isSmoothed: false});
-  mandrelChartUpdate({mandrel: {x: [], r: []}, isSmoothed: true });
-}
-window.clearChart = clearChart;
-
 
 function chartOnLoad() {
   Chart.register(ChartZoom);
