@@ -138,7 +138,6 @@ function createScatterConfig() {
           label: "Raw",
           data: [],
           borderColor: "#2973B2",
-          borderDash: [5, 5],
           showLine: true,
           tension: 0.0,
           pointRadius: function (context) {
@@ -159,6 +158,7 @@ function createScatterConfig() {
           label: "Smoothed",
           data: [],
           borderColor: "#000000",
+          borderDash: [5, 5],
           showLine: true,
           tension: 0.0,
           pointRadius: function (context) {

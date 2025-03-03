@@ -100,8 +100,8 @@ function getVesselData(){
     return {
         //  parseFloat(document.getElementById('value-x').textContent), //.toFixed(2)
         "Pole": inputValue('poleInput'),
-        "Band": 10.,
-        "Conv": 4,
+        "Band": inputValue('bandInput'),
+        "Conv": inputValue('convInput'),
         "Turns": fibboSel["Turns"],
         "Coils": fibboSel["Coils"],
     };
@@ -625,7 +625,7 @@ function coilCalc() {
     if (!mandrel) return null;
 
     try {
-        return lambdaCall("vitok", [vessel_data, mandrel])
+        return lambdaCall("vitok", [mandrel, vessel_data["Pole"], vessel_data["Band"]])
             .then(res => {
                 const [coil, meridian] = res
                 setField("coilInitial", coil);
@@ -1157,9 +1157,9 @@ function patternsCalc() {
     const vessel_data = getVesselData();
     const coil = coilGet("Initial");
 
-    lambdaCall("fibbo", [vessel_data, coil])
+    lambdaCall("fibbo", [coil, vessel_data["Band"], vessel_data["Conv"]])
         .then((res) => {
-            setField("fibbo", res);
+            setField("patterns", res);
             fibboRenderTable();
             loaded();
         })
@@ -1197,7 +1197,7 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
     const vessel_data = getVesselData();
     const coil = coilGet("Initial");
 
-    lambdaCall("conte", [vessel_data, coil])
+    lambdaCall("conte", [coil, vessel_data["Turns"], vessel_data["Coils"]])
         .then(res => {
             setField("coilCorrected", {
                 fi: res[0],
@@ -1362,13 +1362,11 @@ function vesselloadFromURL(name) {
 
 
 // Clear
-document.getElementById('vesselClear').addEventListener(
-    'click', () => {
-        clearVessel();
-        clearScene();
-        drawAll();
-    }
-);
+function vesselClear() {
+    clearVessel();
+    clearScene();
+    drawAll();
+}
 
 
 function vesselOnLoad() {

@@ -233,43 +233,42 @@ function showError(error) {
 window.showError = showError;
 
 
-// Question
+// funcButton
 
-document.getElementById('confirmAction').addEventListener(
-    'click', () => { confirmAction(); }
-);
-function confirmAction(question, funcName, param) {
-    document.getElementById('modal-text').innerText = question;
-    currentFunction = funcName;
-    currentParameter = param;
-    document.getElementById('modal').style.display = 'block';
+function funcButtonInit(){
+    document.querySelectorAll('.function-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            window.funcButtonFunction  = event.currentTarget.dataset.function;
+            window.funcButtonParameter = event.currentTarget.dataset.parameter;
+            window.funcButtonQuery     = event.currentTarget.dataset.query;
+            
+            if (window.funcButtonQuery){
+                document.getElementById('modal-text').innerText = window.funcButtonQuery;
+                document.getElementById('modal-overlay').style.display = 'block';
+            } else {
+                executeFunction();
+            }
+        });
+    });
 }
 
-document.getElementById('questionYes').addEventListener(
-    'click', () => { executeFunction(); }
-);
+document.getElementById('questionYes'  ).addEventListener( 'click', () => { executeFunction(); });
+document.getElementById('questionNo'   ).addEventListener( 'click', () => { closeModal(); });
+document.getElementById('modal-overlay').addEventListener( 'click', () => { closeModal(); });
+document.getElementById('modal'        ).addEventListener( 'click', (event) => { event.stopPropagation(); });
+
 function executeFunction() {
     closeModal();
-    if (typeof window[currentFunction] === 'function') {
-        window[currentFunction](currentParameter);
+    if (typeof window[window.funcButtonFunction] === 'function') {
+        window[window.funcButtonFunction](window.funcButtonParameter);
     } else {
-        alert('Функция не найдена: ' + currentFunction);
+        showError('Function ${window.funcButtonFunction} is not found');
     }
 }
 
-document.getElementById('questionNo').addEventListener(
-    'click', () => { closeModal(); }
-);
 function closeModal() {
-    document.getElementById('modal').style.display = 'none';
+    document.getElementById('modal-overlay').style.display = 'none';
 }
-
-function exampleFunction(param) {
-    alert('Функция выполнена с параметром: ' + param);
-}
-
-let currentFunction  = null;
-let currentParameter = null;
 
 
 // OnLoad
@@ -295,19 +294,7 @@ function windowOnLoad(){
     const closeButton = document.getElementById("close-help");
     closeButton.addEventListener("click", toggleHelp);
 
-
-    document.querySelectorAll('.function-button').forEach(button => {
-        button.addEventListener('click', (event) => {
-            currentFunction  = event.currentTarget.dataset.function;
-            currentParameter = event.currentTarget.dataset.parameter;
-
-            if (typeof window[currentFunction] === "function") {
-                window[currentFunction](currentParameter);
-            } else {
-                console.error(`Function ${currentFunction} is not found`);
-            }
-        });
-    });
+    funcButtonInit();
 }
 
 window.onload = function () {

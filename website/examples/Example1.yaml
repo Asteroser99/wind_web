@@ -9461,7 +9461,7 @@ coilInitial:
     - -264.8647919629028
     - -264.8723502391908
     - -264.87609351362414
-fibbo:
+patterns:
   - Coils: 29
     Correction: -1.8904274610837881
     String: 'Corr. -1.890 %. Turns: 94. Coils: 29'

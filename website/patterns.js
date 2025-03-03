@@ -1,8 +1,8 @@
 // Table
 
 function fibboRenderTable() {
-    const fibbo = getField("fibbo");
-    if(!fibbo) return;
+    const patterns = getField("patterns");
+    if(!patterns) return;
 
     const tableBody = document.querySelector("#data-table tbody");
 
@@ -10,7 +10,7 @@ function fibboRenderTable() {
         tableBody.removeChild(tableBody.firstChild);
     }    
 
-    fibbo.forEach((item, index) => {
+    patterns.forEach((item, index) => {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${item.Turns}</td>
@@ -45,18 +45,18 @@ function fibboSelectRow(index) {
 
 function fibboGetSelectedValues() {
     const tableBody = document.querySelector("#data-table tbody");
-    const fibbo = getField("fibbo");
+    const patterns = getField("patterns");
 
     const selectedRow = document.querySelector("#data-table tbody .selected");
 
     if (!selectedRow) return { Turns: 0, Coils: 0 };
 
     const index = selectedRow.dataset.index;
-    if (index === undefined || !fibbo || !fibbo[index]) return { Turns: 0, Coils: 0 };
+    if (index === undefined || !patterns || !patterns[index]) return { Turns: 0, Coils: 0 };
 
     return {
-        Turns: fibbo[index].Turns,
-        Coils: fibbo[index].Coils
+        Turns: patterns[index].Turns,
+        Coils: patterns[index].Coils
     };
 }
 window.fibboGetSelectedValues = fibboGetSelectedValues;
