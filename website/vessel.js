@@ -229,13 +229,13 @@ mandrelImportCSVInput.addEventListener(
 );
 
 
-function mandrelImportCSV(Name){
+function mandrelImportCSV(prefix){
     const fileInput = document.getElementById('fileInput');
     fileInput.onchange = function (event) {
         const file = event.target.files[0];
         if (!file) return;
         
-        mandrelImportCSVOnInputClick(file, Name)
+        mandrelImportCSVOnInputClick(file, prefix)
     };
     
     fileInput.value = "";
@@ -244,19 +244,19 @@ function mandrelImportCSV(Name){
     fileInput.click();
 }
 
-function mandrelImportCSVOnInputClick(file, Name){
+function mandrelImportCSVOnInputClick(file, prefix){
     const reader = new FileReader();
     reader.onload = function(event) {
         const colNumEl = document.getElementById('csv-column');
-        mandrelImportCSVOnFileLoad(Name, event.target.result, colNumEl.value - 1);
+        mandrelImportCSVOnFileLoad(prefix, event.target.result, colNumEl.value - 1);
     };
     reader.readAsText(file);
 }
 window.mandrelImportCSV = mandrelImportCSV;
 
-function mandrelImportCSVOnFileLoad(name, text, colNum) {
+function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
     const mandrel = mandrelFromCSV(text, colNum);
-    mandrelSet(name, mandrel.x, mandrel.y)
+    mandrelSet(prefix, mandrel)
     loaded();
 };
 window.mandrelImportCSVOnFileLoad = mandrelImportCSVOnFileLoad;
@@ -322,8 +322,8 @@ function mandrelFromCSV(csvText, colNum = 0) {
 //     fileWriter.readAsDataURL(blob);
 // }
 
-async function saveCsvWithDialog(Name) {
-    const data = getField(Name)
+async function saveCsvWithDialog(name) {
+    const data = getField(name)
     if (!data) {
         showError("No data to save");
         return
@@ -446,6 +446,7 @@ function mandrelTreeUpdate(name) {
     removeMesh(window["mandrel" + name + "Mesh"]);
   
     const mandrel = mandrelGet(name);
+
     if (mandrel){
         const render = generatrixRender(mandrel, 90)
     
@@ -471,14 +472,17 @@ function mandrelTreeUpdate(name) {
 window.mandrelTreeUpdate = mandrelTreeUpdate;
   
 function SetPole() {
-    const mandrel = getField("mandrelRaw")
+    const mandrel = mandrelGet("Raw")
     if (!mandrel) return;
     const {x, r} = mandrel
     if (r.length > 0) inputValue('poleInput', r[0]);
 }
 
-function mandrelSet(name, xOrMandrel, r = undefined){
-    const mandrel = r ? { x: xOrMandrel, r: r } : xOrMandrel;
+function mandrelSet(name, xOrMandrel, r = null){
+    let mandrel = xOrMandrel;
+    if (r){
+        mandrel = { x: xOrMandrel, r: r };
+    }
     setField("mandrel" + name, mandrel);
     if (name == "Raw") SetPole();
     mandrelDraw(name);

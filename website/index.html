@@ -50,6 +50,8 @@
         <!-- </div> -->
         <div class="title"><h1>Filament winding</h1></div>
         <div class="buttons">
+            <button id="confirmAction">Question</button>
+
             <div id="user-info">
                 <p id="user-logged" class="user-logged"></p>
                 <p id="user-email" class="user-logged"></p>
@@ -127,23 +129,23 @@
 
                                 <div id="file-mandrel-import-export-raw">
                                     Raw
-                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelRaw" title="Raw mandrel import"><img src="./img/load.png"></button>
-                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelRaw" title="Raw mandrel export"><img src="./img/save.png"></button>
-                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelRaw" title="Raw mandrel clear" ><img src="./img/clear.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="Raw" title="Raw mandrel import"><img src="./img/load.png"></button>
+                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Raw" title="Raw mandrel export"><img src="./img/save.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Raw" title="Raw mandrel clear" ><img src="./img/clear.png"></button>
                                 </div>
 
                                 <div id="file-mandrel-import-export-thickness">
                                     Winded
-                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelWinded" title="Winded mandrel import"><img src="./img/load.png"></button>
-                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelWinded" title="Winded mandrel export"><img src="./img/save.png"></button>
-                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelWinded" title="Winded mandrel clear" ><img src="./img/clear.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="Winded" title="Winded mandrel import"><img src="./img/load.png"></button>
+                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Winded" title="Winded mandrel export"><img src="./img/save.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Winded" title="Winded mandrel clear" ><img src="./img/clear.png"></button>
                                 </div>
 
                                 <div id="file-mandrel-import-export-smoothed">
                                     Smoothed
-                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="mandrelSmoothed" title="Smoothed mandrel import"><img src="./img/load.png"></button>
-                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="mandrelSmoothed" title="Smoothed mandrel export"><img src="./img/save.png"></button>
-                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="mandrelSmoothed" title="Smoothed mandrel clear" ><img src="./img/clear.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="Smoothed" title="Smoothed mandrel import"><img src="./img/load.png"></button>
+                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Smoothed" title="Smoothed mandrel export"><img src="./img/save.png"></button>
+                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Smoothed" title="Smoothed mandrel clear" ><img src="./img/clear.png"></button>
                                 </div>
 
                             </div>
@@ -327,6 +329,15 @@
             </div>
 
             <input type="file" id="fileInput" style="display: none;">
+
+            <div id="modal" class="modal">
+                <p id="modal-text"></p>
+                <div class="modal-buttons">
+                    <button id="questionYes">Yes</button>
+                    <button id="questionNo" >No</button>
+                </div>
+            </div>
+
         </div>
 
     </div>

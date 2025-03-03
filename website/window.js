@@ -233,12 +233,47 @@ function showError(error) {
 window.showError = showError;
 
 
+// Question
+
+document.getElementById('confirmAction').addEventListener(
+    'click', () => { confirmAction(); }
+);
+function confirmAction(question, funcName, param) {
+    document.getElementById('modal-text').innerText = question;
+    currentFunction = funcName;
+    currentParameter = param;
+    document.getElementById('modal').style.display = 'block';
+}
+
+document.getElementById('questionYes').addEventListener(
+    'click', () => { executeFunction(); }
+);
+function executeFunction() {
+    closeModal();
+    if (typeof window[currentFunction] === 'function') {
+        window[currentFunction](currentParameter);
+    } else {
+        alert('Функция не найдена: ' + currentFunction);
+    }
+}
+
+document.getElementById('questionNo').addEventListener(
+    'click', () => { closeModal(); }
+);
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+function exampleFunction(param) {
+    alert('Функция выполнена с параметром: ' + param);
+}
 
 let currentFunction  = null;
 let currentParameter = null;
 
 
 // OnLoad
+
 function windowOnLoad(){
     // const colNumEl = document.getElementById('csv-column');
     // colNumEl.value = 1;
