@@ -440,7 +440,8 @@ function generatrixRender(mandrel, resolution) {
     }
 
     return [points, faces]
-} 
+}
+window.generatrixRender = generatrixRender
 
 function mandrelTreeUpdate(name) {
     removeMesh(window["mandrel" + name + "Mesh"]);
@@ -633,7 +634,7 @@ function coilCalc() {
 
                 loaded();
 
-                tapeCalc(coilGet("Initial"), "tapeInitial", 0xfea02a);
+                tapeCalc("Initial");
 
                 patternsCalc();
             })
@@ -667,19 +668,15 @@ function coilRender(coil) {
 }
 
 
-// Tape coil
+// Tape
 
-// document.getElementById('tapeCalc').addEventListener(
-//     'click', () => { tapeCalc(coilGet("Initial"), "tapeInitial"); }
-// );
-
-function tapeCalc(coil, tapeName, color = 0xffff00) {
+function tapeCalc(prefix) {
     loading();
+    coil = coilGet(prefix)
     const vessel_data = getVesselData();
-
     return lambdaCall("tape", [coil, vessel_data["Band"]])
         .then(res => {
-            setField(tapeName, res);
+            setField("tape" + prefix, res);
             coilDraws();
             loaded();
         })
@@ -787,99 +784,6 @@ function tapeRender(suffix) {
 
 // Equidestanta
 
-function getBetaI(x, r, i){
-    let j = i;
-
-    if (i == 0           ) j = i + 1;
-    if (i == x.length - 1) j = i - 1;
-
-    let beta = Math.atan((r[j] - r[j-1]) / (x[j] - x[j-1]));
-
-    if (Math.abs(beta) < 0.001) beta = 0.0;
-
-    return beta;
-}
-
-function pointXYZ(coil, i, fiShift = 0., th = 0., yShift = 0.0, mirror = undefined){
-    let sbth = 0., cbth = 0.;
-
-    if (th != 0.) {
-        const bi = getBetaI(coil["x"], coil["r"], i);
-        sbth = th * Math.sin(bi);
-        cbth = th * Math.cos(bi);
-    };
-
-    let x  = coil.x [i];
-    let r  = coil.r [i];
-    let fi = coil.fi[i];
-
-    fi += fiShift;
-
-    let cXi = (x - sbth);
-    let cYi = (r + cbth) * Math.sin(fi) + yShift;
-    let cZi = (r + cbth) * Math.cos(fi);
-
-    // if (i < 5) console.log(i, th)
-    // if (i = 2368 && window.debug) {
-    //     console.log(fi, r, x, cXi, cYi, cZi, window.debug)
-    // }
-
-    if (mirror) {
-        cXi = mirror[0] * 2 - cXi;
-        cYi = mirror[1] * 2 - cYi;
-        cZi = mirror[2] * 2 - cZi;
-    };
-
-    return [cXi, cYi, cZi];
-}
-
-function getT(begin=0, end=0, long = false){
-    if(end == 0)
-        end = begin + 1;
-
-    const pN = 4; // point count
-    const vertices = [];
-    const indices  = [];
-
-    for (let i = begin; i < end; i++) {
-        const j = (i - begin) * pN;
-
-        const fiShift = 0. // (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
-        const yShift  = 0. // (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
-
-        const jCoil = j + 0;
-        const pC0 = pointXYZ(window.animateCoil, i, fiShift, 0.0, yShift)
-        vertices.push(...pC0);
-
-        const jEqd  = j + 1;
-        const pT0 = pointXYZ(window.animateEqd , i, fiShift, 0.0, yShift)
-        vertices.push(...pT0);
-
-        const jTL = j + 2;
-        const pTR = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift);
-        vertices.push(...pTR);
-
-        const jTR = j + 3;
-        const pTL = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift, pT0)
-        vertices.push(...pTL);
-
-        if (long && i > 0) {
-            indices.push(jEqd - pN); indices.push(jEqd);
-        }
-        if (i % 5 == 0) {
-            // if (inputValue('testModeInput') == 0){
-                indices.push(jCoil); indices.push(jEqd);
-                indices.push(jTL  ); indices.push(jTR )
-            // } else {
-            //     indices.push(jTL  ); indices.push(jTR )
-            //     indices.push(jTL  ); indices.push(jTR )
-            // }
-        }
-    };
-
-    return [vertices, indices];
-}
-
 function createBoxWithOctagonHole() {
     const vertices = [];
     const indices = [];
@@ -921,181 +825,6 @@ function createBoxWithOctagonHole() {
     return [vertices, indices];
 }
 
-function animationSetup(){
-    let coil = coilGet("Interpolated");
-    let eqd  = getField("equidistantaInterpolated");
-    let roll = getField("rolleyInterpolated");
-    let color = 0x9ACBD0
-
-    if (!coil) {
-        coil = coilGet("Corrected");
-        eqd  = getField("equidistanta");
-        roll = getField("rolley");
-        color = 0xfea02a
-    }
-
-    if (!coil || !eqd){
-        window.animate = false;
-        return
-    }
-
-    const Fr = scale.y.max * 2;
-    const Fd = Fr / 100;
-
-    window.animate = true;
-
-    window.animateCoil   = coil;
-    window.animateEqd    = eqd ;
-    window.animateRolley = roll;
-
-    document.getElementById("animateSlider").max = window.animateCoil.x.length - 1;
-    window.animateUpdateTime = 0;
-
-    { // equidMesh
-        removeMesh(window.equidMesh);
-        window.equidMesh = addLine(getT(0, coil.x.length, true), color, true);
-    }
-
-    { // rolleyLine
-        removeMesh(window.rolleyLine);
-        const vertices = Array(4 * 3).fill(0);
-        const indices = [0, 1,  2, 3];
-        window.rolleyLine = addLine([vertices, indices], 0xff0000);
-    };
-
-    { // carretLine
-        removeMesh(window.carretLine);
-        const vertices = Array(4 * 3).fill(0);
-        const indices = [0, 1,  2, 3];
-        window.carretLine = addLine([vertices, indices], 0x00ff00);
-    };
-
-    { // carretMesh
-        const Xi = 0;
-        const Yi = 0;
-        const Zi = Fr;
-
-        const vert = [];
-        vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 8);
-        vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 8);
-        vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 8);
-        vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 8);
-
-        vert.push(Xi - Fd * 2,  Yi - Fd,  Fr);
-        vert.push(Xi - Fd * 2,  Yi + Fd,  Fr);
-        vert.push(Xi + Fd * 2,  Yi + Fd,  Fr);
-        vert.push(Xi + Fd * 2,  Yi - Fd,  Fr);
-        
-        const indices = [];
-        indices.push(0, 1, 2,  2, 3, 0);
-        indices.push(4, 5, 6,  6, 7, 4);
-
-        indices.push(0, 4, 5,  5, 1, 0);
-        indices.push(1, 5, 6,  6, 2, 1);
-        indices.push(2, 6, 7,  7, 3, 2);
-        indices.push(3, 7, 4,  4, 0, 3);
-
-        removeMesh(window.carretMesh);
-        window.carretMesh = addMesh([vert, indices], 0x00ff00);
-        window.carretMesh.position.z = Zi * scale.factor
-    };
-
-    { // standMesh
-        const Xi = 0;
-        const Yi = 0;
-        const Zi = Fr * 1;
-
-        const vert = [];
-        vert.push(Xi - Fd * 8,  Yi - Fr    ,  Zi - Fd * 4);
-        vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi - Fr    ,  Zi - Fd * 4);
-
-        vert.push(Xi - Fd * 8,  Yi - Fr    ,  Zi + Fd * 4);
-        vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi - Fr    ,  Zi + Fd * 4);
-        
-        const indices = [];
-        indices.push(0, 1, 2,  2, 3, 0);
-        indices.push(4, 5, 6,  6, 7, 4);
-
-        indices.push(0, 4, 5,  5, 1, 0);
-        indices.push(1, 5, 6,  6, 2, 1);
-        indices.push(2, 6, 7,  7, 3, 2);
-        indices.push(3, 7, 4,  4, 0, 3);
-
-        removeMesh(window.standMesh);
-        window.standMesh = addMesh([vert, indices], 0x00ff00);
-    }
-    
-    { // rolleyMesh
-        removeMesh(window.rolleyMesh);
-
-        const band = inputValue('bandInput') / 2
-        const rolleyMandrel = {
-            x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
-            r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
-        };
-        
-        const render = generatrixRender(rolleyMandrel, 8)
-
-        const mesh = addMesh(render, 0xFFFFFF);
-        
-        window.rolleyMesh = mesh;
-
-        rolleyUpdate(0);
-    }
-}
-
-function rolleyUpdate(i){
-    if (!window.scale) return;
-
-    const eqd = window.animateEqd
-
-    {
-        const rolleyVert = getT(i)[0];
-        const pos = window.rolleyLine.geometry.attributes.position;
-        pos.array.set(rolleyVert);
-        pos.needsUpdate = true;
-    }
-
-    if (window.rolleyMesh){
-        window.rolleyMesh.rotation.z = eqd["al"][i]; //Math.PI * 0.5 - 
-        window.rolleyMesh.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
-    }
-
-    {
-        const Fr = scale.y.max * 2;
-        // const Fd = Fr / 8;
-
-        const Xi = eqd.x[i]
-        const Yi = 0;
-        const Zi = eqd.r[i]
-
-        const vert = [];
-        vert.push(Xi,  Yi,  Zi);
-        vert.push(Xi,  Yi,  Zi + Fr);
-        vert.push(Xi,  Yi,  Fr);
-        vert.push(Xi, -Fr,  Fr);
-        
-        const pos = window.carretLine.geometry.attributes.position;
-        pos.array.set(vert);
-        pos.needsUpdate = true;
-
-        window.carretMesh.position.x = Xi * scale.factor;
-        window.carretMesh.position.z = Zi * scale.factor;
-        window.carretMesh.rotation.z = eqd["al"][i];
-
-
-        window.standMesh.position.x = Xi * scale.factor;
-
-    }
-
-}
-window.rolleyUpdate = rolleyUpdate;
-
-
 // Equdestanta
 document.getElementById('eqdDraw').addEventListener( 'click', () => {
     loading();
@@ -1112,7 +841,7 @@ document.getElementById('eqdDraw').addEventListener( 'click', () => {
             
             coilSet("Interpolated", undefined);
 
-            animationSetup();
+            animateInit();
 
             loaded();
         })
@@ -1135,11 +864,12 @@ document.getElementById('itpDraw').addEventListener( 'click', () => {
 
     lambdaCall("interpolantaRolley", [coilCorrected, eqd, inputValue('lineCountInput'), inputValue('bandInput')])
         .then(res => {
-            coilSet("Interpolated", res[0]);
-            setField("equidistantaInterpolated", res[1]);
-            setField("rolleyInterpolated"      , res[2]);
+            coilSet ("Interpolated"            , res[0]);
+            setField("tapeInterpolated"        , res[1]);
+            setField("equidistantaInterpolated", res[2]);
+            setField("rolleyInterpolated"      , res[3]);
 
-            animationSetup();
+            animateInit();
 
             loaded();
         })
@@ -1223,7 +953,7 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
 
             loaded();
 
-            tapeCalc(coilGet("Corrected"), "tapeCorrected");
+            tapeCalc("Corrected");
         })
         .catch(error => {
             showError(error);
@@ -1286,7 +1016,7 @@ async function CNCExport() {
 function drawAll() {
     mandrelsDraw();
     coilDraws()
-    animationSetup();
+    animateInit();
 }
 
 
@@ -1335,7 +1065,7 @@ function coilLoadOnClick(event) {
 };
 function coilLoadOnFileLoad(event) {
     setField("coilInitial", loadFromYaml(event.target.result));
-    tapeCalc();
+    tapeCalc("Corrected");
 }
 
 

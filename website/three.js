@@ -2,11 +2,12 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-let renderer = null;
-let scene = null;
-let camera = null;
-let controls = null;
-let canvas = null;
+// let scene = null;
+// let renderer = null;
+// let camera = null;
+// let controls = null;
+// let canvas = null;
+window.scene = { scene: null, renderer: null, camera: null, controls: null, canvas: null}
 window.scale = { x: {}, y: {}, z: {}, factor: 1 };
 
 // let spotLight = null;
@@ -34,12 +35,12 @@ function createGradientTexture() {
 
   // Создаем текстуру из canvas
   const texture = new THREE.CanvasTexture(canvas);
-  scene.background = texture;
+  scene.scene.background = texture;
   return texture;
 }
 
 function resizeScene() {
-  const parent = canvas.parentElement;
+  const parent = scene.canvas.parentElement;
   // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
   // if (!parent.classList.contains("active")) {
   //   console.log("not active")
@@ -49,21 +50,21 @@ function resizeScene() {
   let width = Math.max(parent.offsetWidth - 1, 0);
   let height = Math.max(parent.offsetHeight - 1, 0);
 
-  canvas.style.width = width;
-  canvas.style.height = height;
+  scene.canvas.style.width = width;
+  scene.canvas.style.height = height;
 
-  renderer.setSize(width, height);
+  scene.renderer.setSize(width, height);
 
   const d = 15;
   const aspect = width / height;
-  camera.left = -d * aspect;
-  camera.right = d * aspect;
-  camera.top = d;
-  camera.bottom = -d;
+  scene.camera.left = -d * aspect;
+  scene.camera.right = d * aspect;
+  scene.camera.top = d;
+  scene.camera.bottom = -d;
 
-//  camera.near = 0.001;
-  // camera.aspect = width / height;
-  camera.updateProjectionMatrix();
+//  scene.camera.near = 0.001;
+  // scene.camera.aspect = width / height;
+  scene.camera.updateProjectionMatrix();
 }
 window.resizeScene = resizeScene
 
@@ -71,45 +72,45 @@ window.addEventListener('resize', () => {
   resizeScene();
 });
 
-function setupScene() {
-  canvas = document.getElementById('scene-canvas')
+function sceneInit() {
+  scene.canvas = document.getElementById('scene-canvas')
   // log size of canvas
 
-  scene = new THREE.Scene();
-  // const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
-  // const renderer = new THREE.WebGLRenderer({ canvas: canvas });
-  renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
+  scene.scene = new THREE.Scene();
+  // const scene.camera = new THREE.PerspectiveCamera(75, scene.canvas.width / scene.canvas.height, 0.1, 1000);
+  // const scene.renderer = new THREE.WebGLRenderer({ canvas: scene.canvas });
+  scene.renderer = new THREE.WebGLRenderer({
+    canvas: scene.canvas,
     antialias: true,
     alpha: true,
   });
 
-  renderer.domElement.style.minWidth  = '0';
-  renderer.domElement.style.minHeight = '0';
+  scene.renderer.domElement.style.minWidth  = '0';
+  scene.renderer.domElement.style.minHeight = '0';
 
-  // renderer = new THREE.WebGLRenderer({
-  //   canvas: canvas,
+  // scene.renderer = new THREE.WebGLRenderer({
+  //   canvas: scene.canvas,
   //   antialias: true,
   // });
   // const canvas = document.createElement('canvas');
   // canvas.width = 128;
   // canvas.height = 128;
 
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.setClearColor(0x9ACBD0);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  scene.renderer.outputColorSpace = THREE.SRGBColorSpace;
+  scene.renderer.setClearColor(0x9ACBD0);
+  scene.renderer.setPixelRatio(window.devicePixelRatio);
+  scene.renderer.shadowMap.enabled = true;
+  scene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   // console.log(canvas.width, canvas.height)
   // return
 
-  // document.body.appendChild(renderer.domElement);
+  // document.body.appendChild(scene.renderer.domElement);
 
   // scene = new THREE.Scene();
 
   const axesHelper = new THREE.AxesHelper(15);
-  scene.add(axesHelper);
+  scene.scene.add(axesHelper);
 
   // const context = canvas.getContext('2d');
 
@@ -128,17 +129,17 @@ function setupScene() {
   createGradientTexture();
 
 
-  // camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-  // camera.position.set(4, 5, 11);
+  // scene.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+  // scene.camera.position.set(4, 5, 11);
 
   // Ортографическая камера для изометрии
-  camera = new THREE.OrthographicCamera(
+  scene.camera = new THREE.OrthographicCamera(
     -1, 1, 1, -1,
     0.1, 1000
   );
-  camera.position.set(10., 20., 20.);
-  // camera.near = 0.0000001;
-  camera.lookAt(0, 0, 0);
+  scene.camera.position.set(10., 20., 20.);
+  // scene.camera.near = 0.0000001;
+  scene.camera.lookAt(0, 0, 0);
 
   // Первая координата (X) → Вдоль горизонтальной оси (вправо-влево)
   // Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
@@ -164,8 +165,8 @@ function setupScene() {
     light.position.set(...vertex);                 // Устанавливаем позицию
     light.target.position.set(0, 0, 0);            // Устанавливаем цель на центр (0, 0, 0)
     light.castShadow = true;                       // Включаем отбрасывание теней
-    scene.add(light.target);                       // Добавляем цель в сцену
-    scene.add(light);                              // Добавляем свет в сцену
+    scene.scene.add(light.target);                       // Добавляем цель в сцену
+    scene.scene.add(light);                              // Добавляем свет в сцену
   });
 
 
@@ -175,34 +176,34 @@ function setupScene() {
   // spotLight.position.set(0, 7., 0.);
   // spotLight.castShadow = true;
   // spotLight.shadow.bias = -0.0001;
-  // scene.add(spotLight);
+  // scene.scene.add(spotLight);
 
   // const spotLight = new THREE.SpotLight(0xff11ff, 3000, 100, 0.22, 1);
   // spotLight.position.set(-20, 25, 0);
   // spotLight.castShadow = true;
   // spotLight.shadow.bias = -0.0001;
-  // scene.add(spotLight);
+  // scene.scene.add(spotLight);
 
   // const spotLight1 = new THREE.SpotLight(0xffff11, 3000, 100, 0.22, 1);
   // spotLight1.position.set(20, 25, 0);
   // spotLight1.castShadow = true;
   // spotLight1.shadow.bias = -0.0001;
-  // scene.add(spotLight1);
+  // scene.scene.add(spotLight1);
 
   //const light = new THREE.DirectionalLight(0xffffff, 1);
   //light.position.set(5, 10, 7);
-  //scene.add(light);
+  //scene.scene.add(light);
 
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.enablePan = true;
-  controls.minDistance = 3;
-  controls.maxDistance = 30;
-  // controls.minPolarAngle = 0.5;
-  // controls.maxPolarAngle = 1.5;
-  // controls.autoRotate = true;
-  controls.target = new THREE.Vector3(0, 1, 0);
-  controls.update();
+  scene.controls = new OrbitControls(scene.camera, scene.renderer.domElement);
+  scene.controls.enableDamping = true;
+  scene.controls.enablePan = true;
+  scene.controls.minDistance = 3;
+  scene.controls.maxDistance = 30;
+  // scene.controls.minPolarAngle = 0.5;
+  // scene.controls.maxPolarAngle = 1.5;
+  // scene.controls.autoRotate = true;
+  scene.controls.target = new THREE.Vector3(0, 1, 0);
+  scene.controls.update();
 
   resizeScene();
 
@@ -219,7 +220,7 @@ function resizeMesh(mesh) {
 
 // document.addEventListener('DOMContentLoaded', function () {
 function threeOnLoad() {
-  setupScene();
+  sceneInit();
   loaded();
   animate();
 }
@@ -238,7 +239,7 @@ function addFloor() {
   // const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
   // groundMesh.castShadow = false;
   // groundMesh.receiveShadow = true;
-  // scene.add(groundMesh);
+  // scene.scene.add(groundMesh);
 
 
   // floor
@@ -248,13 +249,13 @@ function addFloor() {
   // floor.material.opacity = 0.5;
   // floor.matrixAutoUpdate = false; // Отключаем автообновление матрицы
   // floor.matrix.makeTranslation(0, -2, 0); // Смещаем вручную
-  // scene.add(floor);
+  // scene.scene.add(floor);
 
   // const floor = new THREE.GridHelper(100, 100);
   // floor.material.transparent = true;
   // floor.material.opacity = 0.5;
   // floor.position.y = -2; // Опускаем на -100 по оси Y
-  // scene.add(floor);
+  // scene.scene.add(floor);
 
   // const planeGeometry = new THREE.PlaneGeometry(100, 100);
   // const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.5 });
@@ -269,7 +270,7 @@ function addFloor() {
   // plane.rotation.x = -Math.PI / 2; // Разворачиваем в горизонтальное положение
   // plane.position.y = -2; // Опускаем под кубик
   // plane.receiveShadow = true; // Позволяет принимать тени
-  // scene.add(plane);
+  // scene.scene.add(plane);
 
 
   const vertexShader = `
@@ -334,7 +335,7 @@ function addFloor() {
 
   resizeMesh(mesh);
 
-  scene.add(mesh);
+  scene.scene.add(mesh);
 
   return mesh;
 }
@@ -351,7 +352,7 @@ function addMeshfromfile() {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
 
-    scene.add(mesh);
+    scene.scene.add(mesh);
   }, (xhr) => {
     console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
   }, (error) => {
@@ -402,7 +403,7 @@ function addBox() {
 
   resizeMesh(cube);
 
-  scene.add(cube);
+  scene.scene.add(cube);
 }
 
 function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
@@ -472,7 +473,7 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
   mesh.position.set(0, 0, 0);
   mesh.castShadow = false;
   mesh.receiveShadow = false;
-  scene.add(mesh);
+  scene.scene.add(mesh);
 
   if (setScale) {
 
@@ -507,12 +508,12 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
 
     // mesh.position.sub(center);
 
-    controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // Центр вращения 0, 0, 0
-    controls.update();
+    scene.controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // Центр вращения 0, 0, 0
+    scene.controls.update();
 
     // const pointLight = new THREE.PointLight(0xffffff, 1, 300);  // Сила света и радиус действия
     // spotLight.position.set(0, size.y, 0);  // Размещаем свет выше объекта
-    // scene.add(pointLight);
+    // scene.scene.add(pointLight);
 
     if(frameMesh){
       frameUpdate()
@@ -568,7 +569,7 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
   lines.frustumCulled = false;
   // lines.renderOrder = 999;
 
-  scene.add(lines);
+  scene.scene.add(lines);
 
   resizeMesh(lines);
 
@@ -629,7 +630,7 @@ function addMeshLine([vertices, indices], color = 0xff0000) {
 
   const mesh = new THREE.Mesh(line, material);
 
-  scene.add(mesh);
+  scene.scene.add(mesh);
 
   resizeMesh(mesh);
 
@@ -637,76 +638,52 @@ function addMeshLine([vertices, indices], color = 0xff0000) {
 }
 window.addMeshLine = addMeshLine
 
+function getBetaI(x, r, i){
+  let j = i;
 
-function animate(timestamp) {
-  requestAnimationFrame(animate);
+  if (i == 0           ) j = i + 1;
+  if (i == x.length - 1) j = i - 1;
 
-  // const parent = canvas.parentElement;
-  // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
-  // if (!parent.classList.contains("active")) return
+  let beta = Math.atan((r[j] - r[j-1]) / (x[j] - x[j-1]));
 
-  // cube.rotation.x += 0.01;
-  // cube.rotation.y += 0.01;
+  if (Math.abs(beta) < 0.001) beta = 0.0;
 
-  // timestamp
-  if (window.animate && timestamp - window.animateUpdateTime > 100) {
-    window.animateUpdateTime = timestamp;
-
-    window.animateIndex = parseInt(animateSlider.value, 10);
-    // console.log(timestamp, i);
-    if (window.animateAuto) {
-      window.animateIndex += 3
-      if (window.animateIndex >= window.animateCoil.x.length) {
-        window.animateIndex = 0
-      }
-      animateSlider.value = window.animateIndex;
-    }
-  
-    const fi = window.animateEqd.fi[window.animateIndex]
-    const dl = window.animateEqd.al[window.animateIndex]
-
-    // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
-    const animateText = ""
-      + `i ${window.animateIndex} | `
-      + `x ${window.animateCoil.x[window.animateIndex].toFixed(3)} | `
-      + `φ ${fi.toFixed(3)} | `
-      + `Δ ${(dl * 180. / Math.PI).toFixed(1)}°`
-    ;
-    document.querySelector(".program-p").textContent = animateText;
-  
-    if (window.coilInitialLine)
-      window.coilInitialLine.rotation.x = fi;
-  
-    if (window.tapeInitialMesh)
-      window.tapeInitialMesh.rotation.x = fi;
-
-    if (window.tapeInitialLine)
-      window.tapeInitialLine.rotation.x = fi;
-
-    
-    if (window.coilCorrectedLine)
-      window.coilCorrectedLine.rotation.x = fi;
-  
-    if (window.tapeCorrectedMesh)
-      window.tapeCorrectedMesh.rotation.x = fi;
-  
-    if (window.tapeCorrectedLine)
-      window.tapeCorrectedLine.rotation.x = fi;
-  
-
-    if (window.equidMesh)
-      window.equidMesh. rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
-
-    if (window.rolleyLine)
-      rolleyUpdate(window.animateIndex);
-      window.rolleyLine.rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
-  }
-
-  controls.update();
-
-  renderer.render(scene, camera);
+  return beta;
 }
 
+function pointXYZ(coil, i, fiShift = 0., th = 0., yShift = 0.0, mirror = undefined){
+  let sbth = 0., cbth = 0.;
+
+  if (th != 0.) {
+      const bi = getBetaI(coil["x"], coil["r"], i);
+      sbth = th * Math.sin(bi);
+      cbth = th * Math.cos(bi);
+  };
+
+  let x  = coil.x [i];
+  let r  = coil.r [i];
+  let fi = coil.fi[i];
+
+  fi += fiShift;
+
+  let cXi = (x - sbth);
+  let cYi = (r + cbth) * Math.sin(fi) + yShift;
+  let cZi = (r + cbth) * Math.cos(fi);
+
+  // if (i < 5) console.log(i, th)
+  // if (i = 2368 && window.debug) {
+  //     console.log(fi, r, x, cXi, cYi, cZi, window.debug)
+  // }
+
+  if (mirror) {
+      cXi = mirror[0] * 2 - cXi;
+      cYi = mirror[1] * 2 - cYi;
+      cZi = mirror[2] * 2 - cZi;
+  };
+
+  return [cXi, cYi, cZi];
+}
+window.pointXYZ = pointXYZ;
 
 // -------
 
@@ -751,7 +728,7 @@ function animate(timestamp) {
 // var mesh = new THREE.Mesh( geometry, material );
 // mesh.position.z = -100;
 
-// scene.add(mesh);
+// scene.scene.add(mesh);
 
 
 function removeMesh(object) {
@@ -769,13 +746,13 @@ function removeMesh(object) {
     }
   }
 
-  scene.remove(object); // Удаляем объект из сцены
+  scene.scene.remove(object); // Удаляем объект из сцены
 }
 window.removeMesh = removeMesh
 
 function clearScene() {
   const toRemove = [];
-  scene.traverse((object) => {
+  scene.scene.traverse((object) => {
     if (
         (object.type == "Mesh" || object.type == "LineSegments")
      && (object != window.floorMesh && object != window.frameMesh)
