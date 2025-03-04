@@ -217,11 +217,13 @@ function resizeMesh(mesh) {
   mesh.scale.set(scale.factor, scale.factor, scale.factor);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+// document.addEventListener('DOMContentLoaded', function () {
+function threeOnLoad() {
   setupScene();
   loaded();
   animate();
-})
+}
+window.threeOnLoad = threeOnLoad
 
 
 // models
@@ -677,7 +679,7 @@ function animate(timestamp) {
   
     if (window.tapeInitialMesh)
       window.tapeInitialMesh.rotation.x = fi;
-  
+
     if (window.tapeInitialLine)
       window.tapeInitialLine.rotation.x = fi;
 
@@ -695,9 +697,9 @@ function animate(timestamp) {
     if (window.equidMesh)
       window.equidMesh. rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
 
-    if (window.rolleyMesh)
+    if (window.rolleyLine)
       rolleyUpdate(window.animateIndex);
-      window.rolleyMesh.rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
+      window.rolleyLine.rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
   }
 
   controls.update();

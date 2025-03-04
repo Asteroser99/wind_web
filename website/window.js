@@ -262,7 +262,7 @@ function executeFunction() {
     if (typeof window[window.funcButtonFunction] === 'function') {
         window[window.funcButtonFunction](window.funcButtonParameter);
     } else {
-        showError('Function ${window.funcButtonFunction} is not found');
+        showError('Function ' + window.funcButtonFunction + ' is not found');
     }
 }
 
@@ -299,6 +299,7 @@ function windowOnLoad(){
 
 window.onload = function () {
     windowOnLoad();
+    threeOnLoad();
     vesselOnLoad();
     cognitoOnLoad();
     patternsOnLoad();

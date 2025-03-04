@@ -331,7 +331,7 @@ async function saveCsvWithDialog(name) {
 
     try {
         if (!window.showSaveFilePicker) {
-            alert("File System Access API is not supported by your browser");
+            showError("File System Access API is not supported by your browser");
             return;
         }
 
@@ -628,7 +628,7 @@ function coilCalc() {
         return lambdaCall("vitok", [mandrel, vessel_data["Pole"], vessel_data["Band"]])
             .then(res => {
                 const [coil, meridian] = res
-                setField("coilInitial", coil);
+                coilSet("Initial", coil);
                 setField("coilMeridian", meridian);
 
                 loaded();
@@ -652,10 +652,10 @@ function coilRender(coil) {
     const n = coil.x.length
 
     const vertices = [];
-    const indices = [];
+    const indices  = [];
 
     for (let i = 0; i < n; i++) {
-        pointXYZ(coil, i, vertices);
+        vertices.push(...pointXYZ(coil, i));
 
         if (i > 0) {
             indices.push(i - 1);
@@ -738,7 +738,6 @@ function tapeRender(suffix) {
     if (!tape){
         return [[], []];
     }
-    const [coilR, coilL] = tape;
 
     const vertices = [];
     const indLine  = [];
@@ -758,17 +757,19 @@ function tapeRender(suffix) {
     const th = 0.05, thd = th / n;
 
     let i = 0, j = 0;
-    pointXYZ(coilR, i, vertices);
-    pointXYZ(coilL, i, vertices);
+    const pTR = pointXYZ(tape, i)
+    vertices.push(...pTR);
+    vertices.push(...pointXYZ(tape, i, 0, 0, 0, pTR));
 
     j++;
     for (let round = 0, fiShift = 0., thi = th; round < Coils; round++) {
-
-        // console.log("( round", round);
-
         for (i = 1; i < n; i++, j++, thi += thd) {
-            pointXYZ(coilR, i, vertices, fiShift, thi);
-            pointXYZ(coilL, i, vertices, fiShift, thi);
+            const pT0 = pointXYZ(coil, i, fiShift)
+
+            const pTR = pointXYZ(tape, i, fiShift, thi)
+            vertices.push(...pTR);
+            const pTL = pointXYZ(tape, i, fiShift, thi, 0, pT0)
+            vertices.push(...pTL);
 
             indLine .push(j * 2 - 2); indLine .push(j * 2 + 0);
             indLine .push(j * 2 - 1); indLine .push(j * 2 + 1);
@@ -778,8 +779,6 @@ function tapeRender(suffix) {
         };
 
         fiShift += coil.fi[n - 1];
-
-        // console.log(") round", round);
     };
 
     return [vertices, indLine, indPlain];
@@ -801,10 +800,8 @@ function getBetaI(x, r, i){
     return beta;
 }
 
-function pointXYZ(coil, i, vertices, fiShift = 0., th = 0., yShift = 0.0){
+function pointXYZ(coil, i, fiShift = 0., th = 0., yShift = 0.0, mirror = undefined){
     let sbth = 0., cbth = 0.;
-
-    // if (i < 5) console.log(i, th)
 
     if (th != 0.) {
         const bi = getBetaI(coil["x"], coil["r"], i);
@@ -812,51 +809,70 @@ function pointXYZ(coil, i, vertices, fiShift = 0., th = 0., yShift = 0.0){
         cbth = th * Math.cos(bi);
     };
 
-    const fi  = coil.fi[i] + fiShift;
-    const r   = coil.r [i];
+    let x  = coil.x [i];
+    let r  = coil.r [i];
+    let fi = coil.fi[i];
 
-    const cXi = (coil.x[i] - sbth);
-    const cYi = (r + cbth) * Math.sin(fi) + yShift;
-    const cZi = (r + cbth) * Math.cos(fi);
+    fi += fiShift;
 
-    vertices.push(cXi, cYi, cZi);
+    let cXi = (x - sbth);
+    let cYi = (r + cbth) * Math.sin(fi) + yShift;
+    let cZi = (r + cbth) * Math.cos(fi);
+
+    // if (i < 5) console.log(i, th)
+    // if (i = 2368 && window.debug) {
+    //     console.log(fi, r, x, cXi, cYi, cZi, window.debug)
+    // }
+
+    if (mirror) {
+        cXi = mirror[0] * 2 - cXi;
+        cYi = mirror[1] * 2 - cYi;
+        cZi = mirror[2] * 2 - cZi;
+    };
+
+    return [cXi, cYi, cZi];
 }
 
 function getT(begin=0, end=0, long = false){
     if(end == 0)
         end = begin + 1;
 
+    const pN = 4; // point count
     const vertices = [];
     const indices  = [];
+
     for (let i = begin; i < end; i++) {
-        const pN = 4; // point count
         const j = (i - begin) * pN;
 
         const fiShift = 0. // (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
         const yShift  = 0. // (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
 
-        const pCoil = j + 0;
-        pointXYZ(window.animateCoil   , i, vertices, fiShift, 0.0, yShift);
+        const jCoil = j + 0;
+        const pC0 = pointXYZ(window.animateCoil, i, fiShift, 0.0, yShift)
+        vertices.push(...pC0);
 
-        const pEqd  = j + 1;
-        pointXYZ(window.animateEqd    , i, vertices, fiShift, 0.0, yShift);
+        const jEqd  = j + 1;
+        const pT0 = pointXYZ(window.animateEqd , i, fiShift, 0.0, yShift)
+        vertices.push(...pT0);
 
-        const pTL = j + 2;
-        pointXYZ(window.animateRolley0, i, vertices, fiShift, 0.0, yShift);
+        const jTL = j + 2;
+        const pTR = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift);
+        vertices.push(...pTR);
 
-        const pTR = j + 3;
-        pointXYZ(window.animateRolley1, i, vertices, fiShift, 0.0, yShift);
+        const jTR = j + 3;
+        const pTL = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift, pT0)
+        vertices.push(...pTL);
 
         if (long && i > 0) {
-            indices.push(pEqd - pN); indices.push(pEqd);
+            indices.push(jEqd - pN); indices.push(jEqd);
         }
         if (i % 5 == 0) {
             // if (inputValue('testModeInput') == 0){
-                indices.push(pCoil); indices.push(pEqd);
-                indices.push(pTL  ); indices.push(pTR )
+                indices.push(jCoil); indices.push(jEqd);
+                indices.push(jTL  ); indices.push(jTR )
             // } else {
-            //     indices.push(pTL  ); indices.push(pTR )
-            //     indices.push(pTL  ); indices.push(pTR )
+            //     indices.push(jTL  ); indices.push(jTR )
+            //     indices.push(jTL  ); indices.push(jTR )
             // }
         }
     };
@@ -928,39 +944,33 @@ function animationSetup(){
 
     window.animate = true;
 
-    window.animateCoil    = coil;
-    window.animateEqd     = eqd ;
-    window.animateRolley0 = roll;
-
-    const roll1 = {"x": [], "r": [], "fi": [], "al": []};
-    for (let i = 0; i < roll.x.length; i++) {
-        roll1.x .push(eqd.x [i] * 2 - roll.x [i]);
-        roll1.r .push(eqd.r [i]);
-        roll1.fi.push(eqd.fi[i] * 2 - roll.fi[i]);
-    };
-    window.animateRolley1 = roll1;
+    window.animateCoil   = coil;
+    window.animateEqd    = eqd ;
+    window.animateRolley = roll;
 
     document.getElementById("animateSlider").max = window.animateCoil.x.length - 1;
     window.animateUpdateTime = 0;
 
-    removeMesh(window.equidMesh);
-    window.equidMesh = addLine(getT(0, coil.x.length, true), color, true);
+    { // equidMesh
+        removeMesh(window.equidMesh);
+        window.equidMesh = addLine(getT(0, coil.x.length, true), color, true);
+    }
 
-    {
-        removeMesh(window.rolleyMesh);
+    { // rolleyLine
+        removeMesh(window.rolleyLine);
         const vertices = Array(4 * 3).fill(0);
         const indices = [0, 1,  2, 3];
-        window.rolleyMesh = addLine([vertices, indices], 0xff0000);
+        window.rolleyLine = addLine([vertices, indices], 0xff0000);
     };
 
-    {
+    { // carretLine
         removeMesh(window.carretLine);
         const vertices = Array(4 * 3).fill(0);
         const indices = [0, 1,  2, 3];
         window.carretLine = addLine([vertices, indices], 0x00ff00);
     };
 
-    {
+    { // carretMesh
         const Xi = 0;
         const Yi = 0;
         const Zi = Fr;
@@ -990,8 +1000,7 @@ function animationSetup(){
         window.carretMesh.position.z = Zi * scale.factor
     };
 
-
-    {
+    { // standMesh
         const Xi = 0;
         const Yi = 0;
         const Zi = Fr * 1;
@@ -1019,24 +1028,24 @@ function animationSetup(){
         removeMesh(window.standMesh);
         window.standMesh = addMesh([vert, indices], 0x00ff00);
     }
-
     
-    rolleyUpdate(0);
+    { // rolleyMesh
+        removeMesh(window.rolleyMesh);
 
-}
+        const band = inputValue('bandInput') / 2
+        const rolleyMandrel = {
+            x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
+            r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
+        };
+        
+        const render = generatrixRender(rolleyMandrel, 8)
 
-function addRolley() {
-    const bend = 10.
-    const rolleyMandrel = {
-        x: [-bend * 1.05, -bend, -bend * 0.6, -bend * 0.3,  0, bend * 0.3,  bend * 0.6,  bend,  bend * 1.05],
-        r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
-    };
-    
-    const render = generatrixRender(rolleyMandrel, 8)
+        const mesh = addMesh(render, 0xFFFFFF);
+        
+        window.rolleyMesh = mesh;
 
-    const mesh = addMesh(render, 0xFFFFFF);
-    
-    window.rolleyMesh0 = mesh;
+        rolleyUpdate(0);
+    }
 }
 
 function rolleyUpdate(i){
@@ -1046,22 +1055,15 @@ function rolleyUpdate(i){
 
     {
         const rolleyVert = getT(i)[0];
-        const pos = window.rolleyMesh.geometry.attributes.position;
+        const pos = window.rolleyLine.geometry.attributes.position;
         pos.array.set(rolleyVert);
         pos.needsUpdate = true;
     }
 
-    if (window.rolleyMesh0){
-        window.rolleyMesh0.rotation.z = eqd["al"][i]; //Math.PI * 0.5 - 
-        window.rolleyMesh0.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
+    if (window.rolleyMesh){
+        window.rolleyMesh.rotation.z = eqd["al"][i]; //Math.PI * 0.5 - 
+        window.rolleyMesh.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
     }
-
-    // if (i == 20){
-    //     const angleZ = eqd["al"][i]
-    //     const RB = addRolley(angleZ, eqd["x"][i], 0, eqd["r"][i]);
-    //     console.log(RB);
-    // }
-
 
     {
         const Fr = scale.y.max * 2;
@@ -1103,10 +1105,12 @@ document.getElementById('eqdDraw').addEventListener( 'click', () => {
         return
     }
 
-    lambdaCall("equidistantaRolley", [coilCorrected, inputValue('safetyRInput')])
+    lambdaCall("equidistantaRolley", [coilCorrected, inputValue('safetyRInput'), inputValue('bandInput')])
         .then(res => {
             setField("equidistanta", res[0]);
             setField("rolley", res[1]);
+            
+            coilSet("Interpolated", undefined);
 
             animationSetup();
 
@@ -1129,9 +1133,9 @@ document.getElementById('itpDraw').addEventListener( 'click', () => {
         return
     }
 
-    lambdaCall("interpolantaRolley", [coilCorrected, eqd, inputValue('lineCountInput')])
+    lambdaCall("interpolantaRolley", [coilCorrected, eqd, inputValue('lineCountInput'), inputValue('bandInput')])
         .then(res => {
-            setField("coilInterpolated"        , res[0]);
+            coilSet("Interpolated", res[0]);
             setField("equidistantaInterpolated", res[1]);
             setField("rolleyInterpolated"      , res[2]);
 
@@ -1171,6 +1175,13 @@ function patternsCalc() {
 
 // Correct coils
 
+function coilSet(suffix, coil) {
+    setField("coil" + suffix, coil)
+    if (suffix == "Initial") {
+        coilSet("Corrected", undefined);
+    }
+}
+
 function coilGet(suffix) {
     let coil = getField("coil" + suffix);
 
@@ -1199,7 +1210,7 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
 
     lambdaCall("conte", [coil, vessel_data["Turns"], vessel_data["Coils"]])
         .then(res => {
-            setField("coilCorrected", {
+            coilSet("Corrected", {
                 fi: res[0],
                 al: res[1],
             });
@@ -1234,7 +1245,7 @@ async function CNCExport() {
 
     // Проверяем поддержку API
     if (!window.showSaveFilePicker) {
-        alert("File System Access API is not supported by your browser.");
+        showError("File System Access API is not supported by your browser.");
         return;
     }
 
@@ -1367,6 +1378,7 @@ function vesselClear() {
     clearScene();
     drawAll();
 }
+window.vesselClear = vesselClear
 
 
 function vesselOnLoad() {
@@ -1377,7 +1389,5 @@ function vesselOnLoad() {
         drawAll();
     }
     SetPole();
-
-    addRolley();
 }
 window.vesselOnLoad = vesselOnLoad
