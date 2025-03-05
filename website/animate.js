@@ -9,33 +9,35 @@ function getT(begin=0, end=0, long = false){
     for (let i = begin; i < end; i++) {
         const j = (i - begin) * pN;
   
-        const fiShift = 0. // (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
-        const yShift  = 0. // (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
+        // const fiShift = 0. // (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
+        // const yShift  = 0. // (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
   
 
         const jCoil = j + 0;
-        const pCoil = pointXYZ(window.animateCoil, i, fiShift, 0.0, yShift)
+        const pCoil = pointXYZ(window.animateCoil, i)
         vertices.push(...pCoil);
   
         const jTapeL = j + 1;
-        const pTapeR = pointXYZ(window.animateTape, i, fiShift, 0.0, yShift);
+        const pTapeR = pointXYZ(window.animateTape, i);
         vertices.push(...pTapeR);
   
         const jTapeR = j + 2;
-        const pTapeL = pointXYZ(window.animateTape, i, fiShift, 0.0, yShift, pCoil)
+        // const pTapeL = pointXYZ(window.animateTape, i, pCoil)
+        const pTapeL = mirrorXYZ(pTapeR, pCoil)
         vertices.push(...pTapeL);
 
 
         const jEqd = j + 3;
-        const pEqd = pointXYZ(window.animateEqd , i, fiShift, 0.0, yShift)
+        const pEqd = pointXYZ(window.animateEqd , i)
         vertices.push(...pEqd);
 
         const jRollL = j + 4;
-        const pRollR = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift);
+        const pRollR = pointXYZ(window.animateRolley, i);
         vertices.push(...pRollR);
   
         const jRollR = j + 5;
-        const pRollL = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift, pEqd)
+        // const pRollL = pointXYZ(window.animateRolley, i, pEqd)
+        const pRollL = mirrorXYZ(pRollR, pEqd)
         vertices.push(...pRollL);
 
         
@@ -89,6 +91,11 @@ function animateInit(){
 
     const Fr = scale.y.max * 2;
     const Fd = Fr / 100;
+
+    {
+        const geometry = window.tapeInterpolatedMesh.geometry;
+        window.animateTapeIndices = Array.from(geometry.getIndex().array);
+    }
 
     { // equidLine
         removeMesh(window.equidLine);
@@ -207,6 +214,11 @@ function rolleyAnimate(){
     const eqd = window.animateEqd
     const rolleyVert = getT(i)[0];
 
+    if (window.tapeCorrectedMesh) { // tape
+        // const pos = window.tapeCorrectedMesh.geometry.attributes.position;
+        // console.log(pos.array)
+    }
+
     if (window.freeLine) { // freeLine
         const pos = window.freeLine.geometry.attributes.position;
         pos.array.set(rolleyVert);
@@ -258,13 +270,6 @@ window.rolleyAnimate = rolleyAnimate;
 function animate(timestamp) {
     requestAnimationFrame(animate);
   
-    // const parent = canvas.parentElement;
-    // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
-    // if (!parent.classList.contains("active")) return
-  
-    // cube.rotation.x += 0.01;
-    // cube.rotation.y += 0.01;
-  
     // timestamp
     if (window.animateOn && timestamp - window.animateUpdateTime > 100) {
       window.animateUpdateTime = timestamp;
@@ -294,8 +299,15 @@ function animate(timestamp) {
       document.querySelector(".program-p").textContent = animateText;
     
       rolleyAnimate();
+
+
+      if ( window.animateTapeIndices ) {
+        const geometry = window.tapeInterpolatedMesh.geometry;
+        geometry.setIndex(window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3));
+        // geometry.computeVertexNormals();
+      }
+
       
-  
       if (window.coilInitialLine)
         window.coilInitialLine.rotation.x = fi;
     
@@ -316,11 +328,21 @@ function animate(timestamp) {
         window.tapeCorrectedLine.rotation.x = fi;
   
   
+      if (window.coilInterpolatedLine)
+        window.coilInterpolatedLine.rotation.x = fi;
+    
+      if (window.tapeInterpolatedMesh)
+        window.tapeInterpolatedMesh.rotation.x = fi;
+    
+      if (window.tapeInterpolatedLine)
+        window.tapeInterpolatedLine.rotation.x = fi;
+  
+  
       if (window.equidLine)
-        window.equidLine.rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
+        window.equidLine.rotation.x = fi;
   
       if (window.freeLine)
-        window.freeLine .rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
+        window.freeLine .rotation.x = fi;
 
       if (window.freeMesh)
         window.freeMesh .rotation.x = fi;

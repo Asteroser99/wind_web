@@ -689,6 +689,8 @@ function tapeRemove(suffix) {
 }
 
 function coilDraw(suffix) {
+    console.log(suffix);
+
     let render = coilRender(coilGet(suffix));
     if(render){
         window["coil" + suffix + "Line"] = addLine(render);
@@ -699,7 +701,7 @@ function coilDraw(suffix) {
         const colorLine = 0xd38629
         window["tape" + suffix + "Line"] = addLine([render[0], render[1]], colorLine);
     
-        const colorMesh = suffix == "Initial" ? 0xfea02a : 0xffff00
+        const colorMesh = suffix == "Initial" ? 0xfea02a : (suffix == "Corrected" ? 0xff5500 : 0xffff00)
         window["tape" + suffix + "Mesh"] = addMesh([render[0], render[2]], colorMesh);
     }
 }
@@ -709,15 +711,14 @@ function coilDraws() {
 
     tapeRemove("Initial");
     tapeRemove("Corrected");
+    tapeRemove("Interpolated");
 
-    const coilCorrected = coilGet("Corrected")
-
-    if (!coilCorrected){
-        coilDraw("Initial");
-    } else if (mode == "first"){
+    if (coilGet("Interpolated")){
+        coilDraw("Interpolated");
+    } else if (coilGet("Corrected")){
         coilDraw("Corrected");
     } else {
-        coilDraw("Corrected", mode);
+        coilDraw("Initial");
     }
 }
 window.coilDraws = coilDraws
@@ -751,21 +752,27 @@ function tapeRender(suffix) {
         Coils = vesselData["Coils"]
     }
 
-    const th = 0.05, thd = th / n;
+    const th = 0.02, thd = th / n;
 
     let i = 0, j = 0;
+    const pT0 = pointXYZ(coil, i)
     const pTR = pointXYZ(tape, i)
     vertices.push(...pTR);
-    vertices.push(...pointXYZ(tape, i, 0, 0, 0, pTR));
+    // const pTL = pointXYZ(tape, i, 0, 0, 0, pT0)
+    const pTL = mirrorXYZ(pTR, pT0)
+    vertices.push(...pTL);
+
 
     j++;
-    for (let round = 0, fiShift = 0., thi = th; round < Coils; round++) {
+    for (let round = 0, fiShift = 0, thi = th; round < Coils; round++) {
         for (i = 1; i < n; i++, j++, thi += thd) {
             const pT0 = pointXYZ(coil, i, fiShift)
+            const pT1 = pointXYZ(coil, i, fiShift, thi, coil)
 
-            const pTR = pointXYZ(tape, i, fiShift, thi)
+            const pTR = pointXYZ(tape, i, fiShift, thi, coil)
             vertices.push(...pTR);
-            const pTL = pointXYZ(tape, i, fiShift, thi, 0, pT0)
+            // const pTL = pointXYZ(tape, i, fiShift, thi, 0, pT0)
+            const pTL = mirrorXYZ(pTR, pT1)
             vertices.push(...pTL);
 
             indLine .push(j * 2 - 2); indLine .push(j * 2 + 0);

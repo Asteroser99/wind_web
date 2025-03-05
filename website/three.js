@@ -653,11 +653,11 @@ function getBetaI(x, r, i){
   return beta;
 }
 
-function pointXYZ(coil, i, fiShift = 0., th = 0., yShift = 0.0, mirror = undefined){
+function pointXYZ(coil, i, fiShift = 0, th = 0., center = undefined){
   let sbth = 0., cbth = 0.;
 
   if (th != 0.) {
-      const bi = getBetaI(coil["x"], coil["r"], i);
+      const bi = getBetaI(center["x"], center["r"], i);
       sbth = th * Math.sin(bi);
       cbth = th * Math.cos(bi);
   };
@@ -669,23 +669,20 @@ function pointXYZ(coil, i, fiShift = 0., th = 0., yShift = 0.0, mirror = undefin
   fi += fiShift;
 
   let cXi = (x - sbth);
-  let cYi = (r + cbth) * Math.sin(fi) + yShift;
+  let cYi = (r + cbth) * Math.sin(fi); // + yShift
   let cZi = (r + cbth) * Math.cos(fi);
-
-  // if (i < 5) console.log(i, th)
-  // if (i = 2368 && window.debug) {
-  //     console.log(fi, r, x, cXi, cYi, cZi, window.debug)
-  // }
-
-  if (mirror) {
-      cXi = mirror[0] * 2 - cXi;
-      cYi = mirror[1] * 2 - cYi;
-      cZi = mirror[2] * 2 - cZi;
-  };
 
   return [cXi, cYi, cZi];
 }
 window.pointXYZ = pointXYZ;
+
+function mirrorXYZ(pTR, mirror){
+  const cXi = mirror[0] * 2 - pTR[0];
+  const cYi = mirror[1] * 2 - pTR[1];
+  const cZi = mirror[2] * 2 - pTR[2];
+  return [cXi, cYi, cZi];
+}
+window.mirrorXYZ = mirrorXYZ
 
 // -------
 
