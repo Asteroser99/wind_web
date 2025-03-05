@@ -2,7 +2,7 @@ function getT(begin=0, end=0, long = false){
     if(end == 0)
         end = begin + 1;
   
-    const pN = 4; // point count
+    const pN = 6; // point count
     const vertices = [];
     const indices  = [];
   
@@ -12,38 +12,40 @@ function getT(begin=0, end=0, long = false){
         const fiShift = 0. // (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
         const yShift  = 0. // (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
   
+
         const jCoil = j + 0;
-        const pC0 = pointXYZ(window.animateCoil, i, fiShift, 0.0, yShift)
-        vertices.push(...pC0);
+        const pCoil = pointXYZ(window.animateCoil, i, fiShift, 0.0, yShift)
+        vertices.push(...pCoil);
   
-        const jEqd  = j + 1;
-        const pT0 = pointXYZ(window.animateEqd , i, fiShift, 0.0, yShift)
-        vertices.push(...pT0);
+        const jTapeL = j + 1;
+        const pTapeR = pointXYZ(window.animateTape, i, fiShift, 0.0, yShift);
+        vertices.push(...pTapeR);
+  
+        const jTapeR = j + 2;
+        const pTapeL = pointXYZ(window.animateTape, i, fiShift, 0.0, yShift, pCoil)
+        vertices.push(...pTapeL);
 
 
-        // const tape = window.animateTape
+        const jEqd = j + 3;
+        const pEqd = pointXYZ(window.animateEqd , i, fiShift, 0.0, yShift)
+        vertices.push(...pEqd);
 
+        const jRollL = j + 4;
+        const pRollR = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift);
+        vertices.push(...pRollR);
+  
+        const jRollR = j + 5;
+        const pRollL = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift, pEqd)
+        vertices.push(...pRollL);
 
-  
-        const jTL = j + 2;
-        const pTR = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift);
-        vertices.push(...pTR);
-  
-        const jTR = j + 3;
-        const pTL = pointXYZ(window.animateRolley, i, fiShift, 0.0, yShift, pT0)
-        vertices.push(...pTL);
-  
+        
         if (long && i > 0) {
             indices.push(jEqd - pN); indices.push(jEqd);
         }
         if (i % 5 == 0) {
-            // if (inputValue('testModeInput') == 0){
-                indices.push(jCoil); indices.push(jEqd);
-                indices.push(jTL  ); indices.push(jTR )
-            // } else {
-            //     indices.push(jTL  ); indices.push(jTR )
-            //     indices.push(jTL  ); indices.push(jTR )
-            // }
+            indices.push(jCoil ); indices.push(jEqd  );
+            indices.push(jTapeL); indices.push(jTapeR);
+            indices.push(jRollL); indices.push(jRollR);
         }
     };
   
@@ -93,16 +95,18 @@ function animateInit(){
 
     { // freeLine
         removeMesh(window.freeLine);
-        const vertices = Array(4 * 3).fill(0);
-        const indices = [0, 1,  2, 3];
+        const vertices = Array(6 * 3).fill(0);
+        const indices = [0, 3,  1, 2,  4, 5];
         window.freeLine = addLine([vertices, indices], 0xff0000);
     };
 
     { // freeMesh
         removeMesh(window.freeMesh);
-        const vertices = Array(4 * 3).fill(0);
-        const indices = [0, 2, 1,  1, 2, 3];
-        window.freeMesh = addMesh([vertices, indices], 0xff0000);
+        const vertices = Array(6 * 3).fill(0);
+        const indices = [1, 2, 4,  4, 2, 5];
+        console.log("freeMesh(")
+        window.freeMesh = addMesh([vertices, indices], 0xaaff00);
+        console.log("freeMesh)")
     };
 
     { // carretLine

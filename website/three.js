@@ -15,28 +15,28 @@ window.scale = { x: {}, y: {}, z: {}, factor: 1 };
 let meshes = {}
 
 function createGradientTexture() {
-  const canvas = document.createElement('canvas');
-  // const canvas = document.getElementById('scene-canvas')
-  const ctx = canvas.getContext('2d');
-  canvas.width = 512; // Размер текстуры
-  canvas.height = 512;
+    const canvas = document.createElement('canvas');
+    // const canvas = document.getElementById('scene-canvas')
+    const ctx = canvas.getContext('2d');
+    canvas.width = 512; // Размер текстуры
+    canvas.height = 512;
 
-  // Создаем градиент
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  // gradient.addColorStop(0, '#ff7eb3'); // Розовый
-  // gradient.addColorStop(0.5, '#6c5ce7'); // Фиолетовый
-  // gradient.addColorStop(1, '#00cec9'); // Голубой
-  gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
-  gradient.addColorStop(1, '#00827E'); // Нижний цвет
+    // Создаем градиент
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    // gradient.addColorStop(0, '#ff7eb3'); // Розовый
+    // gradient.addColorStop(0.5, '#6c5ce7'); // Фиолетовый
+    // gradient.addColorStop(1, '#00cec9'); // Голубой
+    gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
+    gradient.addColorStop(1, '#00827E'); // Нижний цвет
 
-  // Заливаем canvas градиентом
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Заливаем canvas градиентом
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Создаем текстуру из canvas
-  const texture = new THREE.CanvasTexture(canvas);
-  scene.scene.background = texture;
-  return texture;
+    // Создаем текстуру из canvas
+    const texture = new THREE.CanvasTexture(canvas);
+    scene.scene.background = texture;
+    return texture;
 }
 
 function resizeScene() {
@@ -462,6 +462,8 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
     color: color,
     side: THREE.DoubleSide,
   });
+
+  console.log(material)
 
   if (transparent != 1.) {
     material.transparent = true;
