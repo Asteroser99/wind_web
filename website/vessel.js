@@ -672,7 +672,7 @@ function coilRender(coil) {
 
 function tapeCalc(prefix) {
     loading();
-    coil = coilGet(prefix)
+    const coil = coilGet(prefix)
     const vessel_data = getVesselData();
     return lambdaCall("tape", [coil, vessel_data["Band"]])
         .then(res => {
