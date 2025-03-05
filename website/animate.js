@@ -271,14 +271,17 @@ function animate(timestamp) {
         animateSlider.value = window.animateIndex;
       }
     
+      const x  = window.animateEqd.x [window.animateIndex]
+      const r  = window.animateEqd.r [window.animateIndex]
       const fi = window.animateEqd.fi[window.animateIndex]
       const dl = window.animateEqd.al[window.animateIndex]
   
       // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
       const animateText = ""
         + `i ${window.animateIndex} | `
-        + `x ${window.animateCoil.x[window.animateIndex].toFixed(3)} | `
-        + `φ ${fi.toFixed(3)} | `
+        + `x ${x.toFixed(1)} | `
+        + `r ${r.toFixed(1)} | `
+        + `φ ${fi.toFixed(5)} | `
         + `Δ ${(dl * 180. / Math.PI).toFixed(1)}°`
       ;
       document.querySelector(".program-p").textContent = animateText;
