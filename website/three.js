@@ -207,8 +207,9 @@ function sceneInit() {
 
   resizeScene();
 
-  window.floorMesh = addFloor();
-  addFrame();
+  floorInit();
+
+  frameInit();
 
   scaleSet();
 }
@@ -229,7 +230,7 @@ window.threeOnLoad = threeOnLoad
 
 // models
 
-function addFloor() {
+function floorInit() {
   // const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
   // groundGeometry.rotateX(-Math.PI / 2);
   // const groundMaterial = new THREE.MeshStandardMaterial({
@@ -337,7 +338,7 @@ function addFloor() {
 
   scene.scene.add(mesh);
 
-  return mesh;
+  window.floorMesh = mesh;
 }
 
 function addMeshfromfile() {
@@ -463,8 +464,6 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
     side: THREE.DoubleSide,
   });
 
-  console.log(material)
-
   if (transparent != 1.) {
     material.transparent = true;
     material.opacity = transparent;
@@ -475,6 +474,7 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
   mesh.position.set(0, 0, 0);
   mesh.castShadow = false;
   mesh.receiveShadow = false;
+  mesh.frustumCulled = false;
   scene.scene.add(mesh);
 
   if (setScale) {
@@ -609,7 +609,7 @@ function frameUpdate(){
   floorMesh.position.x = scale.x.center * scale.factor;
 }
 
-function addFrame(){
+function frameInit(){
   const vertices = Array(6 * 3).fill(0);
   const indices = [
     0, 1,  1, 2,  2, 3,  3, 4,  4, 5,  5, 0,

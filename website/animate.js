@@ -58,14 +58,16 @@ function animateInit(){
     let tape = getField("tapeInterpolated");
     let eqd  = getField("equidistantaInterpolated");
     let roll = getField("rolleyInterpolated");
-    let color = 0x9ACBD0
+    let eqdColor  = 0x9ACBD0
+    let freeColor = 0xffff00
 
     if (!coil) {
         coil = coilGet("Corrected");
         tape = getField("tapeCorrected");
         eqd  = getField("equidistanta");
         roll = getField("rolley");
-        color = 0xfea02a
+        eqdColor = 0xfea02a
+        freeColor = 0xfea02a
     }
 
     if (!coil || !eqd){
@@ -88,9 +90,9 @@ function animateInit(){
     const Fr = scale.y.max * 2;
     const Fd = Fr / 100;
 
-    { // equidMesh
-        removeMesh(window.equidMesh);
-        window.equidMesh = addLine(getT(0, coil.x.length, true), color, true);
+    { // equidLine
+        removeMesh(window.equidLine);
+        window.equidLine = addLine(getT(0, coil.x.length, true), eqdColor, true);
     }
 
     { // freeLine
@@ -102,14 +104,17 @@ function animateInit(){
 
     { // freeMesh
         removeMesh(window.freeMesh);
-        const vertices = Array(6 * 3).fill(0);
-        const indices = [1, 2, 4,  4, 2, 5];
-        console.log("freeMesh(")
-        window.freeMesh = addMesh([vertices, indices], 0xaaff00);
-        console.log("freeMesh)")
+        const vertices = [ // Array(6 * 3).fill(0);
+            0, 0, 0, 2, 0, 1, 
+            1, 0, 0, 1, 1, 1, 
+            0, 1, 0, 2, 1, 1, 
+        ]
+        const indices = [1, 0, 4,  4, 0, 3,  2, 0, 5,  5, 0, 3];
+
+        window.freeMesh = addMesh([vertices, indices], freeColor);
     };
 
-    { // carretLine
+    if (false) { // carretLine
         removeMesh(window.carretLine);
         const vertices = Array(4 * 3).fill(0);
         const indices = [0, 1,  2, 3];
@@ -122,10 +127,10 @@ function animateInit(){
         const Zi = Fr;
 
         const vert = [];
-        vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 8);
-        vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 8);
-        vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 8);
-        vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 8);
+        vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 4);
+        vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 4);
+        vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 4);
+        vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 4);
 
         vert.push(Xi - Fd * 2,  Yi - Fd,  Fr);
         vert.push(Xi - Fd * 2,  Yi + Fd,  Fr);
@@ -142,7 +147,7 @@ function animateInit(){
         indices.push(3, 7, 4,  4, 0, 3);
 
         removeMesh(window.carretMesh);
-        window.carretMesh = addMesh([vert, indices], 0x00ff00);
+        window.carretMesh = addMesh([vert, indices], 0x00ffff, 0.3);
         window.carretMesh.position.z = Zi * scale.factor
     };
 
@@ -172,7 +177,7 @@ function animateInit(){
         indices.push(3, 7, 4,  4, 0, 3);
 
         removeMesh(window.standMesh);
-        window.standMesh = addMesh([vert, indices], 0x00ff00);
+        window.standMesh = addMesh([vert, indices], 0x00ffff, 0.3);
     }
     
     { // rolleyMesh
@@ -219,13 +224,13 @@ function rolleyAnimate(){
         window.rolleyMesh.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
     }
 
+    const Xi = eqd.x[i]
+    const Yi = 0;
+    const Zi = eqd.r[i]
+
     if (window.carretLine) { // carretLine
         const Fr = scale.y.max * 2;
         // const Fd = Fr / 8;
-
-        const Xi = eqd.x[i]
-        const Yi = 0;
-        const Zi = eqd.r[i]
 
         const vert = [];
         vert.push(Xi,  Yi,  Zi);
@@ -236,7 +241,9 @@ function rolleyAnimate(){
         const pos = window.carretLine.geometry.attributes.position;
         pos.array.set(vert);
         pos.needsUpdate = true;
+    }
 
+    if (window.carretMesh) { // carretMesh
         window.carretMesh.position.x = Xi * scale.factor;
         window.carretMesh.position.z = Zi * scale.factor;
         window.carretMesh.rotation.z = eqd["al"][i];
@@ -309,8 +316,8 @@ function animate(timestamp) {
         window.tapeCorrectedLine.rotation.x = fi;
   
   
-      if (window.equidMesh)
-        window.equidMesh.rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
+      if (window.equidLine)
+        window.equidLine.rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
   
       if (window.freeLine)
         window.freeLine .rotation.x = fi; // (inputValue('testModeInput') == 0 ? fi : 0);
