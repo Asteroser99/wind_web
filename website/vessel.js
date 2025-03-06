@@ -323,7 +323,7 @@ function mandrelFromCSV(csvText, colNum = 0) {
 // }
 
 async function saveCsvWithDialog(name) {
-    const data = getField(name)
+    const data = getField("mandrel" + name)
     if (!data) {
         showError("No data to save");
         return
