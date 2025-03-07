@@ -209,7 +209,7 @@ function createScatterConfig() {
           type: "linear",
           title: {
             display: true,
-            text: "Y Axis",
+            text: "R Axis",
           },
         },
       },

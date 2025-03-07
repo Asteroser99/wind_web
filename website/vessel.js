@@ -585,7 +585,9 @@ document.getElementById('thicknessGet').addEventListener(
             return;
         }
 
-        return lambdaCall("thickness", [coilCorrected, coilMeridian])
+        console.log(getField('band'))
+
+        return lambdaCall("thickness", [coilCorrected, coilMeridian, getField('band')])
             .then((res) => {
                 mandrelSet("Winded", res);
                 loaded();
