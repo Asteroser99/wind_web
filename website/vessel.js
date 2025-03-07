@@ -31,7 +31,15 @@ const getField = (key) => {
         const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
         // console.log(keys);
         keys.forEach((storedKey) => {
-            const value = JSON.parse(localStorage.getItem(`vessel_${storedKey}`));
+            let value = localStorage.getItem(`vessel_${storedKey}`);
+            // console.log(key, typeof value, value);
+            if (value && value != undefined){
+                try {
+                    value = JSON.parse(value);
+                } catch (error) {
+                    value = undefined;
+                }
+            }
             vessel[storedKey] = value;
         });
     }
@@ -99,9 +107,9 @@ function getVesselData(){
 
     return {
         //  parseFloat(document.getElementById('value-x').textContent), //.toFixed(2)
-        "Pole": inputValue('poleInput'),
-        "Band": inputValue('bandInput'),
-        "Conv": inputValue('convInput'),
+        "Pole": getField('poleR'),
+        "Band": getField('band'),
+        "Conv": getField('conv'),
         "Turns": fibboSel["Turns"],
         "Coils": fibboSel["Coils"],
     };
@@ -247,7 +255,7 @@ function mandrelImportCSV(prefix){
 function mandrelImportCSVOnInputClick(file, prefix){
     const reader = new FileReader();
     reader.onload = function(event) {
-        const colNumEl = document.getElementById('csv-column');
+        const colNumEl = document.getElementById('csvColumn');
         mandrelImportCSVOnFileLoad(prefix, event.target.result, colNumEl.value - 1);
     };
     reader.readAsText(file);
@@ -476,7 +484,7 @@ function SetPole() {
     const mandrel = mandrelGet("Raw")
     if (!mandrel) return;
     const {x, r} = mandrel
-    if (r.length > 0) inputValue('poleInput', r[0]);
+    if (r.length > 0) getField('poleR', r[0]);
 }
 
 function mandrelSet(name, xOrMandrel, r = null){
@@ -689,8 +697,6 @@ function tapeRemove(suffix) {
 }
 
 function coilDraw(suffix) {
-    console.log(suffix);
-
     let render = coilRender(coilGet(suffix));
     if(render){
         window["coil" + suffix + "Line"] = addLine(render);
@@ -841,7 +847,7 @@ document.getElementById('eqdDraw').addEventListener( 'click', () => {
         return
     }
 
-    lambdaCall("equidistantaRolley", [coilCorrected, inputValue('safetyRInput'), inputValue('bandInput')])
+    lambdaCall("equidistantaRolley", [coilCorrected, getField('safetyR'), getField('band')])
         .then(res => {
             setField("equidistanta", res[0]);
             setField("rolley", res[1]);
@@ -869,7 +875,7 @@ document.getElementById('itpDraw').addEventListener( 'click', () => {
         return
     }
 
-    lambdaCall("interpolantaRolley", [coilCorrected, eqd, inputValue('lineCountInput'), inputValue('bandInput')])
+    lambdaCall("interpolantaRolley", [coilCorrected, eqd, getField('lineCount'), getField('band')])
         .then(res => {
             coilSet ("Interpolated"            , res[0]);
             setField("tapeInterpolated"        , res[1]);
@@ -1112,6 +1118,7 @@ function vesselloadFromURL(name) {
 // Clear
 function vesselClear() {
     clearVessel();
+    inputFieldInit();
     clearScene();
     drawAll();
 }

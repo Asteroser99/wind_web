@@ -1,12 +1,13 @@
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
+    /* font-family: 'Courier New'; */
     display: flex;
     flex-direction: column;
     height: 100vh;
     background-color: #9ACBD0;
 }
-
+  
 .header h1 {
     margin: 0;
 }
@@ -51,7 +52,11 @@ p {
     margin-top: 0px;
     margin-bottom: 10px;
     /* padding: 5px; */
-} 
+}
+
+button {
+    font-family: Arial;
+}
   
 .clickable-row {
     cursor: pointer;
@@ -59,22 +64,44 @@ p {
 
 .buttons {
     display: flex;
-    gap: 10px;
-    padding: 10px;
+    gap: 0px;
+    padding: 0px;
+    height: 100%;
 }
 
 .header-btn {
+    position: relative;
     background-color: #9acbd0;
     color: #F2EFE7;
-    border: none;
     padding: 5px 15px;
-    border-radius: 3px;
+    border-radius: 2px;
     cursor: pointer;
     font-size: 0.9em;
     border: 1px solid #2973B2;
+    font-weight: bold;
+    height: 100%;
+    width: 100%;
+}
+.header-btn::after {
+    content: "";
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    height: 5px;
+    /* top: 5px; */
+    bottom: 0px;
+    background-color: #2973B2; /* Цвет полосы */
+}
+
+.header-btn.active {
+    background-color: #2973B2;
 }
 
 .header-btn:hover {
+    background-color: #48A6A7;
+}
+
+.header-btn.active:hover {
     background-color: #48A6A7;
 }
 
@@ -94,6 +121,8 @@ p {
 
 
 .head-tab-link {
+    position: relative;
+    transform: rotate(180deg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -109,9 +138,11 @@ p {
 .head-tab-link:hover {
     background-color: #48A6A7;
 }
-
 .head-tab-link.active {
     background-color: #2973B2;
+}
+.head-tab-link.active:hover {
+    background-color: #48A6A7;
 }
 
 
@@ -136,20 +167,37 @@ p {
     transform: rotate(180deg);
     background-color: #9ACBD0;
     color: #F2EFE7;
-    border: none;
     outline: none;
     padding: 15px 21px;
+    border-radius: 2px;
     cursor: pointer;
     text-align: center;
     border: 1px solid #2973B2;
     font-weight: bold;
 }
+
+.tabs button::after
+ , .div-logo button::after 
+{
+    content: "";
+    position: absolute;
+    top: 20%;   /* Отступ сверху */
+    bottom: 20%; /* Отступ снизу */
+    left: 0px;   /* Прижимаем к правому краю */
+    width: 5px; /* Ширина полосы */
+    background-color: #2973B2; /* Цвет полосы */
+}
+
 .tabs button:hover {
     background-color: #48A6A7;
 }
 
 .tabs button.active {
     background-color: #2973B2;
+}
+
+.tabs button.active:hover {
+    background-color: #48A6A7;
 }
 
 .tabs-content {
@@ -331,7 +379,7 @@ input {
     justify-content: center; /* Центрирование по вертикали */
 }
 
-.modebar {
+#modeBar {
     display: flex;
     gap: 10px;
     margin-bottom: 10px;
@@ -350,7 +398,7 @@ input {
 }
 
 
-.player-bar {
+#playerBar {
     display: flex;
     background: rgba(0, 0, 0, 0.05); /* Полупрозрачный фон */
     width: 100%;
@@ -380,7 +428,7 @@ input {
 }
 
 
-.program-bar {
+#programBar {
     font-size: 20px;
     font-weight: bold;
 }

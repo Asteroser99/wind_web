@@ -270,22 +270,46 @@ function closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
+function inputFieldInit(){
+    document.querySelectorAll(".inputField").forEach(input => {
+        const id = input.id;
+        input.addEventListener("input", () => setField(id, parseFloat(input.value)));
+
+        const value = getField(id)
+
+        if(value)
+            input.value = value;
+        else
+            setField(id, parseFloat(input.value))
+    });
+}
+window.inputFieldInit = inputFieldInit
+
 
 // OnLoad
 
 function windowOnLoad(){
-    // const colNumEl = document.getElementById('csv-column');
+    // const colNumEl = document.getElementById('csvColumn');
     // colNumEl.value = 1;
-    inputValue('csv-column', 1);
+
+
+    inputFieldInit();
+    // getField('csvColumn', 1);
 
 
     const helpOverlay = document.getElementById("help-container");
     helpOverlay.style.display = "none"
     function toggleHelp() {
-        const helpIsOpen = helpOverlay.style.display === "flex"
-        helpOverlay.style.display = helpIsOpen ? "none" : "flex";
-        document.getElementById("file-container"   ).style.display = helpIsOpen ? "flex" : "none";
-        document.getElementById("actions-container").style.display = helpIsOpen ? "flex" : "none";
+        const helpIsOpen = helpOverlay.style.display != "flex"
+        helpOverlay.style.display = !helpIsOpen ? "none" : "flex";
+        document.getElementById("file-container"   ).style.display = helpIsOpen ? "none" : "flex";
+        document.getElementById("actions-container").style.display = helpIsOpen ? "none" : "flex";
+        
+        if (helpIsOpen) {
+            document.getElementById("toggle-help").classList.add('active');
+        } else {
+            document.getElementById("toggle-help").classList.remove('active');
+        }
     }
 
     const toggleButton = document.getElementById("toggle-help");

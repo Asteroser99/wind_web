@@ -9,8 +9,8 @@ function getT(begin=0, end=0, long = false){
     for (let i = begin; i < end; i++) {
         const j = (i - begin) * pN;
   
-        // const fiShift = 0. // (inputValue('testModeInput') == 0 ? 0. : -window.animateEqd["fi"][i]);
-        // const yShift  = 0. // (inputValue('testModeInput') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
+        // const fiShift = 0. // (getField('testMode') == 0 ? 0. : -window.animateEqd["fi"][i]);
+        // const yShift  = 0. // (getField('testMode') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
   
 
         const jCoil = j + 0;
@@ -72,12 +72,12 @@ function animateInit(){
         freeColor = 0xfea02a
     }
 
-    if (!coil || !eqd){
-        window.animateOn = false;
-        return
-    }
+    window.animateOn = coil && tape && eqd && roll
 
-    window.animateOn = true;
+    document.getElementById("programBar").style.display = window.animateOn ? "flex" : "none";
+    document.getElementById("playerBar" ).style.display = window.animateOn ? "flex" : "none";
+
+    if (!window.animateOn) return;
 
     window.animateCoil   = coil;
     window.animateTape   = tape;
@@ -92,7 +92,7 @@ function animateInit(){
     const Fr = scale.y.max * 2;
     const Fd = Fr / 100;
 
-    {
+    if (window.tapeInterpolatedMesh){
         const geometry = window.tapeInterpolatedMesh.geometry;
         window.animateTapeIndices = Array.from(geometry.getIndex().array);
     }
@@ -190,7 +190,7 @@ function animateInit(){
     { // rolleyMesh
         removeMesh(window.rolleyMesh);
 
-        const band = inputValue('bandInput') / 2
+        const band = getField('band') / 2
         const rolleyMandrel = {
             x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
             r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
