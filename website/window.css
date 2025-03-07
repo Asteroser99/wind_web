@@ -435,18 +435,18 @@ input {
 
 #playerBar {
     display: flex;
-    background: rgba(0, 0, 0, 0.05); /* Полупрозрачный фон */
+    /* background: rgba(0, 0, 0, 0.05); */
     width: 100%;
 }
 
 #scene-canvas-div {
-    position: relative; /* Для абсолютного позиционирования */
+    position: relative;
     width: 100%;
     height: 100%;
 }
 
 #animateSlider {
-    flex-grow: 1; /* Растягивает слайдер */
+    flex-grow: 1;
     margin: 10px;
 }
 
