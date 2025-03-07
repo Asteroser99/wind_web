@@ -707,7 +707,7 @@ function coilDraw(suffix) {
         const colorLine = 0xd38629
         window["tape" + suffix + "Line"] = addLine([render[0], render[1]], colorLine);
     
-        const colorMesh = suffix == "Initial" ? 0xfea02a : (suffix == "Corrected" ? 0xff5500 : 0xffff00)
+        const colorMesh = suffix == "Initial" ? 0xff5500 : (suffix == "Corrected" ? 0xfea02a : 0xffff00)
         window["tape" + suffix + "Mesh"] = addMesh([render[0], render[2]], colorMesh);
     }
 }

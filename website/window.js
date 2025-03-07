@@ -270,6 +270,26 @@ function closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
+function toggleHelp(toggled){
+    const helpOverlay = document.getElementById("help-container");
+    helpOverlay.style.display = !toggled ? "none" : "flex";
+    document.getElementById("file-container"   ).style.display = toggled ? "none" : "flex";
+    document.getElementById("actions-container").style.display = toggled ? "none" : "flex";
+    if (toggled)
+        document.getElementById("helpCloseButton").classList.add('active');
+    else 
+        document.getElementById("helpToggle").classList.remove('active');
+}
+window.toggleHelp = toggleHelp
+
+function toggleEquidistanta(toggled){
+    window.equidistantaShow = toggled
+}
+window.toggleEquidistanta = toggleEquidistanta
+
+
+// Init
+
 function inputFieldInit(){
     document.querySelectorAll(".inputField").forEach(input => {
         const id = input.id;
@@ -285,40 +305,36 @@ function inputFieldInit(){
 }
 window.inputFieldInit = inputFieldInit
 
+function toggleButtonInit(){
+    document.querySelectorAll('.toggleButton').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const button = event.currentTarget
+            let active = button.classList.contains('active')
+
+            active = !active
+            if (active) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+
+            const func = button.dataset.function;
+            window[func](active);
+        });
+
+        const active = button.classList.contains('active')
+        const func = button.dataset.function;
+        window[func](active);
+    });
+}
+
 
 // OnLoad
 
 function windowOnLoad(){
-    // const colNumEl = document.getElementById('csvColumn');
-    // colNumEl.value = 1;
-
-
     inputFieldInit();
-    // getField('csvColumn', 1);
-
-
-    const helpOverlay = document.getElementById("help-container");
-    helpOverlay.style.display = "none"
-    function toggleHelp() {
-        const helpIsOpen = helpOverlay.style.display != "flex"
-        helpOverlay.style.display = !helpIsOpen ? "none" : "flex";
-        document.getElementById("file-container"   ).style.display = helpIsOpen ? "none" : "flex";
-        document.getElementById("actions-container").style.display = helpIsOpen ? "none" : "flex";
-        
-        if (helpIsOpen) {
-            document.getElementById("toggle-help").classList.add('active');
-        } else {
-            document.getElementById("toggle-help").classList.remove('active');
-        }
-    }
-
-    const toggleButton = document.getElementById("toggle-help");
-    toggleButton.addEventListener("click", toggleHelp);
-
-    const closeButton = document.getElementById("close-help");
-    closeButton.addEventListener("click", toggleHelp);
-
     funcButtonInit();
+    toggleButtonInit();
 }
 
 window.onload = function () {

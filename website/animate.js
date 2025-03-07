@@ -337,7 +337,7 @@ function animate(timestamp) {
       if (window.tapeInterpolatedLine)
         window.tapeInterpolatedLine.rotation.x = fi;
   
-  
+      window.equidLine.visible = window.equidistantaShow;
       if (window.equidLine)
         window.equidLine.rotation.x = fi;
   

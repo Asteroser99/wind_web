@@ -8,34 +8,6 @@ body {
     background-color: #9ACBD0;
 }
   
-.header h1 {
-    margin: 0;
-}
-
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #9ACBD0;
-    color: #23486A;
-    font-weight: bold;
-    height: 65px
-}
-
-.title {
-    padding: 20px;
-    /* font-size: 2.0em; */
-    flex: 1;
-    text-align: left;
-}
-
-.div-logo {
-    padding: 0px;
-    background-color: #F2EFE7;
-    width: 65px;
-    height: 100%;
-}
-
 h2 {
     /* color: rgb(215, 215, 215); */
     margin: 3px;
@@ -58,6 +30,36 @@ button {
     font-family: Arial;
 }
   
+.title {
+    padding: 20px;
+    /* font-size: 2.0em; */
+    flex: 1;
+    text-align: left;
+}
+
+.div-logo {
+    padding: 0px;
+    background-color: #F2EFE7;
+    width: 65px;
+    height: 100%;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.6em;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #9ACBD0;
+    color: #23486A;
+    font-weight: bold;
+    height: 65px;
+}
+
+
 .clickable-row {
     cursor: pointer;
 }
@@ -69,7 +71,7 @@ button {
     height: 100%;
 }
 
-.header-btn {
+.buttons button {
     position: relative;
     background-color: #9acbd0;
     color: #F2EFE7;
@@ -82,7 +84,16 @@ button {
     height: 100%;
     width: 100%;
 }
-.header-btn::after {
+.buttons button.active {
+    background-color: #2973B2;
+}
+.buttons button:hover {
+    background-color: #48A6A7;
+}
+.buttons button.active:hover {
+    background-color: #48A6A7;
+}
+.buttons button::after {
     content: "";
     position: absolute;
     left: 20%;
@@ -92,17 +103,8 @@ button {
     bottom: 0px;
     background-color: #2973B2; /* Цвет полосы */
 }
-
-.header-btn.active {
-    background-color: #2973B2;
-}
-
-.header-btn:hover {
-    background-color: #48A6A7;
-}
-
-.header-btn.active:hover {
-    background-color: #48A6A7;
+.buttons button.active::after {
+    background-color: #9acbd0;
 }
 
 .main-container {
@@ -175,7 +177,15 @@ button {
     border: 1px solid #2973B2;
     font-weight: bold;
 }
-
+.tabs button:hover {
+    background-color: #48A6A7;
+}
+.tabs button.active {
+    background-color: #2973B2;
+}
+.tabs button.active:hover {
+    background-color: #48A6A7;
+}
 .tabs button::after
  , .div-logo button::after 
 {
@@ -187,18 +197,12 @@ button {
     width: 5px; /* Ширина полосы */
     background-color: #2973B2; /* Цвет полосы */
 }
-
-.tabs button:hover {
-    background-color: #48A6A7;
+.tabs button.active::after
+ , .div-logo button.active::after 
+{
+    background-color: #9acbd0;
 }
 
-.tabs button.active {
-    background-color: #2973B2;
-}
-
-.tabs button.active:hover {
-    background-color: #48A6A7;
-}
 
 .tabs-content {
     flex-grow: 1;
@@ -381,20 +385,51 @@ input {
 
 #modeBar {
     display: flex;
+    padding: 0px;
+    height: 40px;
+    width: 100%;
+    justify-content: space-evenly;
     gap: 10px;
-    margin-bottom: 10px;
 }
-.mode-button {
-    padding: 10px;
-    border: 2px solid #ccc;
-    background: white;
+#modeBar div {
+    display: flex;
+    gap: 0px;
+}
+#modeBar button {
+    position: relative;
+    border: 1px solid #2973B2;
+    background-color: #9acbd0;
+    color: #F2EFE7;
+    border-radius: 2px;
+    font-size: 0.8em;
     cursor: pointer;
-    border-radius: 5px;
+    height: 100%;
 }
 .mode-button.active {
     background: #007bff;
     color: white;
     border-color: #007bff;
+}
+#modeBar button.active {
+    background-color: #2973B2;
+}
+#modeBar button:hover {
+    background-color: #48A6A7;
+}
+#modeBar button.active:hover {
+    background-color: #48A6A7;
+}
+#modeBar button::after {
+    content: "";
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    height: 5px;
+    top: 0px;
+    background-color: #2973B2;
+}
+#modeBar button.active::after {
+    background-color: #9acbd0;
 }
 
 
@@ -478,16 +513,13 @@ input {
     width: 100%;
     height: 100%;
     background: rgba(255, 255, 255, 0.85);
-    display: flex;
-    /* align-items: center; */
-    /* justify-content: center; */
     text-align: justify;
     font-size: 20px;
     z-index: 30;
     overflow: auto;
 }
 
-.help-close-btn {
+#helpCloseButton {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -500,6 +532,6 @@ input {
     border-radius: 50%;
 }
 
-.help-close-btn:hover {
+#helpCloseButton:hover {
     background: #2973B2;
 }

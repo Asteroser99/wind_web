@@ -55,7 +55,7 @@
                 <p id="user-email" class="user-logged"></p>
             </div>
 
-            <button id="toggle-help" class="header-btn">?</button>
+            <button id="helpToggle" class="header-btn toggleButton" data-function="toggleHelp">Help</button>
             <button id="logIn"  class="header-btn">Login</button>
             <button id="logOff" class="header-btn">Logoff</button>
         </div>
@@ -318,9 +318,14 @@
                         <input type="range" id="animateSlider" min="0" max="100" step="1" value="0">
                     </div>
                     <div id="modeBar">
-                        <button class="mode-button active" data-mode="first">First coil</button>
-                        <button class="mode-button" data-mode="round">First round</button>
-                        <button class="mode-button" data-mode="all">Full winding</button>
+                        <div id="modeBarCoils">
+                            <button class="mode-button active" data-mode="first">First coil</button>
+                            <button class="mode-button" data-mode="round">First round</button>
+                            <button class="mode-button" data-mode="all">Full winding</button>
+                        </div>
+                        <div id="modeBarCoils1">
+                            <button class="toggleButton" data-function="toggleEquidistanta">Equidistanta</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -339,7 +344,7 @@
             </div>
     
             <div id="help-container">
-                <button class="help-close-btn" id="close-help">&times;</button>
+                <button id="helpCloseButton" class="toggleButton" data-function="toggleHelp" >&times;</button>
             </div>
 
             <input type="file" id="fileInput" style="display: none;">
