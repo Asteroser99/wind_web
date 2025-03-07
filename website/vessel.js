@@ -194,33 +194,10 @@ function lambdaCall(name, param) {
         });
 }
 
-// document.getElementById('test').addEventListener(
-//     'click', () => {
-//         loading();
-//         lambdaCall("helloWorld", [0., "1", 2])
-//         .then((res) => {
-//             console.log(res);
-//             loaded();
-//         })
-//         .catch(error => {
-//             showError(error);
-//         });
-//     }
-// );
-
 
 // Mandrel
 
 // ImportCSV
-
-// const mandrelImportCSVInput = document.getElementById('mandrelImportCSVInput');
-// document.getElementById('mandrelImportCSV').addEventListener(
-//     'click', () => {
-//         loading();
-//         mandrelImportCSVInput.value = "";
-//         mandrelImportCSVInput.click();
-//     }
-// );
 
 mandrelImportCSVInput.addEventListener(
     'change', function (event) {
@@ -484,14 +461,12 @@ function SetPole() {
     const mandrel = mandrelGet("Raw")
     if (!mandrel) return;
     const {x, r} = mandrel
-    if (r.length > 0) getField('poleR', r[0]);
+    if (r.length > 0) inputFieldSet('poleR', r[0]);
 }
 
 function mandrelSet(name, xOrMandrel, r = null){
     let mandrel = xOrMandrel;
-    if (r){
-        mandrel = { x: xOrMandrel, r: r };
-    }
+    if (r) mandrel = { x: xOrMandrel, r: r };
     setField("mandrel" + name, mandrel);
     if (name == "Raw") SetPole();
     mandrelDraw(name);
@@ -584,8 +559,6 @@ document.getElementById('thicknessGet').addEventListener(
             showError("No data");
             return;
         }
-
-        console.log(getField('band'))
 
         return lambdaCall("thickness", [coilCorrected, coilMeridian, getField('band')])
             .then((res) => {

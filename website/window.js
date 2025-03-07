@@ -305,6 +305,15 @@ function inputFieldInit(){
 }
 window.inputFieldInit = inputFieldInit
 
+function inputFieldSet(id, value) {
+    const input = document.getElementById(id);
+    if (input) {
+        input.value = value;
+        setField(id, value);
+    }
+}
+window.inputFieldSet = inputFieldSet;
+
 function toggleButtonInit(){
     document.querySelectorAll('.toggleButton').forEach(button => {
         button.addEventListener('click', (event) => {
