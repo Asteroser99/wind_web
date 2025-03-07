@@ -347,10 +347,11 @@ th, td {
     text-align: center;
 }
 th {
-    background-color: #f2f2f2;
+    background-color: #9ACBD0;
 }
 tr.selected {
-    background-color: #add8e6;
+    background-color: #2973B2;
+    color: #F2EFE7;
 }
 
 
@@ -405,11 +406,11 @@ input {
     cursor: pointer;
     height: 100%;
 }
-.mode-button.active {
+/* .mode-button.active {
     background: #007bff;
     color: white;
     border-color: #007bff;
-}
+} */
 #modeBar button.active {
     background-color: #2973B2;
 }
