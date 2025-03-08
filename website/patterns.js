@@ -195,11 +195,9 @@ function drawPattern_1() {
 function drawPattern() {
     // pContext.clearRect(-pRadius, -pRadius, pCanvas.width, pCanvas.height);
 
-    let gradient = pContext.createLinearGradient(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
-    // gradient.addColorStop(0, "hsl(200, 80%, 60%)");  // Голубой
-    // gradient.addColorStop(1, "hsl(340, 80%, 60%)");  // Розовый
-    gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
-    gradient.addColorStop(1, '#2973B2'); // Нижний цвет
+    let gradient = pContext.createLinearGradient(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width / 2, pCanvas.height / 2);
+    gradient.addColorStop(0, `hsl(139, 70%, 90%)`);
+    gradient.addColorStop(1, `hsl(208, 70%, 90%)`);
     
     pContext.fillStyle = gradient;
     pContext.fillRect(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);

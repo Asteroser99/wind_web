@@ -16,24 +16,17 @@ let meshes = {}
 
 function createGradientTexture() {
     const canvas = document.createElement('canvas');
-    // const canvas = document.getElementById('scene-canvas')
     const ctx = canvas.getContext('2d');
-    canvas.width = 512; // Размер текстуры
-    canvas.height = 512;
+    // canvas.width = 512; // Размер текстуры
+    // canvas.height = 512;
 
-    // Создаем градиент
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    // gradient.addColorStop(0, '#ff7eb3'); // Розовый
-    // gradient.addColorStop(0.5, '#6c5ce7'); // Фиолетовый
-    // gradient.addColorStop(1, '#00cec9'); // Голубой
-    gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
-    gradient.addColorStop(1, '#00827E'); // Нижний цвет
+    gradient.addColorStop(0, `hsl(139, 70%, 80%)`);
+    gradient.addColorStop(1, `hsl(208, 70%, 80%)`);
 
-    // Заливаем canvas градиентом
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Создаем текстуру из canvas
     const texture = new THREE.CanvasTexture(canvas);
     scene.scene.background = texture;
     return texture;
@@ -74,11 +67,8 @@ window.addEventListener('resize', () => {
 
 function sceneInit() {
   scene.canvas = document.getElementById('scene-canvas')
-  // log size of canvas
 
   scene.scene = new THREE.Scene();
-  // const scene.camera = new THREE.PerspectiveCamera(75, scene.canvas.width / scene.canvas.height, 0.1, 1000);
-  // const scene.renderer = new THREE.WebGLRenderer({ canvas: scene.canvas });
   scene.renderer = new THREE.WebGLRenderer({
     canvas: scene.canvas,
     antialias: true,
@@ -88,64 +78,30 @@ function sceneInit() {
   scene.renderer.domElement.style.minWidth  = '0';
   scene.renderer.domElement.style.minHeight = '0';
 
-  // scene.renderer = new THREE.WebGLRenderer({
-  //   canvas: scene.canvas,
-  //   antialias: true,
-  // });
-  // const canvas = document.createElement('canvas');
-  // canvas.width = 128;
-  // canvas.height = 128;
-
   scene.renderer.outputColorSpace = THREE.SRGBColorSpace;
   scene.renderer.setClearColor(0x9ACBD0);
   scene.renderer.setPixelRatio(window.devicePixelRatio);
   scene.renderer.shadowMap.enabled = true;
   scene.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  // console.log(canvas.width, canvas.height)
-  // return
-
-  // document.body.appendChild(scene.renderer.domElement);
-
-  // scene = new THREE.Scene();
-
   const axesHelper = new THREE.AxesHelper(15);
   scene.scene.add(axesHelper);
 
-  // const context = canvas.getContext('2d');
-
-  // console.log(context)
-
-  // const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
-  // gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
-  // gradient.addColorStop(1, '#00827E'); // Нижний цвет
-
-  // context.fillStyle = gradient;
-  // context.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Используем градиент как фон
-  // const gradientTexture = new THREE.CanvasTexture(canvas);
-  // scene.background = gradientTexture;
   createGradientTexture();
 
 
-  // scene.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-  // scene.camera.position.set(4, 5, 11);
-
-  // Ортографическая камера для изометрии
   scene.camera = new THREE.OrthographicCamera(
     -1, 1, 1, -1,
     0.1, 1000
   );
   scene.camera.position.set(10., 20., 20.);
-  // scene.camera.near = 0.0000001;
   scene.camera.lookAt(0, 0, 0);
 
   // Первая координата (X) → Вдоль горизонтальной оси (вправо-влево)
   // Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
   // Третья координата (Z) → Вдоль глубины сцены (вперёд-назад)
 
-  const x = 20; // Расстояние от центра до вершины тетраэдра
+  const x = 20; // tetraedr
   const sh = x / Math.sqrt(3);
 
   const lights = [
@@ -155,44 +111,14 @@ function sceneInit() {
     [sh, 0, -x]
   ];
 
-  // const v1 = [2 * x / Math.sqrt(3),  0, -x / Math.sqrt(3)];
-  // const v2 = [   -x / Math.sqrt(3),  x, -x / Math.sqrt(3)];
-  // const v3 = [   -x / Math.sqrt(3), -x, -x / Math.sqrt(3)];
-  // const v4 = [                   0,  0, Math.sqrt(3) * x];
-
   lights.forEach(vertex => {
     const light = new THREE.SpotLight(0xffffff, 5000, 30, 1.0, 2);
-    light.position.set(...vertex);                 // Устанавливаем позицию
-    light.target.position.set(0, 0, 0);            // Устанавливаем цель на центр (0, 0, 0)
-    light.castShadow = true;                       // Включаем отбрасывание теней
-    scene.scene.add(light.target);                       // Добавляем цель в сцену
-    scene.scene.add(light);                              // Добавляем свет в сцену
+    light.position.set(...vertex);
+    light.target.position.set(0, 0, 0);
+    light.castShadow = true;
+    scene.scene.add(light.target);
+    scene.scene.add(light);
   });
-
-
-
-
-  // spotLight = new THREE.SpotLight(0xffffff, 7000, 100, 0.5, 1);
-  // spotLight.position.set(0, 7., 0.);
-  // spotLight.castShadow = true;
-  // spotLight.shadow.bias = -0.0001;
-  // scene.scene.add(spotLight);
-
-  // const spotLight = new THREE.SpotLight(0xff11ff, 3000, 100, 0.22, 1);
-  // spotLight.position.set(-20, 25, 0);
-  // spotLight.castShadow = true;
-  // spotLight.shadow.bias = -0.0001;
-  // scene.scene.add(spotLight);
-
-  // const spotLight1 = new THREE.SpotLight(0xffff11, 3000, 100, 0.22, 1);
-  // spotLight1.position.set(20, 25, 0);
-  // spotLight1.castShadow = true;
-  // spotLight1.shadow.bias = -0.0001;
-  // scene.scene.add(spotLight1);
-
-  //const light = new THREE.DirectionalLight(0xffffff, 1);
-  //light.position.set(5, 10, 7);
-  //scene.scene.add(light);
 
   scene.controls = new OrbitControls(scene.camera, scene.renderer.domElement);
   scene.controls.enableDamping = true;

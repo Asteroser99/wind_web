@@ -196,18 +196,14 @@ function createScatterConfig() {
             mode: "xy",
           },
         },
-        // beforeDraw: function (chart) {
-        //   let bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        //   bgGradient.addColorStop(0, "hsl(200, 80%, 60%)");  // Голубой
-        //   bgGradient.addColorStop(1, "hsl(340, 80%, 60%)");  // Розовый
-
-        //   let ctx = chart.ctx;
-        //   let chartArea = chart.chartArea;
-        //   ctx.save();
-        //   ctx.fillStyle = bgGradient;
-        //   ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
-        //   ctx.restore();
-        // },
+        beforeDraw: {
+          id: 'customCanvasBackgroundColor',
+          beforeDraw: (chart) => {
+            const ctx = chart.ctx;
+            ctx.fillStyle = 'rgba(220, 220, 0, 0.5)';
+            ctx.fillRect(0, 0, chart.width, chart.height);
+          }
+        }
       },
       scales: {
         x: {
@@ -225,7 +221,31 @@ function createScatterConfig() {
           },
         },
       },
+      layout: {
+        padding: {
+          top: 20,
+          bottom: 20,
+          right: 135,
+          left: 135
+        }
+      }
     },
+    plugins: [{
+      id: 'customCanvasBackgroundColor',
+        beforeDraw: function (chart) {
+          const ctx = chart.ctx;
+          let chartArea = chart.chartArea;
+
+          let bgGradient = ctx.createLinearGradient(0, 0, chart.width, chart.height);
+          bgGradient.addColorStop(0, `hsl(139, 70%, 90%)`);
+          bgGradient.addColorStop(1, `hsl(208, 70%, 90%)`);
+      
+          ctx.save();
+          ctx.fillStyle = bgGradient;
+          ctx.fillRect(0, 0, chart.width, chart.height);
+          ctx.restore();
+        },
+    }],
   };
 }
 
