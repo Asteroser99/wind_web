@@ -233,6 +233,7 @@ function mandrelImportCSVOnInputClick(file, prefix){
     const reader = new FileReader();
     reader.onload = function(event) {
         const colNumEl = document.getElementById('csvColumn');
+        if(colNumEl.value == "") colNumEl.value = 1
         mandrelImportCSVOnFileLoad(prefix, event.target.result, colNumEl.value - 1);
     };
     reader.readAsText(file);
@@ -240,8 +241,13 @@ function mandrelImportCSVOnInputClick(file, prefix){
 window.mandrelImportCSV = mandrelImportCSV;
 
 function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
-    const mandrel = mandrelFromCSV(text, colNum);
-    mandrelSet(prefix, mandrel)
+    let mandrel
+    try {
+        mandrel = mandrelFromCSV(text, colNum);
+        mandrelSet(prefix, mandrel)
+    } catch (error) {
+        showError(`Error importing file: ${error}`);
+    }
     loaded();
 };
 window.mandrelImportCSVOnFileLoad = mandrelImportCSVOnFileLoad;
@@ -258,6 +264,8 @@ function mandrelFromCSV(csvText, colNum = 0) {
             throw new Error("CSV must have at least two columns");
         }
     }
+    if (headers.length < colNum * 2 + 2)
+        throw new Error( "There is only " + (headers.length / 2 + 1) + " columns in CSV. Column number " + (colNum + 1) + " is not available" );
 
     const r = []; const x = [];
 

@@ -85,7 +85,7 @@ export function openTab(tabId) {
     } else if (tabId == "mandrel" ) {
         hideIt = true;
         contentId = "mandrel-canvas-div";
-        document.getElementById("file-mandrel").appendChild(document.getElementById("file-mandrel-import-export"));
+        document.getElementById("mandrel-csvColumn").appendChild(document.getElementById("div-csvColumn"));
     } else if (tabId == "coil") {
         hideIt = true;
     } else if (tabId == "winding") {
@@ -96,7 +96,7 @@ export function openTab(tabId) {
     } else if (tabId == "thickness" ) {
         hideIt = true;
         contentId = "mandrel-canvas-div";
-        document.getElementById("file-thickness").appendChild(document.getElementById("file-mandrel-import-export"));
+        document.getElementById("thickness-csvColumn").appendChild(document.getElementById("div-csvColumn"));
     // } else if (tabId == "info"    ) {
     //     hideIt = true;
     //     contentId = "info-canvas-div";

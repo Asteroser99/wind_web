@@ -290,7 +290,7 @@ function animate(timestamp) {
   
       // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
       const animateText = ""
-        + `i ${window.animateIndex} | `
+        + `№ ${window.animateIndex} | `
         + `x ${x.toFixed(1)} | `
         + `r ${r.toFixed(1)} | `
         + `φ ${fi.toFixed(5)} | `
