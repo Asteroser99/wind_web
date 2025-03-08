@@ -250,6 +250,22 @@ function drawPattern() {
         ctx.stroke();
     }
 
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+
+
+    const innerRadius = radius + 24
+    const outerRadius = radius + 32
+    // Рисуем внешний и внутренний круги
+    const segment = (Math.PI * 2) / Coils;
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(cx, cy, innerRadius, 0 + segment * 0.5, Math.PI * 2 + segment * 0.5);
+    ctx.arc(cx, cy, outerRadius, Math.PI * 2 + segment * 0.5, 0 + segment * 0.5, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
     // triangles
     for (let i = 0; i < points.length - 1; i++) {
         let point = points[i    ];
@@ -295,6 +311,19 @@ function drawPattern() {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(i, textX, textY);
+
+
+        let angle = (i + 0.5) * segment;
+        let xOuter = cx + Math.cos(angle) * outerRadius;
+        let yOuter = cy + Math.sin(angle) * outerRadius;
+        let xInner = cx + Math.cos(angle) * innerRadius;
+        let yInner = cy + Math.sin(angle) * innerRadius;
+
+        ctx.beginPath();
+        ctx.moveTo(xOuter, yOuter);
+        ctx.lineTo(xInner, yInner);
+        ctx.stroke();
+
     }
 
 }
