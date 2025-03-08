@@ -353,6 +353,9 @@ tr.selected {
     background-color: #2973B2;
     color: #F2EFE7;
 }
+tr {
+    background-color: white;
+}
 
 
 input {
@@ -362,6 +365,11 @@ input {
 
 #mandrel-canvas {
     z-index: 0;
+}
+
+
+.floatingControl{
+    background: hsla(139, 69%, 90%, 0.9);
 }
 
 

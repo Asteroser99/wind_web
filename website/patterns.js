@@ -277,8 +277,8 @@ function drawPattern() {
         dx /= length;
         dy /= length;
 
-        let tipX = point.x + dx * size * -0.5;
-        let tipY = point.y + dy * size * -0.5;
+        let tipX = point.x + dx * size * -0.25;
+        let tipY = point.y + dy * size * -0.25;
 
         let perpX = -dy * size;
         let perpY =  dx * size;

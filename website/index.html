@@ -106,7 +106,7 @@
 
                 <!-- Mandrel -->
                 <div id="tab-mandrel" class="tab-content">
-                    <div id="actions-mandrel" style="background: rgba(256, 256, 256, 0.9);">
+                    <div id="actions-mandrel">
                         <button class="image-button function-button" data-function="mandrelImportCSV"  data-parameter="Raw" title="Raw mandrel import"><img src="./img/load.png">&nbsp;Import mandrel</button>
 
                         <h3>Transform</h3>
@@ -117,7 +117,7 @@
                     </div>
 
                     <div id="file-mandrel">
-                        <div id="file-mandrel-import-export" style="background: rgba(256, 256, 256, 0.9);">
+                        <div id="file-mandrel-import-export">
                             <h3>Import/Export</h3>
 
                             <div>
@@ -211,7 +211,7 @@
                 <div id="tab-patterns" class="tab-content">
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
 
-                    <div id="actions-patterns" style="background: rgba(256, 256, 256, 0.9);">
+                    <div id="actions-patterns" class="floatingControl">
                         <h3>Select pattern:</h3>
                         <table id="data-table">
                             <thead>
@@ -230,6 +230,7 @@
                         <main>
                             <section>
                                 <h2>Patterns</h2>
+                                <p>...</p>
                             </section>
                         </main>
                     </div>
@@ -285,12 +286,21 @@
 
                 <!-- Thickness -->
                 <div id="tab-thickness" class="tab-content">
-                    <div id="actions-thickness" style="background: rgba(256, 256, 256, 0.9);">
+                    <div id="actions-thickness">
                         <button id="thicknessGet"  class="image-button" title="Get thickness"><img src="./img/calc.png">&nbsp;Get thickness</button><br>
                         <button id="mandrelSmooth" class="image-button" title="Smooth raw mandrel"><img src="./img/calc.png">&nbsp;Smooth</button><br>
                     </div>
 
                     <div id="file-thickness">
+                    </div>
+
+                    <div id="help-thickness">
+                        <main>
+                            <section>
+                                <h2>Thickness</h2>
+                                <p>...</p>
+                            </section>
+                        </main>
                     </div>
                 </div>
 
