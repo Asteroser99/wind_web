@@ -196,6 +196,18 @@ function createScatterConfig() {
             mode: "xy",
           },
         },
+        // beforeDraw: function (chart) {
+        //   let bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        //   bgGradient.addColorStop(0, "hsl(200, 80%, 60%)");  // Голубой
+        //   bgGradient.addColorStop(1, "hsl(340, 80%, 60%)");  // Розовый
+
+        //   let ctx = chart.ctx;
+        //   let chartArea = chart.chartArea;
+        //   ctx.save();
+        //   ctx.fillStyle = bgGradient;
+        //   ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+        //   ctx.restore();
+        // },
       },
       scales: {
         x: {
@@ -252,6 +264,7 @@ function chartOnLoad() {
   Chart.register(ChartZoom);
 
   const ctx = document.getElementById('mandrel-canvas').getContext('2d');
+
   mandrelChart = new Chart(ctx, createScatterConfig());
 }
 

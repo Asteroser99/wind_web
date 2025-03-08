@@ -108,18 +108,18 @@ function drawDiamond(x, y, size, color) {
 
 function resizePattern() {
     const parent = pCanvas.parentElement;
-    pCanvas.width  = parent.offsetWidth; //  * window.devicePixelRatio
+    pCanvas.width  = parent.offsetWidth ; //  * window.devicePixelRatio
     pCanvas.height = parent.offsetHeight;
 
     window.pRadius = Math.min(pCanvas.width, pCanvas.height) / 2;
 
-    pContext.translate(pRadius, pRadius);
+    pContext.translate(pCanvas.width / 2, pCanvas.height / 2);
 
     drawPattern();
 }
 window.resizePattern = resizePattern;
 
-function drawPattern() {
+function drawPattern_1() {
     pContext.clearRect(-pRadius, -pRadius, pCanvas.width, pCanvas.height);
 
     drawAxes();
@@ -191,7 +191,115 @@ function drawPattern() {
 // drawDiamond(100, -50, 40, "red");
 
 }
+
+function drawPattern() {
+    // pContext.clearRect(-pRadius, -pRadius, pCanvas.width, pCanvas.height);
+
+    let gradient = pContext.createLinearGradient(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
+    // gradient.addColorStop(0, "hsl(200, 80%, 60%)");  // Голубой
+    // gradient.addColorStop(1, "hsl(340, 80%, 60%)");  // Розовый
+    gradient.addColorStop(0, '#99E6B2'); // Верхний цвет
+    gradient.addColorStop(1, '#2973B2'); // Нижний цвет
+    
+    pContext.fillStyle = gradient;
+    pContext.fillRect(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
+
+
+    const vessel_data = getVesselData()
+    // if (vessel_data["Band"] == 0) return
+
+    const Coils = vessel_data["Coils"]
+    const Turns = vessel_data["Turns"]
+    const angleStep = Math.PI * 2 / Coils * Turns
+    
+    const cx = 0
+    const cy = 0
+    const radius = pRadius * 0.8
+
+    const canvas = document.getElementById("patterns-canvas");
+    const ctx    = canvas.getContext("2d");
+    
+    // points
+    let points = [];
+    const colorStep = 360 / Coils;
+    for (let i = 0; i <= Coils; i++) {
+        let angle = i * angleStep;
+        const x = cx + Math.cos(angle) * radius;
+        const y = cy + Math.sin(angle) * radius;
+        const c = i * colorStep
+        points.push({ x, y, c });
+    }
+    
+    ctx.lineWidth = 8;
+    ctx.lineJoin = "round";
+    
+    // lines
+    // for (let i = 0; i < points.length - 1; i++) {
+    for (let i = points.length - 1; i > 0; i--) {
+        let start = points[i    ];
+        let end   = points[i - 1];
+
+        const gradient = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+        gradient.addColorStop(0, `hsl(${ start.c }, 50%, 50%)`);
+        gradient.addColorStop(1, `hsl(${ end  .c }, 50%, 50%)`);
+        
+        ctx.strokeStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+    }
+
+    // triangles
+    for (let i = 0; i < points.length - 1; i++) {
+        let point = points[i    ];
+
+        const size = 15;
+
+        // triangle
+        let dx = point.x - cx;
+        let dy = point.y - cy;
+        let length = Math.sqrt(dx * dx + dy * dy);
+        dx /= length;
+        dy /= length;
+
+        let tipX = point.x + dx * size * -0.5;
+        let tipY = point.y + dy * size * -0.5;
+
+        let perpX = -dy * size;
+        let perpY =  dx * size;
+
+        let baseX = point.x + dx * size * 1.5;
+        let baseY = point.y + dy * size * 1.5;
+
+        let leftX  = baseX + perpX;
+        let leftY  = baseY + perpY;
+        let rightX = baseX - perpX;
+        let rightY = baseY - perpY;
+
+        ctx.fillStyle = `hsl(${ point.c }, 50%, 50%)`;
+        ctx.beginPath();
+        ctx.moveTo(tipX, tipY);
+        ctx.lineTo(leftX, leftY);
+        ctx.lineTo(rightX, rightY);
+        ctx.closePath();
+        ctx.fill();
+
+
+        // number
+        let textX = point.x + dx * size * 0.9;
+        let textY = point.y + dy * size * 0.9;
+
+        ctx.fillStyle = "white";
+        ctx.font = `${10}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(i, textX, textY);
+    }
+
+}
 window.drawPattern = drawPattern
+
 
 // function patternClear() {
 //     window.pCanvas = document.getElementById("patterns-canvas");
