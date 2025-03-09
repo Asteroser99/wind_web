@@ -1,7 +1,7 @@
 // Table
 
 function fibboRenderTable() {
-    const patterns = getField("patterns");
+    const patterns = fieldGet("patterns");
     if(!patterns) return;
 
     const tableBody = document.querySelector("#data-table tbody");
@@ -23,7 +23,7 @@ function fibboRenderTable() {
         tableBody.appendChild(row);
     });
 
-    fibboSelectRow(getField("fibboIndex"))
+    fibboSelectRow(fieldGet("fibboIndex"))
 }
 window.fibboRenderTable = fibboRenderTable;
 
@@ -32,7 +32,7 @@ function fibboSelectRow(index) {
     const row = tableBody.querySelector(`tr[data-index='${index}']`);
     if (!row) return;
 
-    setField("fibboIndex", index);
+    fieldSet("fibboIndex", index);
 
     const selected = tableBody.querySelector(".selected");
     if (selected) {
@@ -45,7 +45,7 @@ function fibboSelectRow(index) {
 
 function fibboGetSelectedValues() {
     const tableBody = document.querySelector("#data-table tbody");
-    const patterns = getField("patterns");
+    const patterns = fieldGet("patterns");
 
     const selectedRow = document.querySelector("#data-table tbody .selected");
 
@@ -119,79 +119,6 @@ function resizePattern() {
 }
 window.resizePattern = resizePattern;
 
-function drawPattern_1() {
-    pContext.clearRect(-pRadius, -pRadius, pCanvas.width, pCanvas.height);
-
-    drawAxes();
-
-    const vessel_data = getVesselData()
-    if (vessel_data["Band"] == 0) return
-
-    const rd = pRadius * 0.95;
-    pContext.strokeStyle = "black";
-    pContext.lineWidth = 1;
-    pContext.beginPath();
-    pContext.arc(0, 0, rd / 2., 0, 2 * Math.PI);
-    pContext.stroke();
-
-    const coil = coilGet("Initial");
-    if (coil == undefined) return;
-    let { x, r, fi, al } = coil;
-
-    let ae = Math.PI * 0.5 - Math.max(...al)
-    let re = Math.max(...r);
-    re = pRadius * 0.75;
-    let EL = 2.0 * Math.PI * re;
-    let shk = vessel_data["Band"] / Math.cos(ae);
-    let NVit = Math.floor((EL * Math.cos(ae)) / vessel_data["Band"]);
-    shk = (EL * Math.cos(ae)) / NVit;
-
-    let twk = 2.0 * Math.PI * vessel_data["Turns"] / vessel_data["Coils"];
-    let shkr = shk / Math.cos(ae);
-    let dsh = shkr / re;
-    let ng = Math.floor((2 * Math.PI / dsh) + 0.5);
-    shkr = (2 * Math.PI * re) / ng;
-
-    let x00 = re * Math.cos(-shkr * 0.5 / re);
-    let y00 = re * Math.sin(-shkr * 0.5 / re);
-    let x01 = re * Math.cos(+shkr * 0.5 / re);
-    let y01 = re * Math.sin(+shkr * 0.5 / re);
-
-    let x10, y10, x11, y11
-
-    for (let i = 0; i <= ng; i++) {
-        let fii = i * twk;
-        pContext.beginPath();
-        pContext.arc(0, 0, re, fii, fii + 0.15);
-        pContext.stroke();
-
-        x10 = re * Math.cos(i * twk - shkr * 0.5 / re);
-        y10 = re * Math.sin(i * twk - shkr * 0.5 / re);
-        x11 = re * Math.cos(i * twk + shkr * 0.5 / re);
-        y11 = re * Math.sin(i * twk + shkr * 0.5 / re);
-
-        pContext.beginPath();
-        pContext.moveTo(x00, y00);
-        pContext.lineTo(x01, y01);
-        pContext.lineTo(x11, y11);
-        pContext.lineTo(x10, y10);
-        pContext.closePath();
-
-        // pContext.fillStyle = "rgba(255, 0, 0, 0.5)"; // alfa
-        pContext.fillStyle = "#2973B2";
-        pContext.fill();    
-
-        // pContext.fillText(i, 1.2 * re * Math.cos(fii), 1.2 * re * Math.sin(fii));
-
-        x00 = x10; y00 = y10; x01 = x11; y01 = y11;
-    }
-    // pContext.translate(-pCanvas.width / 2, -pCanvas.height / 2);
-
-// drawRectangle(-100, 50, 80, 50, "blue");
-// drawDiamond(100, -50, 40, "red");
-
-}
-
 function drawPattern() {
     // pContext.clearRect(-pRadius, -pRadius, pCanvas.width, pCanvas.height);
 
@@ -202,12 +129,7 @@ function drawPattern() {
     pContext.fillStyle = gradient;
     pContext.fillRect(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
 
-
-    const vessel_data = getVesselData()
-    // if (vessel_data["Band"] == 0) return
-
-    const Coils = vessel_data["Coils"]
-    const Turns = vessel_data["Turns"]
+    const { Turns, Coils } = fibboGetSelectedValues();
     const angleStep = Math.PI * 2 / Coils * Turns
     
     const cx = 0

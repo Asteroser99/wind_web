@@ -227,14 +227,29 @@
                         <label for="lineCount">G-code length:</label><br>
                         <input type="number" id="lineCount" class="inputField" 
                             min="0" max="9999" step="1"
-                            value="200" pattern="\d{1,0}"
+                            value="1500" pattern="\d{1,0}"
                             title="Enter G-code line count"
                             style="text-align: right;"
                         ><br>
 
-                        <button id="eqdDraw" class="image-button" title="Equdestanta" ><img src="./img/calc.png">&nbsp;Equidistanta </button>
+                        <button
+                            class="image-button function-button"
+                            data-function="Equdestanta"
+                            title="Calculate equdestanta"
+                        ><img src="./img/calc.png">&nbsp;Equidistanta</button>
                         <br>
-                        <button id="itpDraw" class="image-button" title="Interpolanta"><img src="./img/calc.png">&nbsp;Interpolanta</button>
+                        <button
+                            class="image-button function-button"
+                            data-function="Interpolanta"
+                            title="Calculate interpolanta"
+                        ><img src="./img/calc.png">&nbsp;Interpolanta</button>
+                        <br>
+                        <button
+                            class="image-button function-button"
+                            data-function="Equdestanta"
+                            data-parameter="+Interpolanta"
+                            title="Wind"
+                        ><img src="./img/calc.png">&nbsp;Wind</button>
                         
                     </div>
 
@@ -266,8 +281,8 @@
                             <div>
                                 <div id="thickness-csvColumn">
                                     <div id="div-csvColumn">
-                                        <label for="csvColumn" value="1">CSV column:</label>
-                                        <input type="number" min="1" step="1" id="csvColumn" class="inputField" style="text-align: right; width: 30px" title="Column number, if there more than one columns of data in .csv file">
+                                        <label for="csvColumn">CSV column:</label>
+                                        <input type="number" value="1" min="1" step="1" id="csvColumn" class="inputField" style="text-align: right; width: 30px" title="Column number, if there more than one columns of data in .csv file">
                                         <br>
 
                                         <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />

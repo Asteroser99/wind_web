@@ -64,7 +64,7 @@ window.inputValue = inputValue
 //
 export function openTab(tabId) {
     if (!tabId) return;
-    setField("page", tabId);
+    fieldSet("page", tabId);
 
     let hideIt = false;
     const activeTab  = document.querySelector('.tab-content.active' );
@@ -293,14 +293,17 @@ window.toggleEquidistanta = toggleEquidistanta
 function inputFieldInit(){
     document.querySelectorAll(".inputField").forEach(input => {
         const id = input.id;
-        input.addEventListener("input", () => setField(id, parseFloat(input.value)));
+        input.addEventListener("input", () => fieldSet(id, parseFloat(input.value)));
 
-        const value = getField(id)
+        const value = fieldGet(id)
 
-        if(value)
+        if(value) {
             input.value = value;
-        else
-            setField(id, parseFloat(input.value))
+            // console.log("val to form", id, value, fieldGet(id))
+        } else {
+            fieldSet(id, parseFloat(input.value))
+            // console.log("form to val", id, parseFloat(input.value), fieldGet(id))
+        }
     });
 }
 window.inputFieldInit = inputFieldInit
@@ -309,7 +312,7 @@ function inputFieldSet(id, value) {
     const input = document.getElementById(id);
     if (input) {
         input.value = value;
-        setField(id, value);
+        fieldSet(id, value);
     }
 }
 window.inputFieldSet = inputFieldSet;
@@ -354,7 +357,7 @@ window.onload = function () {
     patternsOnLoad();
     animateOnLoad();
 
-    openTab(getField("page"))
+    openTab(fieldGet("page"))
 
     loaded();
 };

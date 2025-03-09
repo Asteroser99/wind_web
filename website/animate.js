@@ -9,8 +9,8 @@ function getT(begin=0, end=0, long = false){
     for (let i = begin; i < end; i++) {
         const j = (i - begin) * pN;
   
-        // const fiShift = 0. // (getField('testMode') == 0 ? 0. : -window.animateEqd["fi"][i]);
-        // const yShift  = 0. // (getField('testMode') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
+        // const fiShift = 0. // (fieldGet('testMode') == 0 ? 0. : -window.animateEqd["fi"][i]);
+        // const yShift  = 0. // (fieldGet('testMode') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
   
 
         const jCoil = j + 0;
@@ -57,17 +57,17 @@ function getT(begin=0, end=0, long = false){
 
 function animateInit(){
     let coil = coilGet("Interpolated");
-    let tape = getField("tapeInterpolated");
-    let eqd  = getField("equidistantaInterpolated");
-    let roll = getField("rolleyInterpolated");
+    let tape = fieldGet("tapeInterpolated");
+    let eqd  = fieldGet("equidistantaInterpolated");
+    let roll = fieldGet("rolleyInterpolated");
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
     if (!coil) {
         coil = coilGet("Corrected");
-        tape = getField("tapeCorrected");
-        eqd  = getField("equidistanta");
-        roll = getField("rolley");
+        tape = fieldGet("tapeCorrected");
+        eqd  = fieldGet("equidistanta");
+        roll = fieldGet("rolley");
         eqdColor = 0xfea02a
         freeColor = 0xfea02a
     }
@@ -190,7 +190,7 @@ function animateInit(){
     { // rolleyMesh
         removeMesh(window.rolleyMesh);
 
-        const band = getField('band') / 2
+        const band = fieldGet('band') / 2
         const rolleyMandrel = {
             x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
             r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
@@ -382,7 +382,7 @@ function animateOnLoad(){
         button.addEventListener("click", () => {
             buttons.forEach(btn => btn.classList.remove("active"));
             button.classList.add("active");
-            setField("windingMode", button.getAttribute("data-mode"));
+            fieldSet("windingMode", button.getAttribute("data-mode"));
             coilDraws();
         });
     });

@@ -5,7 +5,7 @@ window.mandrelMesh = null;
 
 // storage
 
-const asyncStorageUpdate = (key, value) => {
+const fieldAsyncStorageSet = (key, value) => {
     return new Promise((resolve, reject) => {
         try {
             const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
@@ -26,7 +26,7 @@ const asyncStorageUpdate = (key, value) => {
 };
 
 
-const getField = (key) => {
+const fieldGet = (key) => {
     if (Object.keys(vessel).length === 0) {
         const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
         // console.log(keys);
@@ -45,20 +45,20 @@ const getField = (key) => {
     }
     return vessel[key];
 };
-window.getField = getField
+window.fieldGet = fieldGet
 
-const setField = async (key, value) => {
+const fieldSet = async (key, value) => {
     vessel[key] = value;
 
     try {
-        const result = await asyncStorageUpdate(key, value);
+        const result = await fieldAsyncStorageSet(key, value);
     } catch (error) {
         showError(error);
     }
 };
-window.setField = setField
+window.fieldSet = fieldSet
 
-const clearVessel = () => {
+const fieldAllClear = () => {
     const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
 
     keys.forEach((key) => {
@@ -70,13 +70,13 @@ const clearVessel = () => {
     vessel = {};
 };
 
-const setVessel = async (newVessel) => {
-    clearVessel();
+const fieldAllSet = async (newVessel) => {
+    fieldAllClear();
 
     vessel = newVessel;
 
     const promises = Object.entries(newVessel).map(([key, value]) =>
-        asyncStorageUpdate(key, value)
+        fieldAsyncStorageSet(key, value)
     );
 
     // try {
@@ -87,7 +87,7 @@ const setVessel = async (newVessel) => {
     // }
 };
 
-const getVessel = () => {
+const fieldAllUpdateFromStorage = () => {
     const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
 
     keys.forEach((key) => {
@@ -98,23 +98,6 @@ const getVessel = () => {
         }
     });
 };
-
-
-// vessel
-
-function getVesselData(){
-    const fibboSel = fibboGetSelectedValues()
-
-    return {
-        //  parseFloat(document.getElementById('value-x').textContent), //.toFixed(2)
-        "Pole": getField('poleR'),
-        "Band": getField('band'),
-        "Conv": getField('conv'),
-        "Turns": fibboSel["Turns"],
-        "Coils": fibboSel["Coils"],
-    };
-}
-window.getVesselData = getVesselData
 
 // vesselLoad
 
@@ -135,7 +118,7 @@ function vesselLoadOnClick(event) {
     reader.readAsText(file);
 };
 function vesselLoadOnFileLoad(event) {
-    setVessel(loadFromYaml(event.target.result));
+    fieldAllSet(loadFromYaml(event.target.result));
     drawAll()
 }
 function loadFromYaml(yamlString){
@@ -243,6 +226,7 @@ window.mandrelImportCSV = mandrelImportCSV;
 function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
     let mandrel
     try {
+        if (prefix == "Raw") vesselClear();
         mandrel = mandrelFromCSV(text, colNum);
         mandrelSet(prefix, mandrel)
     } catch (error) {
@@ -316,7 +300,7 @@ function mandrelFromCSV(csvText, colNum = 0) {
 // }
 
 async function saveCsvWithDialog(name) {
-    const data = getField("mandrel" + name)
+    const data = fieldGet("mandrel" + name)
     if (!data) {
         showError("No data to save");
         return
@@ -362,36 +346,36 @@ function convertArrayToCsv(data) {
 }
 
 // document.getElementById('mandrelExportCSV').addEventListener(
-//     'click', () => saveCsvWithDialog(getField("mandrelRaw"))
+//     'click', () => saveCsvWithDialog(fieldGet("mandrelRaw"))
 // );
 
 // document.getElementById('mandrelExportCSVSmoothed').addEventListener(
-//     'click', () => saveCsvWithDialog(getField("mandrelSmoothed"))
+//     'click', () => saveCsvWithDialog(fieldGet("mandrelSmoothed"))
 // );
 
 
 // mandrel
 
 function mandrelGet(name){
-    return getField("mandrel" + name);
+    return fieldGet("mandrel" + name);
 }
 window.mandrelGet = mandrelGet
 
 function mandrelGet_obsolete(isSmoothed = null){
     if (isSmoothed == null){
-        let mandrel = getField("mandrelSmoothed");
+        let mandrel = fieldGet("mandrelSmoothed");
 
         if (mandrel)
             return {mandrel, isSmoothed: true};
         
-        mandrel = getField("mandrelRaw");
+        mandrel = fieldGet("mandrelRaw");
         if (mandrel)
             return {mandrel, isSmoothed: false};
         
         return undefined
 
     } else {
-        return {mandrel: getField(isSmoothed ? "mandrelSmoothed" : "mandrelRaw"), isSmoothed};
+        return {mandrel: fieldGet(isSmoothed ? "mandrelSmoothed" : "mandrelRaw"), isSmoothed};
 
     }
 }
@@ -475,7 +459,7 @@ function SetPole() {
 function mandrelSet(name, xOrMandrel, r = null){
     let mandrel = xOrMandrel;
     if (r) mandrel = { x: xOrMandrel, r: r };
-    setField("mandrel" + name, mandrel);
+    fieldSet("mandrel" + name, mandrel);
     if (name == "Raw") SetPole();
     mandrelDraw(name);
 }
@@ -561,14 +545,14 @@ document.getElementById('thicknessGet').addEventListener(
         loading();
 
         const coilCorrected = coilGet("Corrected")
-        const coilMeridian = getField("coilMeridian");
+        const coilMeridian = fieldGet("coilMeridian");
 
         if (!coilCorrected || !coilMeridian) {
             showError("No data");
             return;
         }
 
-        return lambdaCall("thickness", [coilCorrected, coilMeridian, getField('band')])
+        return lambdaCall("thickness", [coilCorrected, coilMeridian, fieldGet('band')])
             .then((res) => {
                 mandrelSet("Winded", res);
                 loaded();
@@ -612,16 +596,15 @@ document.getElementById('coilCalc').addEventListener(
 function coilCalc() {
     loading();
 
-    const vessel_data = getVesselData();
     const mandrel = mandrelGet("Raw");
     if (!mandrel) return null;
 
     try {
-        return lambdaCall("vitok", [mandrel, vessel_data["Pole"], vessel_data["Band"]])
+        return lambdaCall("vitok", [mandrel, fieldGet("poleR"), fieldGet("band")])
             .then(res => {
                 const [coil, meridian] = res
                 coilSet("Initial", coil);
-                setField("coilMeridian", meridian);
+                fieldSet("coilMeridian", meridian);
 
                 loaded();
 
@@ -664,10 +647,9 @@ function coilRender(coil) {
 function tapeCalc(prefix) {
     loading();
     const coil = coilGet(prefix)
-    const vessel_data = getVesselData();
-    return lambdaCall("tape", [coil, vessel_data["Band"]])
+    return lambdaCall("tape", [coil, fieldGet("band")])
         .then(res => {
-            setField("tape" + prefix, res);
+            fieldSet("tape" + prefix, res);
             coilDraws();
             loaded();
         })
@@ -696,7 +678,7 @@ function coilDraw(suffix) {
 }
 
 function coilDraws() {
-    const mode = getField("windingMode");
+    const mode = fieldGet("windingMode");
 
     tapeRemove("Initial");
     tapeRemove("Corrected");
@@ -713,7 +695,7 @@ function coilDraws() {
 window.coilDraws = coilDraws
 
 function tapeRender(suffix) {
-    const mode = suffix == "Initial" ? "first" : getField("windingMode");
+    const mode = suffix == "Initial" ? "first" : fieldGet("windingMode");
     // mode: "first" | "round" | "all"
 
     const coil = coilGet(suffix);
@@ -721,7 +703,7 @@ function tapeRender(suffix) {
 
     const n = coil.x.length;
     
-    const tape = getField("tape" + suffix);
+    const tape = fieldGet("tape" + suffix);
     if (!tape){
         return [[], []];
     }
@@ -734,11 +716,10 @@ function tapeRender(suffix) {
     if (mode == "first"){
         Coils = 1
     } else if (mode == "round") {
-        const vesselData = getVesselData()
-        Coils = vesselData["Conv"] + 1
+        Coils = fieldGet("conv") + 1
     } else if (mode == "all") {
-        const vesselData = getVesselData()
-        Coils = vesselData["Coils"]
+        const fibboGetSelected = fibboGetSelectedValues();
+        Coils = fibboGetSelected["Coils"]
     }
 
     const th = 0.02, thd = th / n;
@@ -821,49 +802,49 @@ function createBoxWithOctagonHole() {
     return [vertices, indices];
 }
 
-// Equdestanta
-document.getElementById('eqdDraw').addEventListener( 'click', () => {
+function Equdestanta(param) {
     loading();
 
     const coilCorrected = coilGet("Corrected");
-    if (!coilCorrected){
-        return
-    }
+    if (!coilCorrected) return
 
-    lambdaCall("equidistantaRolley", [coilCorrected, getField('safetyR'), getField('band')])
+    lambdaCall("equidistantaRolley", [coilCorrected, fieldGet('safetyR'), fieldGet('band')])
         .then(res => {
-            setField("equidistanta", res[0]);
-            setField("rolley", res[1]);
+            fieldSet("equidistanta", res[0]);
+            fieldSet("rolley", res[1]);
             
             coilSet("Interpolated", undefined);
 
-            animateInit();
-
             loaded();
+
+            if (param == "+Interpolanta") {
+                Interpolanta();
+            } else {
+                animateInit();
+            }
         })
         .catch(error => {
             showError(error);
         });
-});
+};
+window.Equdestanta = Equdestanta
 
-
-// Interpolanta
-document.getElementById('itpDraw').addEventListener( 'click', () => {
+function Interpolanta(param = undefined){
     loading();
 
     const coilCorrected = coilGet("Corrected");
-    const eqd = getField("equidistanta");
+    const eqd = fieldGet("equidistanta");
     if (!coilCorrected || !eqd){
         showError("no data")
         return
     }
 
-    lambdaCall("interpolantaRolley", [coilCorrected, eqd, getField('lineCount'), getField('band')])
+    lambdaCall("interpolantaRolley", [coilCorrected, eqd, fieldGet('lineCount'), fieldGet('band')])
         .then(res => {
             coilSet ("Interpolated"            , res[0]);
-            setField("tapeInterpolated"        , res[1]);
-            setField("equidistantaInterpolated", res[2]);
-            setField("rolleyInterpolated"      , res[3]);
+            fieldSet("tapeInterpolated"        , res[1]);
+            fieldSet("equidistantaInterpolated", res[2]);
+            fieldSet("rolleyInterpolated"      , res[3]);
 
             animateInit();
 
@@ -872,7 +853,8 @@ document.getElementById('itpDraw').addEventListener( 'click', () => {
         .catch(error => {
             showError(error);
         });
-});
+};
+window.Interpolanta = Interpolanta
 
 
 // Patterns
@@ -884,12 +866,11 @@ document.getElementById('itpDraw').addEventListener( 'click', () => {
 function patternsCalc() {
     loading();
 
-    const vessel_data = getVesselData();
     const coil = coilGet("Initial");
 
-    lambdaCall("fibbo", [coil, vessel_data["Band"], vessel_data["Conv"]])
+    lambdaCall("fibbo", [coil, fieldGet("band"), fieldGet("conv")])
         .then((res) => {
-            setField("patterns", res);
+            fieldSet("patterns", res);
             fibboRenderTable();
             loaded();
         })
@@ -902,19 +883,19 @@ function patternsCalc() {
 // Correct coils
 
 function coilSet(suffix, coil) {
-    setField("coil" + suffix, coil)
+    fieldSet("coil" + suffix, coil)
     if (suffix == "Initial") {
         coilSet("Corrected", undefined);
     }
 }
 
 function coilGet(suffix) {
-    let coil = getField("coil" + suffix);
+    let coil = fieldGet("coil" + suffix);
 
     if (!coil) return undefined;
     
     if (suffix == "Corrected") {
-        const coilInitial = getField("coilInitial");
+        const coilInitial = fieldGet("coilInitial");
         coil = {
             x : coilInitial["x" ],
             r : coilInitial["r" ],
@@ -931,10 +912,10 @@ window.coilGet = coilGet
 document.getElementById('coilCorrect').addEventListener('click', () => {
     loading();
 
-    const vessel_data = getVesselData();
     const coil = coilGet("Initial");
+    const { Turns, Coils } = fibboGetSelectedValues();
 
-    lambdaCall("conte", [coil, vessel_data["Turns"], vessel_data["Coils"]])
+    lambdaCall("conte", [coil, Turns, Coils])
         .then(res => {
             coilSet("Corrected", {
                 fi: res[0],
@@ -963,7 +944,7 @@ document.getElementById('CNCExport').addEventListener(
 
 async function CNCExport() {
     loading();
-    const itpEqd = getField("equidistantaInterpolated");
+    const itpEqd = fieldGet("equidistantaInterpolated");
     if (!itpEqd) {
         showError("No interpolated equidistanta yet");
         return;
@@ -1060,7 +1041,7 @@ function coilLoadOnClick(event) {
     reader.readAsText(file);
 };
 function coilLoadOnFileLoad(event) {
-    setField("coilInitial", loadFromYaml(event.target.result));
+    fieldSet("coilInitial", loadFromYaml(event.target.result));
     tapeCalc("Corrected");
 }
 
@@ -1084,11 +1065,11 @@ async function loadFromYamlURL(url) {
     } catch (error) {
         showError(error);
     }
-    setVessel(loadFromYaml(await response.text()));
+    fieldAllSet(loadFromYaml(await response.text()));
 }
 
 function vesselloadFromURL(name) {
-    clearVessel();
+    vesselClear();
     clearScene();
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(() => {
@@ -1100,7 +1081,7 @@ function vesselloadFromURL(name) {
 
 // Clear
 function vesselClear() {
-    clearVessel();
+    fieldAllClear();
     inputFieldInit();
     clearScene();
     drawAll();
@@ -1109,7 +1090,7 @@ window.vesselClear = vesselClear
 
 
 function vesselOnLoad() {
-    getVessel();
+    fieldAllUpdateFromStorage();
     if (!vessel.mandrelRaw) {
         vesselloadFromURL("Example1");
     } else {
