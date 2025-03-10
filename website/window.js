@@ -356,7 +356,7 @@ window.onload = function () {
     cognitoOnLoad();
     patternsOnLoad();
     animateOnLoad();
-
+    
     openTab(fieldGet("page"))
 
     loaded();

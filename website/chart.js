@@ -234,9 +234,7 @@ function createScatterConfig() {
       id: 'customCanvasBackgroundColor',
         beforeDraw: function (chart) {
           const ctx = chart.ctx;
-          let chartArea = chart.chartArea;
-
-          let bgGradient = ctx.createLinearGradient(0, 0, chart.width, chart.height);
+          const bgGradient = ctx.createLinearGradient(0, 0, chart.width, chart.height);
           bgGradient.addColorStop(0, `hsl(139, 70%, 90%)`);
           bgGradient.addColorStop(1, `hsl(208, 70%, 90%)`);
       
@@ -287,5 +285,7 @@ function chartOnLoad() {
 
   mandrelChart = new Chart(ctx, createScatterConfig());
 }
+window.chartOnLoad = chartOnLoad
 
+// ????
 chartOnLoad();

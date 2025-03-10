@@ -4,6 +4,8 @@ function fibboRenderTable() {
     const patterns = fieldGet("patterns");
     if(!patterns) return;
 
+    document.getElementById("ConvinienceH3").textContent = `Convenience: ${fieldGet("conv")}`;
+    
     const tableBody = document.querySelector("#data-table tbody");
 
     while (tableBody.firstChild) {
@@ -42,6 +44,7 @@ function fibboSelectRow(index) {
 
     drawPattern();
 }
+window.fibboSelectRow = fibboSelectRow;
 
 function fibboGetSelectedValues() {
     const tableBody = document.querySelector("#data-table tbody");
@@ -60,51 +63,6 @@ function fibboGetSelectedValues() {
     };
 }
 window.fibboGetSelectedValues = fibboGetSelectedValues;
-
-
-// Draw
-
-function drawAxes() {
-    const r = window.pRadius;
-
-    pContext.strokeStyle = "black";
-    pContext.lineWidth = 1;
-    
-    pContext.beginPath();
-    pContext.moveTo(- pRadius, 0);
-    pContext.lineTo(  pRadius, 0);
-    pContext.stroke();
-    
-    pContext.beginPath();
-    pContext.moveTo(0, -pRadius);
-    pContext.lineTo(0,  pRadius);
-    pContext.stroke();
-    
-    pContext.font = "8px Arial";
-    pContext.fillStyle = "black";
-    for (let i = -pRadius; i <= pRadius; i += 50) {
-        if (i !== 0) {
-            pContext.fillText(i, i,  15);
-            pContext.fillText(i, 5, - i);
-        }
-    }
-}
-
-function drawRectangle(x, y, w, h, color) {
-    pContext.fillStyle = color;
-    pContext.fillRect(pCanvas.width / 2 + x, pCanvas.height / 2 - y, w, -h);
-}
-
-function drawDiamond(x, y, size, color) {
-    pContext.fillStyle = color;
-    pContext.beginPath();
-    pContext.moveTo(pCanvas.width / 2 + x, pCanvas.height / 2 - (y - size));
-    pContext.lineTo(pCanvas.width / 2 + (x + size), pCanvas.height / 2 - y);
-    pContext.lineTo(pCanvas.width / 2 + x, pCanvas.height / 2 - (y + size));
-    pContext.lineTo(pCanvas.width / 2 + (x - size), pCanvas.height / 2 - y);
-    pContext.closePath();
-    pContext.fill();
-}
 
 function resizePattern() {
     const parent = pCanvas.parentElement;
@@ -130,11 +88,12 @@ function drawPattern() {
     pContext.fillRect(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
 
     const { Turns, Coils } = fibboGetSelectedValues();
+    const conv = fieldGet("conv")
     const angleStep = Math.PI * 2 / Coils * Turns
     
     const cx = 0
     const cy = 0
-    const radius = pRadius * 0.8
+    const radius = pRadius * 0.7
 
     const canvas = document.getElementById("patterns-canvas");
     const ctx    = canvas.getContext("2d");
@@ -174,9 +133,8 @@ function drawPattern() {
     ctx.strokeStyle = "black";
 
 
-    const innerRadius = radius + 24
-    const outerRadius = radius + 32
-    // Рисуем внешний и внутренний круги
+    const innerRadius = radius + 38
+    const outerRadius = radius + 45
     const segment = (Math.PI * 2) / Coils;
     ctx.fillStyle = "yellow";
     ctx.beginPath();
@@ -190,7 +148,7 @@ function drawPattern() {
     for (let i = 0; i < points.length - 1; i++) {
         let point = points[i    ];
 
-        const size = 15;
+        const size = 16;
 
         // triangle
         let dx = point.x - cx;
@@ -205,34 +163,40 @@ function drawPattern() {
         let perpX = -dy * size;
         let perpY =  dx * size;
 
-        let baseX = point.x + dx * size * 1.5;
-        let baseY = point.y + dy * size * 1.5;
+        let baseX = point.x + dx * size * 0.8;
+        let baseY = point.y + dy * size * 0.8;
 
-        let leftX  = baseX + perpX;
-        let leftY  = baseY + perpY;
-        let rightX = baseX - perpX;
-        let rightY = baseY - perpY;
+        let houseHeight = size * 1.5; // Высота "стен" домика
+        let bottomX1 = baseX + perpX + dx * houseHeight;
+        let bottomY1 = baseY + perpY + dy * houseHeight;
+        let bottomX2 = baseX - perpX + dx * houseHeight;
+        let bottomY2 = baseY - perpY + dy * houseHeight;
 
         ctx.fillStyle = `hsl(${ point.c }, 50%, 50%)`;
         ctx.beginPath();
-        ctx.moveTo(tipX, tipY);
-        ctx.lineTo(leftX, leftY);
-        ctx.lineTo(rightX, rightY);
+        ctx.moveTo(tipX  , tipY  );
+        ctx.lineTo(baseX + perpX        , baseY + perpY    );
+        ctx.lineTo(bottomX1             , bottomY1         );
+        ctx.lineTo(bottomX2             , bottomY2         );
+        ctx.lineTo(baseX - perpX        , baseY - perpY    );
         ctx.closePath();
         ctx.fill();
 
 
         // number
-        let textX = point.x + dx * size * 0.9;
-        let textY = point.y + dy * size * 0.9;
+        let textX = point.x + dx * size * 1.4;
+        let textY = point.y + dy * size * 1.4;
 
-        ctx.fillStyle = "white";
-        ctx.font = `${10}px Arial`;
+
+
+        ctx.fillStyle = (i < conv ? "black" : "white");
+        ctx.font = `bold ${18}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(i, textX, textY);
 
 
+        // segments
         let angle = (i + 0.5) * segment;
         let xOuter = cx + Math.cos(angle) * outerRadius;
         let yOuter = cy + Math.sin(angle) * outerRadius;
@@ -257,7 +221,6 @@ window.drawPattern = drawPattern
 //     pContext.clearRect(0, 0, pCanvas.width, pCanvas.height);
 //     //pContext.translate(pCanvas.width / 2, pCanvas.height / 2);
     
-//     drawAxes();
 // }
 
 function patternsOnLoad() {

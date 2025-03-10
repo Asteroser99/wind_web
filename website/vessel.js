@@ -869,9 +869,15 @@ function patternsCalc() {
     const coil = coilGet("Initial");
 
     lambdaCall("fibbo", [coil, fieldGet("band"), fieldGet("conv")])
-        .then((res) => {
-            fieldSet("patterns", res);
+        .then((patterns) => {
+            fieldSet("patterns", patterns);
             fibboRenderTable();
+
+            const minIndex = patterns.reduce((minIdx, entry, idx, arr) => 
+                Math.abs(entry.Correction) < Math.abs(arr[minIdx].Correction) ? idx : minIdx
+            , 0);
+            fibboSelectRow(minIndex);
+
             loaded();
         })
         .catch(error => {
@@ -1024,13 +1030,13 @@ document.getElementById('vesselSave').addEventListener(
 
 // vesselLoad
 
-const coilLoadInput = document.getElementById('coilLoadInput');
-document.getElementById('coilLoad').addEventListener(
-    'click', () => { coilLoadInput.click(); }
-);
-coilLoadInput.addEventListener(
-    'change', function (event) { coilLoadOnClick(event) }
-);
+// const coilLoadInput = document.getElementById('coilLoadInput');
+// document.getElementById('coilLoad').addEventListener(
+//     'click', () => { coilLoadInput.click(); }
+// );
+// coilLoadInput.addEventListener(
+//     'change', function (event) { coilLoadOnClick(event) }
+// );
 function coilLoadOnClick(event) {
     const file = event.target.files[0];
     if (!file) return;

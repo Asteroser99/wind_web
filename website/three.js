@@ -65,7 +65,7 @@ window.addEventListener('resize', () => {
   resizeScene();
 });
 
-function sceneInit() {
+function threeInit() {
   scene.canvas = document.getElementById('scene-canvas')
 
   scene.scene = new THREE.Scene();
@@ -135,7 +135,7 @@ function sceneInit() {
 
   floorInit();
 
-  frameInit();
+  // frameInit();
 
   scaleSet();
 }
@@ -144,15 +144,6 @@ function resizeMesh(mesh) {
   // console.log("resize scale = ", scale)
   mesh.scale.set(scale.factor, scale.factor, scale.factor);
 }
-
-// document.addEventListener('DOMContentLoaded', function () {
-function threeOnLoad() {
-  sceneInit();
-  loaded();
-  animate();
-}
-window.threeOnLoad = threeOnLoad
-
 
 // models
 
@@ -443,9 +434,7 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
     // spotLight.position.set(0, size.y, 0);  // Размещаем свет выше объекта
     // scene.scene.add(pointLight);
 
-    if(frameMesh){
-      frameUpdate()
-    }
+    // frameUpdate()
   }
 
   resizeMesh(mesh);
@@ -505,12 +494,88 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
 }
 window.addLine = addLine
 
+function frameInit(){
+  const Fr = scale.y.max;
+  const Fd = Fr / 50;
+  const SR = fieldGet("safetyR");
+
+  { // frameMesh
+    const vertices = Array(6 * 3).fill(0);
+    const indices = [
+      0, 1,  1, 2,  2, 3,  3, 4,  4, 5,  5, 0,
+    ];
+    removeMesh(window.frameMesh);
+    window.frameMesh = addLine([vertices, indices], 0xffffff);
+  }
+
+  { // carretMesh
+      const Xi = 0;
+      const Yi = 0;
+      const Zi = Fr * 2;
+
+      const vert = [];
+      vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 4);
+      vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 4);
+      vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 4);
+      vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 4);
+
+      vert.push(Xi - Fd * 2,  Yi - Fd,  Fr * 2 + SR);
+      vert.push(Xi - Fd * 2,  Yi + Fd,  Fr * 2 + SR);
+      vert.push(Xi + Fd * 2,  Yi + Fd,  Fr * 2 + SR);
+      vert.push(Xi + Fd * 2,  Yi - Fd,  Fr * 2 + SR);
+      
+      const indices = [];
+      indices.push(0, 1, 2,  2, 3, 0);
+      indices.push(4, 5, 6,  6, 7, 4);
+
+      indices.push(0, 4, 5,  5, 1, 0);
+      indices.push(1, 5, 6,  6, 2, 1);
+      indices.push(2, 6, 7,  7, 3, 2);
+      indices.push(3, 7, 4,  4, 0, 3);
+
+      removeMesh(window.carretMesh);
+      window.carretMesh = addMesh([vert, indices], 0x00ffff, 0.3);
+      window.carretMesh.position.z = Zi * scale.factor
+  };
+
+  { // standMesh
+    const Xi = 0;
+    const Yi = 0;
+    const Zi = Fr * 1.5 + SR;
+
+    const vert = [];
+    vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
+    vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
+    vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
+    vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
+
+    vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
+    vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
+    vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
+    vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
+    
+    const indices = [];
+    indices.push(0, 1, 2,  2, 3, 0);
+    indices.push(4, 5, 6,  6, 7, 4);
+
+    indices.push(0, 4, 5,  5, 1, 0);
+    indices.push(1, 5, 6,  6, 2, 1);
+    indices.push(2, 6, 7,  7, 3, 2);
+    indices.push(3, 7, 4,  4, 0, 3);
+
+    removeMesh(window.standMesh);
+    window.standMesh = addMesh([vert, indices], 0x00ffff, 0.3);
+  }
+}
+window.frameInit = frameInit
+
 function frameUpdate(){
   const Rm = scale.y.max;
-  const Xn = scale.x.min - Rm;
-  const Xm = scale.x.max + Rm;
-  const Yd = 2 * Rm;
-  const Zd = - 2 * Rm;
+  const SR = fieldGet("safetyR");
+  const Xn = scale.x.min - (Rm + SR);
+  const Xm = scale.x.max + (Rm + SR);
+  const Yd = + (Rm * 1.5 + SR);
+  const Zd = - (Rm * 2);
 
   const vertices = [
     Xn, 0., 0.,
@@ -525,24 +590,26 @@ function frameUpdate(){
     //  Xi,   0,  Ri,
   ];
 
-  const pos = window.frameMesh.geometry.attributes.position;
-  pos.array.set(vertices);
-  pos.needsUpdate = true;
+  if (window.frameMesh) {
+    const pos = window.frameMesh.geometry.attributes.position;
+    pos.array.set(vertices);
+    pos.needsUpdate = true;
 
-  resizeMesh(frameMesh)
+    resizeMesh(frameMesh)
+  }
 
-  floorMesh.position.y = -2 * scale.y.max * scale.factor;
-  floorMesh.position.x = scale.x.center * scale.factor;
+  { // floorMesh
+    floorMesh.position.y = -2 * scale.y.max * scale.factor;
+    floorMesh.position.x = scale.x.center * scale.factor;
+  }
+
 }
+window.frameUpdate = frameUpdate
 
-function frameInit(){
-  const vertices = Array(6 * 3).fill(0);
-  const indices = [
-    0, 1,  1, 2,  2, 3,  3, 4,  4, 5,  5, 0,
-  ];
-
-  window.frameMesh = addLine([vertices, indices], 0xffffff);
-}
+// document.getElementById("safetyR").onchange = function() {
+//   frameInit();
+//   frameUpdate();
+// };
 
 function addMeshLine([vertices, indices], color = 0xff0000) {
   if (vertices.length == 0) return;
@@ -690,3 +757,11 @@ function clearScene() {
   });
 }
 window.clearScene = clearScene
+
+// document.addEventListener('DOMContentLoaded', function () {
+  function threeOnLoad() {
+    threeInit();
+    loaded();
+  }
+  window.threeOnLoad = threeOnLoad
+  

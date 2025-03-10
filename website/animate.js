@@ -79,6 +79,9 @@ function animateInit(){
 
     if (!window.animateOn) return;
 
+    frameInit()
+    frameUpdate();
+
     window.animateCoil   = coil;
     window.animateTape   = tape;
     window.animateEqd    = eqd ;
@@ -88,9 +91,6 @@ function animateInit(){
 
     document.getElementById("animateSlider").max = window.animateCoil.x.length - 1;
     window.animateUpdateTime = 0;
-
-    const Fr = scale.y.max * 2;
-    const Fd = Fr / 100;
 
     if (window.tapeInterpolatedMesh){
         const geometry = window.tapeInterpolatedMesh.geometry;
@@ -128,68 +128,9 @@ function animateInit(){
         window.carretLine = addLine([vertices, indices], 0x00ff00);
     };
 
-    { // carretMesh
-        const Xi = 0;
-        const Yi = 0;
-        const Zi = Fr;
-
-        const vert = [];
-        vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 4);
-        vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 4);
-        vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 4);
-        vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 4);
-
-        vert.push(Xi - Fd * 2,  Yi - Fd,  Fr);
-        vert.push(Xi - Fd * 2,  Yi + Fd,  Fr);
-        vert.push(Xi + Fd * 2,  Yi + Fd,  Fr);
-        vert.push(Xi + Fd * 2,  Yi - Fd,  Fr);
-        
-        const indices = [];
-        indices.push(0, 1, 2,  2, 3, 0);
-        indices.push(4, 5, 6,  6, 7, 4);
-
-        indices.push(0, 4, 5,  5, 1, 0);
-        indices.push(1, 5, 6,  6, 2, 1);
-        indices.push(2, 6, 7,  7, 3, 2);
-        indices.push(3, 7, 4,  4, 0, 3);
-
-        removeMesh(window.carretMesh);
-        window.carretMesh = addMesh([vert, indices], 0x00ffff, 0.3);
-        window.carretMesh.position.z = Zi * scale.factor
-    };
-
-    { // standMesh
-        const Xi = 0;
-        const Yi = 0;
-        const Zi = Fr * 1;
-
-        const vert = [];
-        vert.push(Xi - Fd * 8,  Yi - Fr    ,  Zi - Fd * 4);
-        vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi - Fr    ,  Zi - Fd * 4);
-
-        vert.push(Xi - Fd * 8,  Yi - Fr    ,  Zi + Fd * 4);
-        vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-        vert.push(Xi + Fd * 8,  Yi - Fr    ,  Zi + Fd * 4);
-        
-        const indices = [];
-        indices.push(0, 1, 2,  2, 3, 0);
-        indices.push(4, 5, 6,  6, 7, 4);
-
-        indices.push(0, 4, 5,  5, 1, 0);
-        indices.push(1, 5, 6,  6, 2, 1);
-        indices.push(2, 6, 7,  7, 3, 2);
-        indices.push(3, 7, 4,  4, 0, 3);
-
-        removeMesh(window.standMesh);
-        window.standMesh = addMesh([vert, indices], 0x00ffff, 0.3);
-    }
-    
     { // rolleyMesh
         removeMesh(window.rolleyMesh);
-
+  
         const band = fieldGet('band') / 2
         const rolleyMandrel = {
             x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
@@ -197,13 +138,13 @@ function animateInit(){
         };
         
         const render = generatrixRender(rolleyMandrel, 8)
-
+  
         const mesh = addMesh(render, 0xFFFFFF);
         
         window.rolleyMesh = mesh;
-
-        rolleyAnimate();
     }
+
+    rolleyAnimate();
 }
 window.animateInit = animateInit;
 
@@ -393,5 +334,6 @@ function animateOnLoad(){
     //     requestAnimationFrame(animateOnLoad);
     // }
     
+    animate();
 }
 window.animateOnLoad = animateOnLoad

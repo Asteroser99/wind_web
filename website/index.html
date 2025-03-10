@@ -162,8 +162,8 @@
                     </div>
 
                     <div id="file-coil">
-                        <button id="coilLoad" class="image-button" title="Load coil from yaml file">Load coil&nbsp;<img src="./img/load.png"></button>
-                        <input id="coilLoadInput" type="file" accept=".yaml" style="display: none;" />
+                        <!-- <button id="coilLoad" class="image-button" title="Load coil from yaml file">Load coil&nbsp;<img src="./img/load.png"></button>
+                        <input id="coilLoadInput" type="file" accept=".yaml" style="display: none;" /> -->
                     </div>
                     <div id="help-coil">
                         <main>
@@ -180,6 +180,7 @@
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
 
                     <div id="actions-patterns" class="floatingControl">
+                        <h3><div id="ConvinienceH3">Convinience:</div></h3>
                         <h3>Select pattern:</h3>
                         <table id="data-table">
                             <thead>
@@ -236,20 +237,26 @@
                             class="image-button function-button"
                             data-function="Equdestanta"
                             title="Calculate equdestanta"
-                        ><img src="./img/calc.png">&nbsp;Equidistanta</button>
-                        <br>
+                        ><img src="./img/calc.png">&nbsp;Equidistanta</button><br>
+                        
                         <button
                             class="image-button function-button"
                             data-function="Interpolanta"
                             title="Calculate interpolanta"
-                        ><img src="./img/calc.png">&nbsp;Interpolanta</button>
-                        <br>
+                        ><img src="./img/calc.png">&nbsp;Interpolanta</button><br>
+                        
                         <button
                             class="image-button function-button"
                             data-function="Equdestanta"
                             data-parameter="+Interpolanta"
                             title="Wind"
-                        ><img src="./img/calc.png">&nbsp;Wind</button>
+                        ><img src="./img/calc.png">&nbsp;Equdestanta+Interpolanta</button><br>
+                        
+                        <button
+                            class="image-button function-button"
+                            data-function="Winding"
+                            title="Winding"
+                        ><img src="./img/calc.png">&nbsp;Winding</button>
                         
                     </div>
 
