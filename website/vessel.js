@@ -78,13 +78,6 @@ const fieldAllSet = async (newVessel) => {
     const promises = Object.entries(newVessel).map(([key, value]) =>
         fieldAsyncStorageSet(key, value)
     );
-
-    // try {
-    //     await Promise.all(promises);
-    //     console.log('New vessel set successfully.');
-    // } catch (error) {
-        // showError(error);
-    // }
 };
 
 const fieldAllUpdateFromStorage = () => {
@@ -266,38 +259,8 @@ function mandrelFromCSV(csvText, colNum = 0) {
     return { x, r }
 }
 
+
 // Export CSV
-
-// function mandrelExportCSVWithInputDialog(data) {
-//     const input = document.createElement("input");
-//     input.type = "file";
-//     input.accept = ".csv";
-//     input.addEventListener("change", (event) => {
-//         const file = event.target.files[0];
-//         if (!file) return;
-
-//         mandrelExportCSVFileWrite(file, data);
-//     });
-
-//     input.click();
-// }
-
-// // Запись данных в файл через File API
-// function mandrelExportCSVFileWrite(file, data) {
-//     const blob = new Blob([convertArrayToCsv(data)], { type: "text/csv" });
-//     const fileWriter = new FileReader();
-
-//     fileWriter.onload = function () {
-//         const link = document.createElement("a");
-//         link.href = fileWriter.result;
-//         link.download = file.name;
-//         document.body.appendChild(link);
-//         link.click();
-//         document.body.removeChild(link);
-//     };
-
-//     fileWriter.readAsDataURL(blob);
-// }
 
 async function saveCsvWithDialog(name) {
     const data = fieldGet("mandrel" + name)
@@ -344,14 +307,6 @@ function convertArrayToCsv(data) {
 
     return keys.join(",") + "\n" + rows.join("\n");
 }
-
-// document.getElementById('mandrelExportCSV').addEventListener(
-//     'click', () => saveCsvWithDialog(fieldGet("mandrelRaw"))
-// );
-
-// document.getElementById('mandrelExportCSVSmoothed').addEventListener(
-//     'click', () => saveCsvWithDialog(fieldGet("mandrelSmoothed"))
-// );
 
 
 // mandrel
@@ -538,7 +493,7 @@ document.getElementById('mandrelRedirect').addEventListener(
 );
 
 
-// smooth
+// Thickness
 
 document.getElementById('thicknessGet').addEventListener(
     'click', () => {
@@ -563,7 +518,8 @@ document.getElementById('thicknessGet').addEventListener(
     }
 );
 
-// smooth
+
+// Smooth
 
 document.getElementById('mandrelSmooth').addEventListener(
     'click', () => {
@@ -722,11 +678,11 @@ function tapeRender(suffix) {
         Coils = fibboGetSelected["Coils"]
     }
 
-    const th = 0.02, thd = th / n;
+    const th = 0.05, thd = th / n;
 
     let i = 0, j = 0;
-    const pT0 = pointXYZ(coil, i)
-    const pTR = pointXYZ(tape, i)
+    const pT0 = pointXYZ(coil, i, 0, th * 3, coil)
+    const pTR = pointXYZ(tape, i, 0, th * 3, coil)
     vertices.push(...pTR);
     // const pTL = pointXYZ(tape, i, 0, 0, 0, pT0)
     const pTL = mirrorXYZ(pTR, pT0)
@@ -734,7 +690,7 @@ function tapeRender(suffix) {
 
 
     j++;
-    for (let round = 0, fiShift = 0, thi = th; round < Coils; round++) {
+    for (let round = 0, fiShift = 0, thi = th * 3; round < Coils; round++) {
         for (i = 1; i < n; i++, j++, thi += thd) {
             const pT0 = pointXYZ(coil, i, fiShift)
             const pT1 = pointXYZ(coil, i, fiShift, thi, coil)
@@ -760,47 +716,6 @@ function tapeRender(suffix) {
 
 
 // Equidestanta
-
-function createBoxWithOctagonHole() {
-    const vertices = [];
-    const indices = [];
-
-    const w = 2, h = 2, d = 2;
-
-    const boxVertices = [
-        [-w, -h, -d], [w, -h, -d], [w, h, -d], [-w, h, -d],  // Задняя грань
-        [-w, -h, d], [w, -h, d], [w, h, d], [-w, h, d],  // Передняя грань
-    ];
-
-    for (let v of boxVertices) vertices.push(...v);
-
-    const boxIndices = [
-        0, 1, 2, 2, 3, 0,  // Задняя грань
-        4, 5, 6, 6, 7, 4,  // Передняя грань
-        0, 1, 5, 5, 4, 0,  // Нижняя грань
-        2, 3, 7, 7, 6, 2,  // Верхняя грань
-        1, 2, 6, 6, 5, 1,  // Правая грань
-        0, 3, 7, 7, 4, 0   // Левая грань
-    ];
-    
-    indices.push(...boxIndices);
-
-    const octagon = [];
-    const radius = 0.5;
-    for (let i = 0; i < 8; i++) {
-        let angle = (Math.PI / 4) * i;
-        octagon.push([Math.cos(angle) * radius, Math.sin(angle) * radius, d]);
-    }
-
-    let startIdx = vertices.length / 3;
-    for (let v of octagon) vertices.push(...v);
-
-    for (let i = 0; i < 8; i++) {
-        indices.push(4, startIdx + i, startIdx + (i + 1) % 8); // Треугольники
-    }
-
-    return [vertices, indices];
-}
 
 function Equdestanta(param) {
     loading();
@@ -883,11 +798,8 @@ function Winding(param = undefined){
 }
 window.Winding = Winding
 
-// Patterns
 
-// document.getElementById('patternsCalc').addEventListener(
-//     'click', () => { patternsCalc();}
-// );
+// Patterns
 
 function patternsCalc() {
     loading();
@@ -954,12 +866,6 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
                 al: res[1],
             });
 
-            // function coilCorrectedDraw() {
-            //     removeMesh(window.correctedCoilMesh);
-            //     window.correctedCoilMesh = addLine(coilRender(coilGet("Corrected")));
-            // }
-            // coilCorrectedDraw();
-
             loaded();
 
             tapeCalc("Corrected");
@@ -973,7 +879,6 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
 document.getElementById('CNCExport').addEventListener(
     'click', () => CNCExport()
 );
-
 async function CNCExport() {
     loading();
     const itpEqd = fieldGet("equidistantaInterpolated");
@@ -1019,7 +924,6 @@ async function CNCExport() {
 }
 
 
-
 // ALL
 
 function drawAll() {
@@ -1056,13 +960,6 @@ document.getElementById('vesselSave').addEventListener(
 
 // vesselLoad
 
-// const coilLoadInput = document.getElementById('coilLoadInput');
-// document.getElementById('coilLoad').addEventListener(
-//     'click', () => { coilLoadInput.click(); }
-// );
-// coilLoadInput.addEventListener(
-//     'change', function (event) { coilLoadOnClick(event) }
-// );
 function coilLoadOnClick(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1083,10 +980,6 @@ function coilLoadOnFileLoad(event) {
 document.getElementById('vesselExample1').addEventListener(
     'click', () => { vesselloadFromURL("Example1"); }
 );
-// document.getElementById('vesselExample2').addEventListener(
-//     'click', () => { vesselloadFromURL("Example2"); }
-// );
-
 async function loadFromYamlURL(url) {
     let response = null;
     try {
@@ -1099,7 +992,6 @@ async function loadFromYamlURL(url) {
     }
     fieldAllSet(loadFromYaml(await response.text()));
 }
-
 function vesselloadFromURL(name) {
     vesselClear();
     clearScene();
@@ -1119,7 +1011,6 @@ function vesselClear() {
     drawAll();
 }
 window.vesselClear = vesselClear
-
 
 function vesselOnLoad() {
     fieldAllUpdateFromStorage();

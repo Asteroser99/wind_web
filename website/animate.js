@@ -183,8 +183,6 @@ function rolleyAnimate(){
 
     if (window.carretLine) { // carretLine
         const Fr = scale.y.max * 2;
-        // const Fd = Fr / 8;
-
         const vert = [];
         vert.push(Xi,  Yi,  Zi);
         vert.push(Xi,  Yi,  Zi + Fr);

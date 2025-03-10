@@ -132,23 +132,15 @@ function drawPattern() {
     ctx.lineWidth = 2;
     ctx.strokeStyle = "black";
 
-
-    const innerRadius = radius + 38
-    const outerRadius = radius + 45
     const segment = (Math.PI * 2) / Coils;
-    ctx.fillStyle = "yellow";
-    ctx.beginPath();
-    ctx.arc(cx, cy, innerRadius, 0 + segment * 0.5, Math.PI * 2 + segment * 0.5);
-    ctx.arc(cx, cy, outerRadius, Math.PI * 2 + segment * 0.5, 0 + segment * 0.5, true);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    const size = segment * radius / (1 - segment)
 
     // triangles
     for (let i = 0; i < points.length - 1; i++) {
-        let point = points[i    ];
+        let point = points[i];
 
-        const size = 16;
+        // const size = 16;
+        const first = i < conv + 1
 
         // triangle
         let dx = point.x - cx;
@@ -157,16 +149,16 @@ function drawPattern() {
         dx /= length;
         dy /= length;
 
-        let tipX = point.x + dx * size * -0.25;
-        let tipY = point.y + dy * size * -0.25;
+        let perpX = -dy * size / 2;
+        let perpY =  dx * size / 2;
 
-        let perpX = -dy * size;
-        let perpY =  dx * size;
+        let tipX  = point.x + dx * size * -0.25;
+        let tipY  = point.y + dy * size * -0.25;
 
-        let baseX = point.x + dx * size * 0.8;
-        let baseY = point.y + dy * size * 0.8;
+        let baseX = point.x + dx * size * 0.3;
+        let baseY = point.y + dy * size * 0.3;
 
-        let houseHeight = size * 1.5; // Высота "стен" домика
+        let houseHeight = size * (first ? 1.6 : 1.0); // Высота "стен" домика
         let bottomX1 = baseX + perpX + dx * houseHeight;
         let bottomY1 = baseY + perpY + dy * houseHeight;
         let bottomX2 = baseX - perpX + dx * houseHeight;
@@ -182,20 +174,30 @@ function drawPattern() {
         ctx.closePath();
         ctx.fill();
 
-
         // number
-        let textX = point.x + dx * size * 1.4;
-        let textY = point.y + dy * size * 1.4;
+        let textX = point.x + dx * size * 0.7;
+        let textY = point.y + dy * size * 0.7;
 
-
-
-        ctx.fillStyle = (i < conv ? "black" : "white");
-        ctx.font = `bold ${18}px Arial`;
+        ctx.fillStyle = (first ? "black" : "white");
+        ctx.font = `bold ${size * 0.7}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(i, textX, textY);
+    }
 
+    const innerRadius = radius + size * 1.3
+    const outerRadius = radius + size * 1.6
+    ctx.fillStyle = "yellow";
+    ctx.beginPath();
+    ctx.arc(cx, cy, innerRadius, 0 + segment * 0.5, Math.PI * 2 + segment * 0.5);
+    ctx.arc(cx, cy, outerRadius, Math.PI * 2 + segment * 0.5, 0 + segment * 0.5, true);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
 
+    for (let i = 0; i < points.length - 1; i++) {
+        let point = points[i    ];
+    
         // segments
         let angle = (i + 0.5) * segment;
         let xOuter = cx + Math.cos(angle) * outerRadius;
