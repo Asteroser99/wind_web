@@ -856,6 +856,32 @@ function Interpolanta(param = undefined){
 };
 window.Interpolanta = Interpolanta
 
+function Winding(param = undefined){
+    loading();
+
+    const coilCorrected = coilGet("Corrected");
+    console.log(coilCorrected)
+    if (!coilCorrected){
+        showError("No coil data")
+        return
+    }
+
+    lambdaCall("winding", [coilCorrected, fieldGet('safetyR'), fieldGet('lineCount'), fieldGet('band')])
+        .then(res => {
+            coilSet ("Interpolated"            , res[0]);
+            fieldSet("tapeInterpolated"        , res[1]);
+            fieldSet("equidistantaInterpolated", res[2]);
+            fieldSet("rolleyInterpolated"      , res[3]);
+
+            animateInit();
+
+            loaded();
+        })
+        .catch(error => {
+            showError(error);
+        });
+}
+window.Winding = Winding
 
 // Patterns
 
