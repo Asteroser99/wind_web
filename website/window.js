@@ -284,8 +284,27 @@ window.toggleHelp = toggleHelp
 
 function toggleEquidistanta(toggled){
     window.equidistantaShow = toggled
+    animateVisibilities();
 }
 window.toggleEquidistanta = toggleEquidistanta
+
+function toggleMandrel(toggled){
+    window.mandrelShow = toggled;
+    animateVisibilities();
+}
+window.toggleMandrel = toggleMandrel
+
+function toggleLine(toggled){
+    window.lineShow = toggled;
+    animateVisibilities();
+}
+window.toggleLine = toggleLine
+
+function toggleTape(toggled){
+    window.tapeShow = toggled;
+    animateVisibilities();
+}
+window.toggleTape = toggleTape
 
 
 // Init
@@ -318,7 +337,7 @@ function inputFieldSet(id, value) {
 window.inputFieldSet = inputFieldSet;
 
 function toggleButtonInit(){
-    document.querySelectorAll('.toggleButton').forEach(button => {
+    document.querySelectorAll('.toggle-button').forEach(button => {
         button.addEventListener('click', (event) => {
             const button = event.currentTarget
             let active = button.classList.contains('active')
@@ -350,6 +369,8 @@ function windowOnLoad(){
 }
 
 window.onload = function () {
+    window.vessel = {};
+
     windowOnLoad();
     threeOnLoad();
     vesselOnLoad();

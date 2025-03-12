@@ -458,7 +458,7 @@ input {
     margin: 10px;
 }
 
-.toggle-button { 
+.animate-button { 
     margin: 5px;
     width: 40px; 
     height: 40px; 
@@ -466,7 +466,7 @@ input {
     border: none; 
     cursor: pointer; 
 }
-.toggle-button.active { 
+.animate-button.active { 
     background: url('./img/pressed.png') no-repeat center center / cover;
 }
 

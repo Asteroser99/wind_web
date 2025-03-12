@@ -1,8 +1,3 @@
-window.vessel = {};
-
-window.mandrelMesh = null;
-
-
 // storage
 
 const fieldAsyncStorageSet = (key, value) => {
@@ -576,22 +571,42 @@ function coilCalc() {
     }
 }
 
-function coilRender(coil) {
-    if (!coil) 
-        return undefined;
+function coilRender(suffix) {
+    const coil = coilGet(suffix)
+    if (!coil) return undefined;
 
     const n = coil.x.length
+
+    const mode = suffix == "Initial" ? "first" : fieldGet("windingMode");
+    let Coils = 1
+    if (mode == "first"){
+        Coils = 1
+    } else if (mode == "round") {
+        Coils = fieldGet("conv") + 1
+    } else if (mode == "all") {
+        const fibboGetSelected = fibboGetSelectedValues();
+        Coils = fibboGetSelected["Coils"]
+    }
 
     const vertices = [];
     const indices  = [];
 
-    for (let i = 0; i < n; i++) {
-        vertices.push(...pointXYZ(coil, i));
 
-        if (i > 0) {
-            indices.push(i - 1);
-            indices.push(i);
+    let i = 0, j = 0;
+    vertices.push(...pointXYZ(coil, i));
+    j++;
+
+    // for (let i = 0; i < n; i++) {
+    for (let round = 0, fiShift = 0; round < Coils; round++) {
+
+        for (i = 1; i < n; i++, j++) {
+
+            vertices.push(...pointXYZ(coil, i, fiShift));
+
+            indices.push(j - 1, j);
+
         }
+        fiShift += coil.fi[n - 1];
     }
 
     return [vertices, indices];
@@ -618,7 +633,7 @@ function tapeRemove(suffix) {
 }
 
 function coilDraw(suffix) {
-    let render = coilRender(coilGet(suffix));
+    let render = coilRender(suffix);
     if(render){
         window["coil" + suffix + "Line"] = addLine(render);
     }
@@ -687,8 +702,6 @@ function tapeRender(suffix) {
     // const pTL = pointXYZ(tape, i, 0, 0, 0, pT0)
     const pTL = mirrorXYZ(pTR, pT0)
     vertices.push(...pTL);
-
-
     j++;
     for (let round = 0, fiShift = 0, thi = th * 3; round < Coils; round++) {
         for (i = 1; i < n; i++, j++, thi += thd) {
@@ -707,7 +720,6 @@ function tapeRender(suffix) {
             indPlain.push(j * 2 - 2); indPlain.push(j * 2 - 1); indPlain.push(j * 2 + 0);
             indPlain.push(j * 2 - 1); indPlain.push(j * 2 + 1); indPlain.push(j * 2 + 0);
         };
-
         fiShift += coil.fi[n - 1];
     };
 

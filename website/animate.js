@@ -72,12 +72,13 @@ function animateInit(){
         freeColor = 0xfea02a
     }
 
-    window.animateOn = coil && tape && eqd && roll
+    window.animateReady = coil && tape && eqd && roll
 
-    document.getElementById("programBar").style.display = window.animateOn ? "flex" : "none";
-    document.getElementById("playerBar" ).style.display = window.animateOn ? "flex" : "none";
+    window.animateOn = window.animateReady;
 
-    if (!window.animateOn) return;
+    animateVisibilities();
+
+    if (!window.animateReady) return;
 
     frameInit()
     frameUpdate();
@@ -205,95 +206,145 @@ function rolleyAnimate(){
 }
 window.rolleyAnimate = rolleyAnimate;
 
+function tapeAnimate(prefix, fi){
+    let mesh
+
+    mesh = window["coil" + prefix + "Line"]
+    if (mesh){
+        mesh.rotation.x = fi;
+    }
+
+    mesh = window["tape" + prefix + "Mesh"]
+    if (mesh){
+        mesh.rotation.x = fi;
+    }
+
+    mesh = window["tape" + prefix + "Line"]
+    if (mesh){
+        mesh.rotation.x = fi;
+    }
+}
+
+function tapeVisibility(prefix){
+    let mesh
+
+    mesh = window["coil" + prefix + "Line"]
+    if (mesh){
+        mesh.visible = window.lineShow;
+    }
+
+    mesh = window["tape" + prefix + "Mesh"]
+    if (mesh){
+        mesh.visible = window.tapeShow;
+    }
+
+    mesh = window["tape" + prefix + "Line"]
+    if (mesh){
+        mesh.visible = window.tapeShow;
+    }
+}
+
+function animateVisibilities(){
+    window.animateOn = fieldGet("windingMode") == "first";
+
+    document.getElementById("programBar").style.display = window.animateOn ? "flex" : "none";
+    document.getElementById("playerBar" ).style.display = window.animateOn ? "flex" : "none";
+
+    if (window.standMesh     ) window.standMesh .visible = window.animateOn;
+    if (window.carretMesh    ) window.carretMesh.visible = window.animateOn;
+    if (window.rolleyMesh    ) window.rolleyMesh.visible = window.animateOn;
+
+    if (window.mandrelRawMesh) window.mandrelRawMesh.visible = window.mandrelShow;
+    if (window.freeLine      ) window.freeLine      .visible = window.animateOn && window.lineShow;
+    if (window.freeMesh      ) window.freeMesh      .visible = window.animateOn && window.tapeShow;
+
+    tapeVisibility("Initial")
+    tapeVisibility("Corrected")
+    tapeVisibility("Interpolated")
+
+    if (window.equidLine) window.equidLine.visible = window.animateOn && window.equidistantaShow;
+    
+}
+window.animateVisibilities = animateVisibilities
 
 function animate(timestamp) {
     requestAnimationFrame(animate);
-  
-    // timestamp
-    if (window.animateOn && timestamp - window.animateUpdateTime > 100) {
-      window.animateUpdateTime = timestamp;
-  
-      window.animateIndex = parseInt(animateSlider.value, 10);
-      if (window.animateAuto) {
-        window.animateIndex += 3
-        if (window.animateIndex >= window.animateCoil.x.length) {
-          window.animateIndex = 0
+
+    if (window.animateOn && window.animateReady
+        && timestamp - window.animateUpdateTime > 100
+    ) {
+        window.animateUpdateTime = timestamp;
+
+        window.animateIndex = parseInt(animateSlider.value, 10);
+        if (window.animateAuto) {
+            window.animateIndex += 3
+            if (window.animateIndex >= window.animateCoil.x.length) {
+                window.animateIndex = 0
+            }
+            animateSlider.value = window.animateIndex;
         }
-        animateSlider.value = window.animateIndex;
-      }
-    
-      const x  = window.animateEqd.x [window.animateIndex]
-      const r  = window.animateEqd.r [window.animateIndex]
-      const fi = window.animateEqd.fi[window.animateIndex]
-      const dl = window.animateEqd.al[window.animateIndex]
+
+        const x  = window.animateEqd.x [window.animateIndex]
+        const r  = window.animateEqd.r [window.animateIndex]
+        const fi = window.animateEqd.fi[window.animateIndex]
+        const dl = window.animateEqd.al[window.animateIndex]
   
-      // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
-      const animateText = ""
-        + `№ ${window.animateIndex} | `
-        + `x ${x.toFixed(1)} | `
-        + `r ${r.toFixed(1)} | `
+        // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
+        const animateText = ""
+        + `N ${window.animateIndex} | `
+        + `x ${x .toFixed(1)} | `
+        + `r ${r .toFixed(1)} | `
         + `φ ${fi.toFixed(5)} | `
-        + `Δ ${(dl * 180. / Math.PI).toFixed(1)}°`
-      ;
-      document.querySelector(".program-p").textContent = animateText;
+        + `δ ${(dl * 180. / Math.PI).toFixed(1)}°`
+        ;
+        document.querySelector(".program-p").textContent = animateText;
     
-      rolleyAnimate();
+        rolleyAnimate();
 
+        if (window.animateTapeIndices) {
+            const mesh = window.tapeInterpolatedMesh;
+            mesh.geometry.setIndex(window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3));
+            // geometry.computeVertexNormals();
+        }
 
-      if ( window.animateTapeIndices ) {
-        const geometry = window.tapeInterpolatedMesh.geometry;
-        geometry.setIndex(window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3));
-        // geometry.computeVertexNormals();
-      }
+        tapeAnimate("Initial", fi)
+        tapeAnimate("Corrected", fi)
+        tapeAnimate("Interpolated", fi)
 
-      
-      if (window.coilInitialLine)
-        window.coilInitialLine.rotation.x = fi;
-    
-      if (window.tapeInitialMesh)
-        window.tapeInitialMesh.rotation.x = fi;
-  
-      if (window.tapeInitialLine)
-        window.tapeInitialLine.rotation.x = fi;
-  
-      
-      if (window.coilCorrectedLine)
-        window.coilCorrectedLine.rotation.x = fi;
-    
-      if (window.tapeCorrectedMesh)
-        window.tapeCorrectedMesh.rotation.x = fi;
-    
-      if (window.tapeCorrectedLine)
-        window.tapeCorrectedLine.rotation.x = fi;
-  
-  
-      if (window.coilInterpolatedLine)
-        window.coilInterpolatedLine.rotation.x = fi;
-    
-      if (window.tapeInterpolatedMesh)
-        window.tapeInterpolatedMesh.rotation.x = fi;
-    
-      if (window.tapeInterpolatedLine)
-        window.tapeInterpolatedLine.rotation.x = fi;
-  
-      window.equidLine.visible = window.equidistantaShow;
-      if (window.equidLine)
-        window.equidLine.rotation.x = fi;
-  
-      if (window.freeLine)
-        window.freeLine .rotation.x = fi;
+        if (window.equidLine) {
+            window.equidLine.rotation.x = fi;
+        }
 
-      if (window.freeMesh)
-        window.freeMesh .rotation.x = fi;
-  
+        if (window.freeLine)
+            window.freeLine.rotation.x = fi;
+
+        if (window.freeMesh)
+            window.freeMesh.rotation.x = fi;
+
     }
-  
+
     scene.controls.update();
-  
+
     scene.renderer.render(scene.scene, scene.camera);
 }
 window.animate = animate
 
+function modeButtonInit(){
+    const buttons = document.querySelectorAll(".mode-button");
+    buttons.forEach(button => {
+        button.addEventListener("click", () => {
+            buttons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+            const mode = button.getAttribute("data-mode");
+            fieldSet("windingMode", mode);
+            coilDraws();
+            animateVisibilities();
+        });
+
+        if(button.classList.contains('active'))
+            button.click();
+    });
+}
 
 function animateOnLoad(){
     // let animateSlider = document.getElementById("animateSlider");
@@ -316,15 +367,7 @@ function animateOnLoad(){
     window.animateAuto = false;
     window.animateAngle = 0;
 
-    const buttons = document.querySelectorAll(".mode-button");
-    buttons.forEach(button => {
-        button.addEventListener("click", () => {
-            buttons.forEach(btn => btn.classList.remove("active"));
-            button.classList.add("active");
-            fieldSet("windingMode", button.getAttribute("data-mode"));
-            coilDraws();
-        });
-    });
+    modeButtonInit();
 
     // window.animateAngle += 0.01;
     // animateSlider.value = window.animateAngle;
@@ -333,5 +376,6 @@ function animateOnLoad(){
     // }
     
     animate();
+    animateVisibilities();
 }
 window.animateOnLoad = animateOnLoad

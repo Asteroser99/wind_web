@@ -1,5 +1,3 @@
-window.mandrelChart = null;
-
 function configGraph() {
   return {
     type: 'bar', // Пример графика (столбчатая диаграмма)
@@ -283,7 +281,7 @@ function chartOnLoad() {
 
   const ctx = document.getElementById('mandrel-canvas').getContext('2d');
 
-  mandrelChart = new Chart(ctx, createScatterConfig());
+  window.mandrelChart = new Chart(ctx, createScatterConfig());
 }
 window.chartOnLoad = chartOnLoad
 

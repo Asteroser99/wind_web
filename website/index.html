@@ -55,7 +55,7 @@
                 <p id="user-email" class="user-logged"></p>
             </div>
 
-            <button id="helpToggle" class="header-btn toggleButton" data-function="toggleHelp">Help</button>
+            <button id="helpToggle" class="header-btn toggle-button" data-function="toggleHelp">Help</button>
             <button id="logIn"  class="header-btn">Login</button>
             <button id="logOff" class="header-btn">Logoff</button>
         </div>
@@ -235,29 +235,28 @@
 
                         <button
                             class="image-button function-button"
+                            data-function="Winding"
+                            title="Winding"
+                        ><img src="./img/calc.png">&nbsp;Winding</button><br>
+
+                        <button
+                            class="image-button function-button small"
                             data-function="Equdestanta"
                             title="Calculate equdestanta"
-                        ><img src="./img/calc.png">&nbsp;Equidistanta</button><br>
+                        ><img src="./img/calc.png">&nbsp;Eqd</button><br>
                         
                         <button
-                            class="image-button function-button"
+                            class="image-button function-button small"
                             data-function="Interpolanta"
                             title="Calculate interpolanta"
-                        ><img src="./img/calc.png">&nbsp;Interpolanta</button><br>
+                        ><img src="./img/calc.png">&nbsp;Itp</button><br>
                         
                         <button
-                            class="image-button function-button"
+                            class="image-button function-button small"
                             data-function="Equdestanta"
                             data-parameter="+Interpolanta"
                             title="Wind"
-                        ><img src="./img/calc.png">&nbsp;Equdestanta+Interpolanta</button><br>
-
-                        <button
-                            class="image-button function-button"
-                            data-function="Winding"
-                            title="Winding"
-                        ><img src="./img/calc.png">&nbsp;Winding</button>
-                        
+                        ><img src="./img/calc.png">&nbsp;Eqd+Itp</button>
                     </div>
 
                     <div id="file-winding">
@@ -351,17 +350,20 @@
                         <p class="program-p"></p>
                     </div>
                     <div id="playerBar">
-                        <button id="animateButton" class="toggle-button"></button>
+                        <button id="animateButton" class="animate-button"></button>
                         <input type="range" id="animateSlider" min="0" max="100" step="1" value="0">
                     </div>
                     <div id="modeBar">
-                        <div id="modeBarCoils">
+                        <div>
                             <button class="mode-button active" data-mode="first">First coil</button>
                             <button class="mode-button" data-mode="round">First round</button>
                             <button class="mode-button" data-mode="all">Full winding</button>
                         </div>
-                        <div id="modeBarCoils1">
-                            <button class="toggleButton" data-function="toggleEquidistanta">Equidistanta</button>
+                        <div>
+                            <button class="toggle-button active" data-function="toggleMandrel">Mandrel</button>
+                            <button class="toggle-button" data-function="toggleLine">Line</button>
+                            <button class="toggle-button active" data-function="toggleTape">Tape</button>
+                            <button class="toggle-button" data-function="toggleEquidistanta">Equidistanta</button>
                         </div>
                     </div>
                 </div>
@@ -381,7 +383,7 @@
             </div>
     
             <div id="help-container">
-                <button id="helpCloseButton" class="toggleButton" data-function="toggleHelp" >&times;</button>
+                <button id="helpCloseButton" class="toggle-button" data-function="toggleHelp" >&times;</button>
             </div>
 
             <input type="file" id="fileInput" style="display: none;">
