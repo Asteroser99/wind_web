@@ -88,6 +88,14 @@ function animateInit(){
     window.animateEqd    = eqd ;
     window.animateRolley = roll;
 
+
+    window.tapeInterpolatedTail = window.tapeInterpolatedMesh.clone();
+    scene.scene.add(window.tapeInterpolatedTail);
+
+    const { Turns, Coils } = fibboGetSelectedValues();
+    window.angleStep = 2 * Math.PI * Turns / Coils;
+
+    
     window.animateIndex  = 0;
 
     document.getElementById("animateSlider").max = window.animateCoil.x.length - 1;
@@ -307,15 +315,30 @@ function animate(timestamp) {
     
         rolleyAnimate();
 
-        if (window.animateTapeIndices) {
-            const mesh = window.tapeInterpolatedMesh;
-            mesh.geometry.setIndex(window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3));
-            // geometry.computeVertexNormals();
-        }
 
         tapeAnimate("Initial", fi)
         tapeAnimate("Corrected", fi)
         tapeAnimate("Interpolated", fi)
+
+        if (window.animateTapeIndices) {
+            const mesh = window.tapeInterpolatedMesh;
+            mesh.geometry.setIndex([
+                // ...window.animateTapeIndices.slice(   window.animateIndex * 2 * 3),
+                ...window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3)
+            ]);
+            // geometry.computeVertexNormals();
+        }
+
+        if (window.tapeInterpolatedTail){
+            window.tapeInterpolatedTail.rotation.x = fi - window.angleStep;
+
+            const mesh = window.tapeInterpolatedTail;
+            mesh.geometry.setIndex([
+                ...window.animateTapeIndices.slice(   window.animateIndex * 2 * 3),
+                // ...window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3)
+            ]);
+        }
+        
 
         if (window.equidLine) {
             window.equidLine.rotation.x = fi;

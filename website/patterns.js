@@ -47,13 +47,10 @@ function fibboSelectRow(index) {
 window.fibboSelectRow = fibboSelectRow;
 
 function fibboGetSelectedValues() {
-    const tableBody = document.querySelector("#data-table tbody");
     const patterns = fieldGet("patterns");
-
     const selectedRow = document.querySelector("#data-table tbody .selected");
-
     if (!selectedRow) return { Turns: 0, Coils: 0 };
-
+    
     const index = selectedRow.dataset.index;
     if (index === undefined || !patterns || !patterns[index]) return { Turns: 0, Coils: 0 };
 
@@ -78,8 +75,6 @@ function resizePattern() {
 window.resizePattern = resizePattern;
 
 function drawPattern() {
-    // pContext.clearRect(-pRadius, -pRadius, pCanvas.width, pCanvas.height);
-
     let gradient = pContext.createLinearGradient(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width / 2, pCanvas.height / 2);
     gradient.addColorStop(0, `hsl(139, 70%, 90%)`);
     gradient.addColorStop(1, `hsl(208, 70%, 90%)`);
@@ -113,7 +108,6 @@ function drawPattern() {
     ctx.lineJoin = "round";
     
     // lines
-    // for (let i = 0; i < points.length - 1; i++) {
     for (let i = points.length - 1; i > 0; i--) {
         let start = points[i    ];
         let end   = points[i - 1];
@@ -135,11 +129,8 @@ function drawPattern() {
     const segment = (Math.PI * 2) / Coils;
     const size = segment * radius / (1 - segment)
 
-    // triangles
     for (let i = 0; i < points.length - 1; i++) {
         let point = points[i];
-
-        // const size = 16;
         const first = i < conv + 1
 
         // triangle
@@ -158,7 +149,7 @@ function drawPattern() {
         let baseX = point.x + dx * size * 0.3;
         let baseY = point.y + dy * size * 0.3;
 
-        let houseHeight = size * (first ? 1.6 : 1.0); // Высота "стен" домика
+        let houseHeight = size * (first ? 1.6 : 1.0);
         let bottomX1 = baseX + perpX + dx * houseHeight;
         let bottomY1 = baseY + perpY + dy * houseHeight;
         let bottomX2 = baseX - perpX + dx * houseHeight;
@@ -215,23 +206,13 @@ function drawPattern() {
 }
 window.drawPattern = drawPattern
 
-
-// function patternClear() {
-//     window.pCanvas = document.getElementById("patterns-canvas");
-//     window.pContext = window.pCanvas.getContext("2d");
-
-//     pContext.clearRect(0, 0, pCanvas.width, pCanvas.height);
-//     //pContext.translate(pCanvas.width / 2, pCanvas.height / 2);
-    
-// }
-
 function patternsOnLoad() {
     window.pCanvas = document.getElementById("patterns-canvas");
     window.pContext = window.pCanvas.getContext("2d");
 
     window.addEventListener("resize", resizePattern);
     resizePattern();
-    
+
     fibboRenderTable();
 }
 window.patternsOnLoad = patternsOnLoad

@@ -373,9 +373,9 @@ window.onload = function () {
 
     windowOnLoad();
     threeOnLoad();
+    patternsOnLoad();
     vesselOnLoad();
     cognitoOnLoad();
-    patternsOnLoad();
     animateOnLoad();
     
     openTab(fieldGet("page"))
