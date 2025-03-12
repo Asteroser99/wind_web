@@ -254,7 +254,13 @@ function animateVisibilities(){
     if (window.carretMesh    ) window.carretMesh.visible = window.animateOn;
     if (window.rolleyMesh    ) window.rolleyMesh.visible = window.animateOn;
 
-    if (window.mandrelRawMesh) window.mandrelRawMesh.visible = window.mandrelShow;
+    const mesh = window.mandrelRawMesh;
+    if (mesh){
+        // mesh.visible = window.mandrelShow;
+        mesh.material.transparent = !window.mandrelShow;
+        mesh.material.opacity     = !window.mandrelShow ? 0.1 : 1.;
+    }
+
     if (window.freeLine      ) window.freeLine      .visible = window.animateOn && window.lineShow;
     if (window.freeMesh      ) window.freeMesh      .visible = window.animateOn && window.tapeShow;
 
