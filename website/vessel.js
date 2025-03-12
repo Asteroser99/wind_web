@@ -787,7 +787,6 @@ function Winding(param = undefined){
     loading();
 
     const coilCorrected = coilGet("Corrected");
-    console.log(coilCorrected)
     if (!coilCorrected){
         showError("No coil data")
         return
@@ -800,7 +799,9 @@ function Winding(param = undefined){
             fieldSet("equidistantaInterpolated", res[2]);
             fieldSet("rolleyInterpolated"      , res[3]);
 
+            // drawAll();
             animateInit();
+            animateVisibilities();
 
             loaded();
         })

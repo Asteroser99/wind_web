@@ -89,11 +89,19 @@ function animateInit(){
     window.animateRolley = roll;
 
 
-    window.tapeInterpolatedTail = window.tapeInterpolatedMesh.clone();
-    scene.scene.add(window.tapeInterpolatedTail);
+    { // tails
+        const { Turns, Coils } = fibboGetSelectedValues();
+        window.angleStep = 2 * Math.PI * Turns / Coils;
 
-    const { Turns, Coils } = fibboGetSelectedValues();
-    window.angleStep = 2 * Math.PI * Turns / Coils;
+        removeMesh(window.tapeLineTail);
+        window.tapeLineTail = window.tapeInterpolatedLine.clone();
+        scene.scene.add(window.tapeLineTail);
+
+        removeMesh(window.tapeMeshTail);
+        window.tapeMeshTail = window.tapeInterpolatedMesh.clone();
+        scene.scene.add(window.tapeMeshTail);
+    }
+
 
     
     window.animateIndex  = 0;
@@ -101,9 +109,15 @@ function animateInit(){
     document.getElementById("animateSlider").max = window.animateCoil.x.length - 1;
     window.animateUpdateTime = 0;
 
-    if (window.tapeInterpolatedMesh){
-        const geometry = window.tapeInterpolatedMesh.geometry;
-        window.animateTapeIndices = Array.from(geometry.getIndex().array);
+    { // tapeInterpolatedMesh
+        const mesh = window.tapeInterpolatedMesh
+        if (mesh)
+            window.animateTapeMeshIndices = Array.from(mesh.geometry.getIndex().array);
+    }
+    { // tapeInterpolatedLine
+        const mesh = window.tapeInterpolatedLine
+        if (mesh)
+            window.animateTapeLineIndices = Array.from(mesh.geometry.getIndex().array);
     }
 
     { // equidLine
@@ -276,6 +290,9 @@ function animateVisibilities(){
     tapeVisibility("Corrected")
     tapeVisibility("Interpolated")
 
+    if (window.tapeLineTail  ) window.tapeLineTail  .visible = window.animateOn && window.tapeShow;
+    if (window.tapeMeshTail  ) window.tapeMeshTail  .visible = window.animateOn && window.tapeShow;
+
     if (window.equidLine) window.equidLine.visible = window.animateOn && window.equidistantaShow;
     
 }
@@ -320,25 +337,33 @@ function animate(timestamp) {
         tapeAnimate("Corrected", fi)
         tapeAnimate("Interpolated", fi)
 
-        if (window.animateTapeIndices) {
-            const mesh = window.tapeInterpolatedMesh;
+        if (window.animateTapeLineIndices) {
+            const mesh = window.tapeInterpolatedLine;
             mesh.geometry.setIndex([
-                // ...window.animateTapeIndices.slice(   window.animateIndex * 2 * 3),
-                ...window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3)
+                ...window.animateTapeLineIndices.slice(   window.animateIndex * 2 * 2)
             ]);
-            // geometry.computeVertexNormals();
         }
-
-        if (window.tapeInterpolatedTail){
-            window.tapeInterpolatedTail.rotation.x = fi - window.angleStep;
-
-            const mesh = window.tapeInterpolatedTail;
+        if (window.tapeLineTail){
+            window.tapeLineTail.rotation.x = fi + window.angleStep;
+            const mesh = window.tapeLineTail;
             mesh.geometry.setIndex([
-                ...window.animateTapeIndices.slice(   window.animateIndex * 2 * 3),
-                // ...window.animateTapeIndices.slice(0, window.animateIndex * 2 * 3)
+                ...window.animateTapeLineIndices.slice(0, window.animateIndex * 2 * 2),
             ]);
         }
         
+        if (window.animateTapeMeshIndices) {
+            const mesh = window.tapeInterpolatedMesh;
+            mesh.geometry.setIndex([
+                ...window.animateTapeMeshIndices.slice(0, window.animateIndex * 2 * 3)
+            ]);
+        }
+        if (window.tapeMeshTail){
+            window.tapeMeshTail.rotation.x = fi - window.angleStep;
+            const mesh = window.tapeMeshTail;
+            mesh.geometry.setIndex([
+                ...window.animateTapeMeshIndices.slice(   window.animateIndex * 2 * 3),
+            ]);
+        }
 
         if (window.equidLine) {
             window.equidLine.rotation.x = fi;
