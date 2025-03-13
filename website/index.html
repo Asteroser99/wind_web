@@ -107,17 +107,32 @@
                 <!-- Mandrel -->
                 <div id="tab-mandrel" class="tab-content">
                     <div id="actions-mandrel">
-                        <button class="image-button function-button" data-function="mandrelImportCSV"  data-parameter="Raw" title="Raw mandrel import"><img src="./img/load.png">&nbsp;Import mandrel</button>
-                        <div id="mandrel-csvColumn"></div>
+                        <h3>Layer</h3>
+                        <label for="PartNumber">Part number:</label><br>
+                        <input type="text" id="PartNumber" class="inputField"
+                            value="Name"
+                            title="Enter layer name"
+                            style="text-align: left;"
+                        ><br>
 
-                        <h3>Transform</h3>
-                        <button id="mandrelSwap"     class="image-button small" title="Swap R/X"><img src="./img/transform.png">&nbsp;Swap</button><br>
-                        <button id="mandrelReverse"  class="image-button small" title="Reverse" ><img src="./img/transform.png">&nbsp;Reverse</button><br>
-                        <button id="mandrelRedirect" class="image-button small" title="Redirect"><img src="./img/transform.png">&nbsp;Redirect</button><br>
-                        <button id="mandrelMirror"   class="image-button small" title="Mirror"  ><img src="./img/transform.png">&nbsp;Mirror</button><br>
+                        <label for="LayerNumber">Layer number:</label><br>
+                        <input type="number" id="LayerNumber" class="inputField"
+                            min="1" max="999" step="1" 
+                            value="1" pattern="\d{1,0}(\.\d{1,0})?" 
+                            title="Enter layer number"
+                            style="text-align: right;"
+                        ><br>
                     </div>
 
                     <div id="file-mandrel">
+                        <button class="image-button function-button" data-function="mandrelImportCSV"  data-parameter="Raw" title="Raw mandrel import">Import mandrel&nbsp;<img src="./img/load.png"></button>
+                        <div id="mandrel-csvColumn"></div>
+
+                        <h3>Transform</h3>
+                        <button id="mandrelSwap"     class="image-button small" title="Swap R/X">Swap&nbsp;<img src="./img/transform.png"></button><br>
+                        <button id="mandrelReverse"  class="image-button small" title="Reverse" >Reverse&nbsp;<img src="./img/transform.png"></button><br>
+                        <button id="mandrelRedirect" class="image-button small" title="Redirect">Redirect&nbsp;<img src="./img/transform.png"></button><br>
+                        <button id="mandrelMirror"   class="image-button small" title="Mirror"  >Mirror&nbsp;<img src="./img/transform.png"></button><br>
                     </div>
 
                     <div id="help-mandrel">
@@ -150,14 +165,6 @@
                             style="text-align: right;" 
                         ><br>
 
-                        <label for="conv">Convinience:</label><br>
-                        <input type="number" id="conv" class="inputField" 
-                            min="0" max="999" step="1.0" 
-                            value="4.0" pattern="\d{1,3}(\.\d{1,3})?" 
-                            title="Enter number of patterns" 
-                            style="text-align: right;" 
-                        ><br>
-
                         <button id="coilCalc" class="image-button" title="Generate coil"><img src="./img/calc.png">&nbsp;Generate coil</button><br>
                     </div>
 
@@ -180,8 +187,15 @@
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
 
                     <div id="actions-patterns" class="floatingControl">
-                        <h3><div id="ConvinienceH3">Convinience:</div></h3>
-                        <h3>Select pattern:</h3>
+                        <label for="conv">Convinience:</label><br>
+                        <input type="number" id="conv" class="inputField" 
+                            min="0" max="999" step="1.0" 
+                            value="4.0" pattern="\d{1,3}(\.\d{1,3})?" 
+                            title="Enter number of patterns" 
+                            style="text-align: right;" 
+                        ><br>
+                        
+                        <label for="data-table">Select pattern:</label><br>
                         <table id="data-table">
                             <thead>
                                 <tr>
@@ -195,6 +209,7 @@
 
                         <button id="coilCorrect" class="image-button" title="Correct coil"><img src="./img/calc.png">&nbsp;Correct coil</button><br>
                     </div>
+
                     <div id="help-patterns">
                         <main>
                             <section>

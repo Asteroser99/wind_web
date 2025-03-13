@@ -815,6 +815,10 @@ window.Winding = Winding
 
 // Patterns
 
+document.getElementById('conv').addEventListener(
+    'change', function (event) { patternsCalc() }
+);
+
 function patternsCalc() {
     loading();
 

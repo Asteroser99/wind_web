@@ -312,16 +312,27 @@ window.toggleTape = toggleTape
 function inputFieldInit(){
     document.querySelectorAll(".inputField").forEach(input => {
         const id = input.id;
-        input.addEventListener("input", () => fieldSet(id, parseFloat(input.value)));
-
-        const value = fieldGet(id)
-
-        if(value) {
-            input.value = value;
-            // console.log("val to form", id, value, fieldGet(id))
+    
+        input.addEventListener("keydown", (event) => {
+            if (event.key === " ") {
+                event.stopPropagation();
+            }
+        });
+        
+        input.addEventListener("input", () => {
+            const value = input.type === "number" ? parseFloat(input.value) : input.value;
+            fieldSet(id, value);
+        });
+    
+        const storedValue = fieldGet(id);
+    
+        if (storedValue !== undefined && storedValue !== null) {
+            input.value = storedValue;
+            // console.log("val to form", id, storedValue, fieldGet(id));
         } else {
-            fieldSet(id, parseFloat(input.value))
-            // console.log("form to val", id, parseFloat(input.value), fieldGet(id))
+            const initialValue = input.type === "number" ? parseFloat(input.value) : input.value;
+            fieldSet(id, initialValue);
+            // console.log("form to val", id, initialValue, fieldGet(id));
         }
     });
 }

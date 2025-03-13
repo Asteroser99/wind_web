@@ -4,8 +4,6 @@ function fibboRenderTable() {
     const patterns = fieldGet("patterns");
     if(!patterns) return;
 
-    document.getElementById("ConvinienceH3").textContent = `Convenience: ${fieldGet("conv")}`;
-    
     const tableBody = document.querySelector("#data-table tbody");
 
     while (tableBody.firstChild) {
