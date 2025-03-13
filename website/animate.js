@@ -94,11 +94,13 @@ function animateInit(){
         window.angleStep = 2 * Math.PI * Turns / Coils;
 
         removeMesh(window.tapeLineTail);
-        window.tapeLineTail = window.tapeInterpolatedLine.clone();
+        window.tapeLineTail          = window.tapeInterpolatedLine         .clone();
+        window.tapeLineTail.geometry = window.tapeInterpolatedLine.geometry.clone();
         scene.scene.add(window.tapeLineTail);
 
         removeMesh(window.tapeMeshTail);
-        window.tapeMeshTail = window.tapeInterpolatedMesh.clone();
+        window.tapeMeshTail          = window.tapeInterpolatedMesh         .clone();
+        window.tapeMeshTail.geometry = window.tapeInterpolatedMesh.geometry.clone();
         scene.scene.add(window.tapeMeshTail);
     }
 

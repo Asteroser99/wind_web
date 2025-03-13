@@ -800,6 +800,7 @@ function Winding(param = undefined){
             fieldSet("rolleyInterpolated"      , res[3]);
 
             // drawAll();
+            coilDraws();
             animateInit();
             animateVisibilities();
 
