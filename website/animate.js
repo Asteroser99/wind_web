@@ -63,25 +63,26 @@ function animateInit(){
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
-    if (!coil) {
-        coil = coilGet("Corrected");
-        tape = fieldGet("tapeCorrected");
-        eqd  = fieldGet("equidistanta");
-        roll = fieldGet("rolley");
-        eqdColor = 0xfea02a
-        freeColor = 0xfea02a
-    }
+    // if (!coil) {
+    //     coil = coilGet("Corrected");
+    //     tape = fieldGet("tapeCorrected");
+    //     eqd  = fieldGet("equidistanta");
+    //     roll = fieldGet("rolley");
+    //     eqdColor = 0xfea02a
+    //     freeColor = 0xfea02a
+    // }
 
-    window.animateReady = coil && tape && eqd && roll
+    window.animateReady = coil != undefined && tape != undefined && eqd != undefined && roll != undefined
 
     window.animateOn = window.animateReady;
+
+    frameInit()
+    frameUpdate();
 
     animateVisibilities();
 
     if (!window.animateReady) return;
 
-    frameInit()
-    frameUpdate();
 
     window.animateCoil   = coil;
     window.animateTape   = tape;
@@ -168,6 +169,8 @@ function animateInit(){
         
         window.rolleyMesh = mesh;
     }
+
+    animateVisibilities();
 
     rolleyAnimate();
 }
@@ -271,12 +274,14 @@ function tapeVisibility(prefix){
 function animateVisibilities(){
     window.animateOn = fieldGet("windingMode") == "first";
 
-    document.getElementById("programBar").style.display = window.animateOn ? "flex" : "none";
-    document.getElementById("playerBar" ).style.display = window.animateOn ? "flex" : "none";
+    const on = window.animateOn && window.animateReady
 
-    if (window.standMesh     ) window.standMesh .visible = window.animateOn;
-    if (window.carretMesh    ) window.carretMesh.visible = window.animateOn;
-    if (window.rolleyMesh    ) window.rolleyMesh.visible = window.animateOn;
+    document.getElementById("programBar").style.display = on ? "flex" : "none";
+    document.getElementById("playerBar" ).style.display = on ? "flex" : "none";
+
+    if (window.standMesh     ) window.standMesh .visible = on;
+    if (window.carretMesh    ) window.carretMesh.visible = on;
+    if (window.rolleyMesh    ) window.rolleyMesh.visible = on;
 
     const mesh = window.mandrelRawMesh;
     if (mesh){
@@ -285,17 +290,17 @@ function animateVisibilities(){
         mesh.material.opacity     = !window.mandrelShow ? 0.1 : 1.;
     }
 
-    if (window.freeLine      ) window.freeLine      .visible = window.animateOn && window.lineShow;
-    if (window.freeMesh      ) window.freeMesh      .visible = window.animateOn && window.tapeShow;
+    if (window.freeLine      ) window.freeLine      .visible = on && window.lineShow;
+    if (window.freeMesh      ) window.freeMesh      .visible = on && window.tapeShow;
 
     tapeVisibility("Initial")
     tapeVisibility("Corrected")
     tapeVisibility("Interpolated")
 
-    if (window.tapeLineTail  ) window.tapeLineTail  .visible = window.animateOn && window.tapeShow;
-    if (window.tapeMeshTail  ) window.tapeMeshTail  .visible = window.animateOn && window.tapeShow;
+    if (window.tapeLineTail  ) window.tapeLineTail  .visible = on && window.tapeShow;
+    if (window.tapeMeshTail  ) window.tapeMeshTail  .visible = on && window.tapeShow;
 
-    if (window.equidLine) window.equidLine.visible = window.animateOn && window.equidistantaShow;
+    if (window.equidLine) window.equidLine.visible = on && window.equidistantaShow;
     
 }
 window.animateVisibilities = animateVisibilities
@@ -420,8 +425,8 @@ function animateOnLoad(){
     });
 
 
-    window.animateAuto = false;
-    window.animateAngle = 0;
+    window.animateAuto = true;
+    // window.animateAngle = 0;
 
     modeButtonInit();
 

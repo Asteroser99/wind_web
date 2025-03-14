@@ -62,6 +62,7 @@ const fieldAllClear = () => {
 
     localStorage.removeItem('vessel_keys');
 
+    localStorage.clear();
     vessel = {};
 };
 
@@ -559,8 +560,6 @@ function coilCalc() {
 
                 loaded();
 
-                tapeCalc("Initial");
-
                 patternsCalc();
             })
             .catch(error => {
@@ -616,14 +615,19 @@ function coilRender(suffix) {
 // Tape
 
 function tapeCalc(prefix) {
-    loading();
     const coil = coilGet(prefix)
-    return lambdaCall("tape", [coil, fieldGet("band")])
-        .then(res => {
-            fieldSet("tape" + prefix, res);
-            coilDraws();
-            loaded();
-        })
+    if (coil) {
+        loading();
+        lambdaCall("tape", [coil, fieldGet("band")])
+            .then(res => {
+                fieldSet("tape" + prefix, res);
+                coilDraws();
+                loaded();
+            })
+    } else {
+        fieldSet("tape" + prefix, undefined);
+        coilDraws();
+    }
 }
 
 function tapeRemove(suffix) {
@@ -662,6 +666,8 @@ function coilDraws() {
     } else {
         coilDraw("Initial");
     }
+
+    animateInit();
 }
 window.coilDraws = coilDraws
 
@@ -727,62 +733,7 @@ function tapeRender(suffix) {
 }
 
 
-// Equidestanta
-
-function Equdestanta(param) {
-    loading();
-
-    const coilCorrected = coilGet("Corrected");
-    if (!coilCorrected) return
-
-    lambdaCall("equidistantaRolley", [coilCorrected, fieldGet('safetyR'), fieldGet('band')])
-        .then(res => {
-            fieldSet("equidistanta", res[0]);
-            fieldSet("rolley", res[1]);
-            
-            coilSet("Interpolated", undefined);
-
-            loaded();
-
-            if (param == "+Interpolanta") {
-                Interpolanta();
-            } else {
-                animateInit();
-            }
-        })
-        .catch(error => {
-            showError(error);
-        });
-};
-window.Equdestanta = Equdestanta
-
-function Interpolanta(param = undefined){
-    loading();
-
-    const coilCorrected = coilGet("Corrected");
-    const eqd = fieldGet("equidistanta");
-    if (!coilCorrected || !eqd){
-        showError("no data")
-        return
-    }
-
-    lambdaCall("interpolantaRolley", [coilCorrected, eqd, fieldGet('lineCount'), fieldGet('band')])
-        .then(res => {
-            coilSet ("Interpolated"            , res[0]);
-            fieldSet("tapeInterpolated"        , res[1]);
-            fieldSet("equidistantaInterpolated", res[2]);
-            fieldSet("rolleyInterpolated"      , res[3]);
-
-            animateInit();
-
-            loaded();
-        })
-        .catch(error => {
-            showError(error);
-        });
-};
-window.Interpolanta = Interpolanta
-
+// Winding
 function Winding(param = undefined){
     loading();
 
@@ -795,14 +746,13 @@ function Winding(param = undefined){
     lambdaCall("winding", [coilCorrected, fieldGet('safetyR'), fieldGet('lineCount'), fieldGet('band')])
         .then(res => {
             coilSet ("Interpolated"            , res[0]);
-            fieldSet("tapeInterpolated"        , res[1]);
-            fieldSet("equidistantaInterpolated", res[2]);
-            fieldSet("rolleyInterpolated"      , res[3]);
+            // fieldSet("tapeInterpolated"        , res[1]);
+            fieldSet("equidistantaInterpolated", res[1]);
+            fieldSet("rolleyInterpolated"      , res[2]);
 
             // drawAll();
             coilDraws();
             animateInit();
-            animateVisibilities();
 
             loaded();
         })
@@ -846,9 +796,14 @@ function patternsCalc() {
 
 function coilSet(suffix, coil) {
     fieldSet("coil" + suffix, coil)
+
     if (suffix == "Initial") {
         coilSet("Corrected", undefined);
+    } else if (suffix == "Corrected") {
+        coilSet("Interpolated", undefined);
     }
+
+    tapeCalc(suffix);
 }
 
 function coilGet(suffix) {
@@ -883,10 +838,7 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
                 fi: res[0],
                 al: res[1],
             });
-
             loaded();
-
-            tapeCalc("Corrected");
         })
         .catch(error => {
             showError(error);
