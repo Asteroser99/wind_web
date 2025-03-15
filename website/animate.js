@@ -71,11 +71,11 @@ function interpolateVertices(array, DoubleT, rows) {
         for (let colI = 0; colI < cols; colI++){
             const colID = colI * 3
             for (let coord = 0; coord < 3; coord++){
-                const c0b  = DoubleT[row0D + col0D + coord];
-                const c0e  = DoubleT[row1D + col0D + coord];
+                let c0b  = DoubleT[row0D + col0D + coord];
+                let c0e  = DoubleT[row1D + col0D + coord];
 
-                const cIb  = DoubleT[row0D + colID + coord];
-                const cIee = DoubleT[row1D + colID + coord];
+                let cIb  = DoubleT[row0D + colID + coord];
+                let cIee =  DoubleT[row1D + colID + coord];
 
                 const cIeb = cIb + c0e - c0b
 

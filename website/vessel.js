@@ -984,7 +984,7 @@ window.vesselClear = vesselClear
 
 function vesselOnLoad() {
     window.tapeThickness = 0.05
-    window.tapeThicknessFirst = window.tapeThickness * 3
+    window.tapeThicknessFirst = window.tapeThickness * 5
 
     fieldAllUpdateFromStorage();
     if (!vessel.mandrelRaw) {
