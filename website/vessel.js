@@ -699,25 +699,25 @@ function tapeRender(suffix) {
         Coils = fibboGetSelected["Coils"]
     }
 
-    const th = 0.05, thd = th / n;
+    const th0 = window.tapeThicknessFirst, th = window.tapeThickness;
+    const thd = th / n;
 
     let i = 0, j = 0;
-    const pT0 = pointXYZ(coil, i, 0, th * 3, coil)
-    const pTR = pointXYZ(tape, i, 0, th * 3, coil)
+    const pT0 = pointXYZ(coil, i, 0, th0, coil)
+    const pTR = pointXYZ(tape, i, 0, th0, coil)
     vertices.push(...pTR);
     // const pTL = pointXYZ(tape, i, 0, 0, 0, pT0)
     const pTL = mirrorXYZ(pTR, pT0)
     vertices.push(...pTL);
     j++;
-    for (let round = 0, fiShift = 0, thi = th * 3; round < Coils; round++) {
+    for (let round = 0, fiShift = 0, thi = th0; round < Coils; round++) {
         for (i = 1; i < n; i++, j++, thi += thd) {
-            const pT0 = pointXYZ(coil, i, fiShift)
-            const pT1 = pointXYZ(coil, i, fiShift, thi, coil)
+            const pT0 = pointXYZ(coil, i, fiShift, thi, coil)
 
             const pTR = pointXYZ(tape, i, fiShift, thi, coil)
             vertices.push(...pTR);
-            // const pTL = pointXYZ(tape, i, fiShift, thi, 0, pT0)
-            const pTL = mirrorXYZ(pTR, pT1)
+
+            const pTL = mirrorXYZ(pTR, pT0)
             vertices.push(...pTL);
 
             indLine .push(j * 2 - 2); indLine .push(j * 2 + 0);
@@ -983,6 +983,9 @@ function vesselClear() {
 window.vesselClear = vesselClear
 
 function vesselOnLoad() {
+    window.tapeThickness = 0.05
+    window.tapeThicknessFirst = window.tapeThickness * 3
+
     fieldAllUpdateFromStorage();
     if (!vessel.mandrelRaw) {
         vesselloadFromURL("Example1");

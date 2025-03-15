@@ -1,4 +1,4 @@
-function getT(begin=0, end=0, long = false){
+function getT(begin=0, end=0, long=false){
     if(end == 0)
         end = begin + 1;
   
@@ -6,7 +6,10 @@ function getT(begin=0, end=0, long = false){
     const vertices = [];
     const indices  = [];
   
-    for (let i = begin; i < end; i++) {
+    const th0 = window.tapeThicknessFirst, th = window.tapeThickness;
+    const thd = th / window.animateCoil.x.length;
+
+    for (let i = begin, thi = th0 + begin * thd; i < end; i++, thi += thd) {
         const j = (i - begin) * pN;
   
         // const fiShift = 0. // (fieldGet('testMode') == 0 ? 0. : -window.animateEqd["fi"][i]);
@@ -14,15 +17,14 @@ function getT(begin=0, end=0, long = false){
   
 
         const jCoil = j + 0;
-        const pCoil = pointXYZ(window.animateCoil, i)
+        const pCoil = pointXYZ(window.animateCoil, i, 0, thi, window.animateCoil)
         vertices.push(...pCoil);
   
         const jTapeL = j + 1;
-        const pTapeR = pointXYZ(window.animateTape, i);
+        const pTapeR = pointXYZ(window.animateTape, i, 0, thi, window.animateCoil);
         vertices.push(...pTapeR);
   
         const jTapeR = j + 2;
-        // const pTapeL = pointXYZ(window.animateTape, i, pCoil)
         const pTapeL = mirrorXYZ(pTapeR, pCoil)
         vertices.push(...pTapeL);
 
@@ -61,20 +63,27 @@ function interpolateVertices(array, DoubleT, rows) {
     const row0D = 0 * cols * 3
     const row1D = 1 * cols * 3
 
-    for (let row = 0; row <= rows; row++) {
-        let t = row / rows;
-        const rowID = row * cols * 3
+    for (let rowI = 0; rowI <= rows; rowI++) {
+        let t = rowI / rows;
+        const rowID = rowI * cols * 3
 
-        for (let col = 0; col < cols; col++){
-            const colD = col * 3
+        const col0D = 0 * 3;
+        for (let colI = 0; colI < cols; colI++){
+            const colID = colI * 3
             for (let coord = 0; coord < 3; coord++){
-                const i0
-                    = 0
-                const i1
-                    = DoubleT[row0D + colD + coord] * (1 - t)
-                    + DoubleT[row1D + colD + coord] * t;
-                
-                array[rowID + colD + coord] = i1
+                const c0b  = DoubleT[row0D + col0D + coord];
+                const c0e  = DoubleT[row1D + col0D + coord];
+
+                const cIb  = DoubleT[row0D + colID + coord];
+                const cIee = DoubleT[row1D + colID + coord];
+
+                const cIeb = cIb + c0e - c0b
+
+                const cIeI = cIeb * (1 - t) + cIee * t;
+
+                const cI = cIb * (1 - t) + cIeI * t;
+
+                array[rowID + colID + coord] = cI
             }
         }
     }
