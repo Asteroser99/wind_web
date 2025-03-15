@@ -55,6 +55,47 @@ function getT(begin=0, end=0, long = false){
   }
   window.getT = getT;
 
+function interpolateVertices(array, DoubleT, rows) {
+    const cols = 3;
+    
+    const row0D = 0 * cols * 3
+    const row1D = 1 * cols * 3
+
+    for (let row = 0; row <= rows; row++) {
+        let t = row / rows;
+        const rowID = row * cols * 3
+
+        for (let col = 0; col < cols; col++){
+            const colD = col * 3
+            for (let coord = 0; coord < 3; coord++){
+                const i0
+                    = 0
+                const i1
+                    = DoubleT[row0D + colD + coord] * (1 - t)
+                    + DoubleT[row1D + colD + coord] * t;
+                
+                array[rowID + colD + coord] = i1
+            }
+        }
+    }
+}
+
+function generateIndices(rows) {
+    const newIndices = [];
+    const cols = 3;
+    
+    for (let r = 0; r < rows; r++) {
+        let i00 = r * cols;
+        let i01 = i00 + 1;
+        let i02 = i00 + 2;
+        let i10 = (r + 1) * cols;
+        let i11 = i10 + 1;
+        let i12 = i10 + 2;
+        newIndices.push(i00, i11, i01,  i00, i10, i11,  i00, i12, i10,  i00, i02, i12);
+    }
+    return newIndices;
+}
+
 function animateInit(){
     let coil = coilGet("Interpolated");
     let tape = fieldGet("tapeInterpolated");
@@ -132,18 +173,21 @@ function animateInit(){
         removeMesh(window.freeLine);
         const vertices = Array(6 * 3).fill(0);
         const indices = [0, 3,  1, 2,  4, 5];
+        
         window.freeLine = addLine([vertices, indices], 0xff0000);
     };
 
     { // freeMesh
         removeMesh(window.freeMesh);
-        const vertices = [ // Array(6 * 3).fill(0);
-            0, 0, 0, 2, 0, 1, 
-            1, 0, 0, 1, 1, 1, 
-            0, 1, 0, 2, 1, 1, 
-        ]
-        const indices = [1, 0, 4,  4, 0, 3,  2, 0, 5,  5, 0, 3];
+        const vertices = Array(9 * (4+1)).fill(0);
+        // [
+        //     0, 0, 0, 2, 0, 1, 1, 0, 0, 
+        //     1, 1, 1, 0, 1, 0, 2, 1, 1, 
+        // ]
 
+        // const indices = [1, 0, 4,  4, 0, 3,  0, 2, 5,  0, 5, 3];
+        const indices = generateIndices(4);
+        
         window.freeMesh = addMesh([vertices, indices], freeColor);
     };
 
@@ -195,9 +239,11 @@ function rolleyAnimate(){
     }
 
     if (window.freeMesh) { // freeMesh
-        const pos = window.freeMesh.geometry.attributes.position;
-        pos.array.set(rolleyVert);
-        pos.needsUpdate = true;
+        const geometry = window.freeMesh.geometry;
+        // geometry.attributes.position.array.set(rolleyVert);
+        interpolateVertices(geometry.attributes.position.array, rolleyVert, 4)
+        geometry.attributes.position.needsUpdate = true;
+        geometry.computeVertexNormals()
     }
 
     if (window.rolleyMesh) { // rolleyMesh
