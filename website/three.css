@@ -85,9 +85,15 @@
 }
 
 
-.user-logged {
-  font-weight: bold;
+.header-btn.small img {
+  width:  25px;
+  height: 25px;
 }
+
+
+/* .user-logged {
+  font-weight: bold;
+} */
 
 canvas {
   position: absolute;

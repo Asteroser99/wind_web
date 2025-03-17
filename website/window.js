@@ -4,6 +4,7 @@ function changeImage(id, filename) {
         imgElement.src = "./img/" + filename;
     }
 }
+window.changeImage = changeImage
 
 function loading(){
     changeImage("logo", "logo.gif")

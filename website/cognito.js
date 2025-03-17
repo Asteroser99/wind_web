@@ -3,45 +3,64 @@ const domain      = 'https://eu-central-1jasxje83x.auth.eu-central-1.amazoncogni
 const scope       = "email+openid+phone";
 
 const redirectUri = 'https://winding.surge.sh/';
-// const redirectUri = 'http://127.0.0.1:5500/website/';
-// const redirectUri = `${window.location.origin}${window.location.pathname}`;
 
 const poolData = {
     UserPoolId: 'eu-central-1_jaSxje83x',
     ClientId: '760tl57va0f4esqlrn9kdprdqe',
   };
-  
-  const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-function login(username, password) {
-    console.log("login");
-    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
-        Username: username,
-        Password: password,
-    });
+function toggleLogin(toggled){
+  cognitoStatus();
 
-    const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
-        Username: username,
-        Pool: userPool,
-    });
-
-    cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-            console.log('Access token:', result.getAccessToken().getJwtToken());
-            // Сохраните токен для будущих запросов
-            localStorage.setItem('accessToken', result.getAccessToken().getJwtToken());
-        },
-        onFailure: (err) => {
-            console.error(err);
-        },
-    });
+  const signContainer = document.getElementById("signContainer");
+  signContainer.style.display = !toggled ? "none" : "flex";
+  if (toggled)
+      document.getElementById("signCloseButton").classList.add('active');
+  else 
+      document.getElementById("loginToggle").classList.remove('active');
 }
+window.toggleLogin = toggleLogin
 
-const logInButton = document.getElementById('logIn');
-logInButton.addEventListener('click', () => {
-    const loginUrl = `${domain}/login?client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-    window.location.href = loginUrl; 
-});
+
+// function login(username, password) {
+//     console.log("login");
+//     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
+//         Username: username,
+//         Password: password,
+//     });
+
+//     const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
+//         Username: username,
+//         Pool: userPool,
+//     });
+
+//     cognitoUser.authenticateUser(authenticationDetails, {
+//         onSuccess: (result) => {
+//             console.log('Access token:', result.getAccessToken().getJwtToken());
+//             // Сохраните токен для будущих запросов
+//             localStorage.setItem('accessToken', result.getAccessToken().getJwtToken());
+//         },
+//         onFailure: (err) => {
+//             console.error(err);
+//         },
+//     });
+// }
+
+function cognitoLogIn() {
+    window.location.href = `${domain}/login?client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+};
+window.cognitoLogIn = cognitoLogIn
+
+function cognitoLogOff() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('idToken');
+  localStorage.removeItem('refreshToken')
+
+  window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(redirectUri)}`;
+}
+window.cognitoLogOff = cognitoLogOff;
+
 
 
 function decodeJwt(token) {
@@ -55,16 +74,17 @@ function decodeJwt(token) {
     );
     return JSON.parse(jsonPayload); // Парсим payload
   }
+
+function cognitoTime(time) {
+    return new Date(time * 1000);
+}
   
-function cognitoOnLoad() {
+function cognitoCodeExchange(){
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
-
-  let access_token = localStorage.getItem('accessToken');
-  let id_token = localStorage.getItem('idToken');
+  // console.log(code);
 
   if (code) {
-    // console.log("code", code)
     axios.post(`${domain}/oauth2/token`, new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: clientId,
@@ -75,9 +95,17 @@ function cognitoOnLoad() {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     }).then((response) => {
-      ({ id_token, access_token } = response.data);
+      const { id_token, access_token } = response.data;
+
       localStorage.setItem('accessToken', access_token);
       localStorage.setItem('idToken', id_token);
+
+      cognitoStatus();
+
+      const decodedToken = decodeJwt(id_token);
+      let delay = cognitoTime(decodedToken.exp) - Date.now();
+      console.log(delay)
+      setTimeout(cognitoExpire, delay);
 
       // remove code from url
       const urlParams = new URLSearchParams(window.location.search);
@@ -92,23 +120,50 @@ function cognitoOnLoad() {
         console.error('Error exchanging code for token:', error);
     });
   }
+}
 
-  if (id_token) {
-    const decodedToken = decodeJwt(id_token);
-    const userEmail = decodedToken.email;
+function cognitoExpire() {
+    showError("Session expired. Please log in again.");
 
-    document.getElementById('user-logged').textContent = `You are logged in as:`;
-    document.getElementById('user-email').textContent = userEmail;
+    // localStorage.removeItem('accessToken');
+    // localStorage.removeItem('idToken');
 
-    // console.log('Logged in successfully! - ' + access_token);
+    cognitoStatus();
+}
+
+function cognitoStatus() {
+    let access_token = localStorage.getItem('accessToken');
+    let id_token = localStorage.getItem('idToken');
+    let decodedToken = null;
+
+    // console.log("cognitoStatus", id_token);
+
+    let logged = false;
+    if (id_token) {
+        decodedToken = decodeJwt(id_token);
+        // console.log(decodedToken);
+        logged = Date.now() <= cognitoTime(decodedToken.exp);
+    }
+
+  changeImage("logImg", logged ? "logIn.png" : "logOff.png");
+
+  if (logged) {
+    document.getElementById("loggedInContainer" ).style.display = "flex";
+    document.getElementById("loggedOffContainer").style.display = "none";
+
+    document.getElementById('user-email'  ).textContent = decodedToken.email;
+    document.getElementById('user-expires').textContent = "Session expires: " + cognitoTime(decodedToken.exp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } else {
+    document.getElementById("loggedInContainer" ).style.display = "none";
+    document.getElementById("loggedOffContainer").style.display = "flex";
   }
 }
-window.cognitoOnLoad = cognitoOnLoad;
 
-const logOffButton = document.getElementById('logOff');
-logOffButton.addEventListener('click', () => {
-    window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(redirectUri)}`;
-    localStorage.removeItem('accessToken');
-    document.getElementById('user-logged').textContent = `You are not logged in`;
-    document.getElementById('user-email').textContent = ``;
-});
+
+function cognitoOnLoad() {
+  cognitoCodeExchange();
+
+  cognitoStatus();
+  setInterval(cognitoStatus, 10 * 60 * 1000);
+}
+window.cognitoOnLoad = cognitoOnLoad;
