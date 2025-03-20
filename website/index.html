@@ -381,16 +381,22 @@
             <input type="file" id="fileInput" style="display: none;">
         </div>
 
-        <div id="signContainer">
+        <div id="loginContainer">
             <div id="loggedInContainer">
                 <h3>Logged in</h3>
-                <button class="image-button function-button" data-function="cognitoLogIn"  title="Login" >
-                    <img src="./img/logIn.png" >
+                <button class="image-button function-button" data-function="cognitoLogIn" title="Login">
+                    <img src="./img/logIn.png">
                     <p>&nbsp;</p>
                     <p id="user-email" class="user-logged"></p>
                 </button>
                 <p id="user-expires" class="user-logged"></p>
                 <button class="image-button small function-button" data-function="cognitoLogOff" title="Logoff"><img src="./img/logOff.png">&nbsp;Log off</button>
+
+                <hr>
+                <h3>Subscription</h3>
+                <button class="image-button function-button" data-function="stripeSubscribe"   title=""><img src="./img/subscribe.png" >&nbsp;Subscribe  </button>
+                <button class="image-button function-button" data-function="stripeUnSubscribe" title=""><img src="./img/unSubscribe.png">&nbsp;UnSubscribe</button>
+
             </div>
 
             <div id="loggedOffContainer">
@@ -398,7 +404,7 @@
                 <button class="image-button function-button" data-function="cognitoLogIn"  title="Login" ><img src="./img/logIn.png" >&nbsp;Log in</button>
             </div>
 
-            <button id="signCloseButton" class="toggle-button" data-function="toggleLogin" >&times;</button>
+            <button id="loginCloseButton" class="toggle-button" data-function="toggleLogin" >&times;</button>
         </div>
     </div>
 

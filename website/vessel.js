@@ -131,23 +131,13 @@ function lambdaCall(name, param) {
         path = 'http://127.0.0.1:5000/';   // local flask server
     }
 
-    const accessToken = localStorage.getItem('accessToken'); // Получаем токен из локального хранилища
+    const accessToken = localGet('accessToken');
     const headers = {
         headers: {
             auth: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
         },
     }
-
-    // console.log("post", path + name);
-
-    // return fetch(
-    //     path + name, {
-    //         method: 'POST',
-    //         headers,
-    //         body: JSON.stringify(param)
-    //     }
-    // )
 
     return axios.post(
         path + name,
@@ -165,6 +155,7 @@ function lambdaCall(name, param) {
             showError(error);
         });
 }
+window.lambdaCall = lambdaCall;
 
 
 // Mandrel
@@ -624,6 +615,9 @@ function tapeCalc(prefix) {
                 coilDraws();
                 loaded();
             })
+            .catch(error => {
+                showError(error);
+            });
     } else {
         fieldSet("tape" + prefix, undefined);
         coilDraws();
@@ -672,19 +666,17 @@ function coilDraws() {
 window.coilDraws = coilDraws
 
 function tapeRender(suffix) {
-    const mode = suffix == "Initial" ? "first" : fieldGet("windingMode");
-    // mode: "first" | "round" | "all"
-
     const coil = coilGet(suffix);
     if (!coil) return undefined
 
+    const tape = fieldGet("tape" + suffix);
+    if (!tape) return undefined;
+
+    console.log(tape)
+
+    const mode = suffix == "Initial" ? "first" : fieldGet("windingMode");
     const n = coil.x.length;
     
-    const tape = fieldGet("tape" + suffix);
-    if (!tape){
-        return [[], []];
-    }
-
     const vertices = [];
     const indLine  = [];
     const indPlain = [];

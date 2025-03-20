@@ -134,51 +134,6 @@ export function openTab(tabId) {
 window.openTab = openTab;
 
 
-// Modal
-
-// const valueX = document.getElementById('value-x');
-// const valueY = document.getElementById('value-y');
-// const valueZ = document.getElementById('value-z');
-
-// const inputX = document.getElementById('input-x');
-// const inputY = document.getElementById('input-y');
-// const inputZ = document.getElementById('input-z');
-
-// const modal = document.getElementById('edit-modal');
-// const overlay = document.getElementById('modal-overlay');
-
-// const editButton = document.getElementById('edit-button');
-// editButton.addEventListener('click', () => {
-//     inputX.value = valueX.textContent;
-//     inputY.value = valueY.textContent;
-//     inputZ.value = valueZ.textContent;
-
-//     modal.style.display = 'block';
-//     overlay.style.display = 'block';
-// });
-
-// const saveButton = document.getElementById('save-button');
-// saveButton.addEventListener('click', () => {
-//     valueX.textContent = inputX.value;
-//     valueY.textContent = inputY.value;
-//     valueZ.textContent = inputZ.value;
-
-//     modal.style.display = 'none';
-//     overlay.style.display = 'none';
-// });
-
-// const cancelButton = document.getElementById('cancel-button');
-// cancelButton.addEventListener('click', () => {
-//     modal.style.display = 'none';
-//     overlay.style.display = 'none';
-// });
-
-// overlay.addEventListener('click', () => {
-//     modal.style.display = 'none';
-//     overlay.style.display = 'none';
-// });
-
-
 // Errors
 
 function showError(error) {

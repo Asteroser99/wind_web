@@ -10,42 +10,33 @@ const poolData = {
   };
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
+
+function localSet(id, value){
+    localStorage.setItem(id, JSON.stringify(value));
+}
+
+function localGet(id){
+    return JSON.parse(localStorage.getItem(id));
+}
+window.localGet = localGet
+
+function localClear(id){
+    localStorage.removeItem(id);
+}
+
+
 function toggleLogin(toggled){
   cognitoStatus();
 
-  const signContainer = document.getElementById("signContainer");
-  signContainer.style.display = !toggled ? "none" : "flex";
+  const loginContainer = document.getElementById("loginContainer");
+  loginContainer.style.display = !toggled ? "none" : "flex";
   if (toggled)
-      document.getElementById("signCloseButton").classList.add('active');
+      document.getElementById("loginCloseButton").classList.add('active');
   else 
       document.getElementById("loginToggle").classList.remove('active');
 }
 window.toggleLogin = toggleLogin
 
-
-// function login(username, password) {
-//     console.log("login");
-//     const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({
-//         Username: username,
-//         Password: password,
-//     });
-
-//     const cognitoUser = new AmazonCognitoIdentity.CognitoUser({
-//         Username: username,
-//         Pool: userPool,
-//     });
-
-//     cognitoUser.authenticateUser(authenticationDetails, {
-//         onSuccess: (result) => {
-//             console.log('Access token:', result.getAccessToken().getJwtToken());
-//             // Сохраните токен для будущих запросов
-//             localStorage.setItem('accessToken', result.getAccessToken().getJwtToken());
-//         },
-//         onFailure: (err) => {
-//             console.error(err);
-//         },
-//     });
-// }
 
 function cognitoLogIn() {
     window.location.href = `${domain}/login?client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}`;
@@ -53,18 +44,18 @@ function cognitoLogIn() {
 window.cognitoLogIn = cognitoLogIn
 
 function cognitoLogOff() {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('idToken');
-  localStorage.removeItem('refreshToken')
+  localClear('accessToken');
+  localClear('idToken');
+  localClear('refreshToken')
 
   window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(redirectUri)}`;
 }
 window.cognitoLogOff = cognitoLogOff;
 
 
-
 function decodeJwt(token) {
-    const base64Url = token.split('.')[1]; // Извлекаем вторую часть токена (payload)
+    if (!token) return undefined;
+    const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
       atob(base64)
@@ -72,7 +63,8 @@ function decodeJwt(token) {
         .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
         .join('')
     );
-    return JSON.parse(jsonPayload); // Парсим payload
+    const res = JSON.parse(jsonPayload);
+    return res;
   }
 
 function cognitoTime(time) {
@@ -82,6 +74,7 @@ function cognitoTime(time) {
 function cognitoCodeExchange(){
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
+
   // console.log(code);
 
   if (code) {
@@ -95,16 +88,15 @@ function cognitoCodeExchange(){
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     }).then((response) => {
-      const { id_token, access_token } = response.data;
+      const idToken = decodeJwt(response.data.id_token);
+      localSet('idToken', idToken);
 
-      localStorage.setItem('accessToken', access_token);
-      localStorage.setItem('idToken', id_token);
+      const access_token = response.data.access_token;
+      localSet('accessToken', access_token);
 
       cognitoStatus();
 
-      const decodedToken = decodeJwt(id_token);
-      let delay = cognitoTime(decodedToken.exp) - Date.now();
-      console.log(delay)
+      let delay = cognitoTime(idToken.exp) - Date.now();
       setTimeout(cognitoExpire, delay);
 
       // remove code from url
@@ -125,24 +117,18 @@ function cognitoCodeExchange(){
 function cognitoExpire() {
     showError("Session expired. Please log in again.");
 
-    // localStorage.removeItem('accessToken');
-    // localStorage.removeItem('idToken');
+    // localClear('accessToken');
+    // localClear('idToken');
 
     cognitoStatus();
 }
 
 function cognitoStatus() {
-    let access_token = localStorage.getItem('accessToken');
-    let id_token = localStorage.getItem('idToken');
-    let decodedToken = null;
-
-    // console.log("cognitoStatus", id_token);
+    let idToken = localGet('idToken');
 
     let logged = false;
-    if (id_token) {
-        decodedToken = decodeJwt(id_token);
-        // console.log(decodedToken);
-        logged = Date.now() <= cognitoTime(decodedToken.exp);
+    if (idToken) {
+      logged = Date.now() <= cognitoTime(idToken.exp);
     }
 
   changeImage("logImg", logged ? "logIn.png" : "logOff.png");
@@ -150,20 +136,45 @@ function cognitoStatus() {
   if (logged) {
     document.getElementById("loggedInContainer" ).style.display = "flex";
     document.getElementById("loggedOffContainer").style.display = "none";
-
-    document.getElementById('user-email'  ).textContent = decodedToken.email;
-    document.getElementById('user-expires').textContent = "Session expires: " + cognitoTime(decodedToken.exp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('user-email'  ).textContent = idToken.email;
+    document.getElementById('user-expires').textContent = "Session expires at " + cognitoTime(idToken.exp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } else {
     document.getElementById("loggedInContainer" ).style.display = "none";
     document.getElementById("loggedOffContainer").style.display = "flex";
   }
 }
 
+function stripeSubscribe(){
+  const idToken = localGet('idToken');
+
+  loading();
+  lambdaCall("payment/subscribe", [idToken.email])
+      .then(res => {
+          loaded();
+          if (res)
+            window.location.href = res;
+      })
+      .catch(error => {
+          showError(error);
+      });
+}
+window.stripeSubscribe = stripeSubscribe
+
+function stripeUnSubscribe(){
+  loading();
+  lambdaCall("payment/unSubscribe", [])
+      .then(res => {
+          loaded();
+      })
+      .catch(error => {
+          showError(error);
+      });
+}
+window.stripeUnSubscribe = stripeUnSubscribe
+
 
 function cognitoOnLoad() {
   cognitoCodeExchange();
-
   cognitoStatus();
-  setInterval(cognitoStatus, 10 * 60 * 1000);
 }
 window.cognitoOnLoad = cognitoOnLoad;
