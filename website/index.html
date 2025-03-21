@@ -423,10 +423,10 @@
                     </div>
                     <p id="subscriptionDescription"></p>
                     <div id="reNewOn" class="hPanel">
-                        <button class="image-button function-button small" data-function="stripeRenewOff" data-query="If auto-renewal is disabled, after the subscription is completed, the next payment will not be charged and the subscription will not be renewed. Only subscribed users have access to the calculation functions. Are you sure you want to turn off auto-renewal?" title=""><img src="./img/reNewOff.png">&nbsp;Turn off auto-renewal</button>
+                        <button class="image-button function-button small" data-function="stripeRenew" data-parameter="Off" data-query="If auto-renewal is disabled, after the subscription is completed, the next payment will not be charged and the subscription will not be renewed. Only subscribed users have access to the calculation functions. Are you sure you want to turn off auto-renewal?" title=""><img src="./img/reNewOff.png">&nbsp;Turn off auto-renewal</button>
                     </div>
                     <div id="reNewOff" class="hPanel">
-                        <button class="image-button function-button small" data-function="stripeRenewOn" data-query="If auto-renewal is enabled, after the subscription is completed, the next payment will be charged and the subscription will be renewed. Are you sure you want to turn on auto-renewal?" title=""><img src="./img/reNewOn.png">&nbsp;Turn on auto-renewal</button>
+                        <button class="image-button function-button small" data-function="stripeRenew" data-parameter="On" data-query="If auto-renewal is enabled, after the subscription is completed, the next payment will be charged and the subscription will be renewed. Are you sure you want to turn on auto-renewal?" title=""><img src="./img/reNewOn.png">&nbsp;Turn on auto-renewal</button>
                     </div>
                 </div>
                 <div id="SubscriptionNotExist" class="vPanel">
@@ -436,6 +436,7 @@
                     <p>Please subscribe to use</p>
                     <p>the calculation functions</p>
                     <button class="image-button function-button" data-function="stripeSubscribe"   title=""><img src="./img/subscribe.png" >&nbsp;Subscribe</button>
+                    <div class="hPanel"><input type="checkbox" id="cbAutoRenewal" title="If auto-renewal is enabled, after the subscription is completed, the next payment will be charged and the subscription will be renewed.">Auto-renew</div>
                 </div>
 
             </div>

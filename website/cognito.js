@@ -194,9 +194,10 @@ function stripeStatus(){
 
 function stripeSubscribe(){
   const idToken = localGet('idToken');
+  const autoRenewal = document.getElementById("cbAutoRenewal").checked;
 
   loading();
-  lambdaCall("payment.subscribe", [idToken.email])
+  lambdaCall("payment.subscribe", [autoRenewal, idToken.email])
       .then(res => {
           loaded();
           if (res)
@@ -208,9 +209,9 @@ function stripeSubscribe(){
 }
 window.stripeSubscribe = stripeSubscribe
 
-function stripeUnSubscribe(){
+function stripeRenew(param){
   loading();
-  lambdaCall("payment.unSubscribe", [])
+  lambdaCall("payment.renew", [param == "On"])
       .then(res => {
           loaded();
           setTimeout(stripeStatus, 3000);
