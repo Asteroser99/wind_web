@@ -144,11 +144,54 @@ function cognitoStatus() {
   }
 }
 
+
+// Stripe
+
+function formatDate(dateStr) {
+  let date = new Date(dateStr);
+  return date.toLocaleString("en-EN", { 
+      year: "2-digit", 
+      month: "2-digit", 
+      day: "2-digit", 
+      hour: "2-digit", 
+      minute: "2-digit",
+      timeZoneName: "short"
+  }).replace(",", "");
+}
+
+function stripeStatus(){
+  const idToken = localGet('idToken');
+  if (!idToken) return
+
+  lambdaCall("payment.status", [])
+      .then(res => {
+          console.log(res);
+          // {start: 1742434956, end: 1745113356, status: 'active'}
+
+          const res_ = !!res;
+
+          document.getElementById("SubscriptionExist"   ).style.display =  res_ ? "flex" : "none";
+          document.getElementById("SubscriptionNotExist").style.display = !res_ ? "flex" : "none";
+
+          if (res_){
+            document.getElementById('subscriptionDescription').innerHTML = ""
+              + "Started:" + "<br>"
+              + formatDate(cognitoTime(res.start)) + "<br>"
+              + "Expires:" + "<br>"
+              + formatDate(cognitoTime(res.end  )) + "<br>"
+            ;
+          }
+        })
+      .catch(error => {
+          showError(error);
+      });
+}
+
 function stripeSubscribe(){
   const idToken = localGet('idToken');
 
   loading();
-  lambdaCall("payment/subscribe", [idToken.email])
+  lambdaCall("payment.subscribe", [idToken.email])
       .then(res => {
           loaded();
           if (res)
@@ -162,7 +205,7 @@ window.stripeSubscribe = stripeSubscribe
 
 function stripeUnSubscribe(){
   loading();
-  lambdaCall("payment/unSubscribe", [])
+  lambdaCall("payment.unSubscribe", [])
       .then(res => {
           loaded();
       })
@@ -176,5 +219,6 @@ window.stripeUnSubscribe = stripeUnSubscribe
 function cognitoOnLoad() {
   cognitoCodeExchange();
   cognitoStatus();
+  stripeStatus();
 }
 window.cognitoOnLoad = cognitoOnLoad;

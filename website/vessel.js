@@ -153,6 +153,7 @@ function lambdaCall(name, param) {
         })
         .catch((error) => {
             showError(error);
+            throw new Error("Lambda call failed");
         });
 }
 window.lambdaCall = lambdaCall;
@@ -671,8 +672,6 @@ function tapeRender(suffix) {
 
     const tape = fieldGet("tape" + suffix);
     if (!tape) return undefined;
-
-    console.log(tape)
 
     const mode = suffix == "Initial" ? "first" : fieldGet("windingMode");
     const n = coil.x.length;

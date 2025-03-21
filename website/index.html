@@ -382,7 +382,7 @@
         </div>
 
         <div id="loginContainer">
-            <div id="loggedInContainer">
+            <div id="loggedInContainer" class="vPanel">
                 <h3>Logged in</h3>
                 <button class="image-button function-button" data-function="cognitoLogIn" title="Login">
                     <img src="./img/logIn.png">
@@ -393,9 +393,16 @@
                 <button class="image-button small function-button" data-function="cognitoLogOff" title="Logoff"><img src="./img/logOff.png">&nbsp;Log off</button>
 
                 <hr>
-                <h3>Subscription</h3>
-                <button class="image-button function-button" data-function="stripeSubscribe"   title=""><img src="./img/subscribe.png" >&nbsp;Subscribe  </button>
-                <button class="image-button function-button" data-function="stripeUnSubscribe" title=""><img src="./img/unSubscribe.png">&nbsp;UnSubscribe</button>
+                <div class="hPanel">
+                    <img class="icon-img" src="./img/subscribe.png"><h3>Subscription</h3>
+                </div>
+                <div id="SubscriptionExist" class="vPanel">
+                    <p id="subscriptionDescription"></p>
+                    <button class="image-button function-button small" data-function="stripeUnSubscribe" title=""><img src="./img/unSubscribe.png">&nbsp;UnSubscribe</button>
+                </div>
+                <div id="SubscriptionNotExist">
+                    <button class="image-button function-button" data-function="stripeSubscribe"   title=""><img src="./img/subscribe.png" >&nbsp;Subscribe</button>
+                </div>
 
             </div>
 
