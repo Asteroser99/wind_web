@@ -179,7 +179,12 @@ function stripeStatus(){
               + formatDate(cognitoTime(res.start)) + "<br>"
               + "Expires:" + "<br>"
               + formatDate(cognitoTime(res.end  )) + "<br>"
+              + "Auto-renew: "
+              + (res.cancel_at_period_end ? "Off" : "On") + "<br>"
             ;
+
+            document.getElementById("reNewOn" ).style.display = !res.cancel_at_period_end ? "flex" : "none";
+            document.getElementById("reNewOff").style.display =  res.cancel_at_period_end ? "flex" : "none";
           }
         })
       .catch(error => {
@@ -208,7 +213,8 @@ function stripeUnSubscribe(){
   lambdaCall("payment.unSubscribe", [])
       .then(res => {
           loaded();
-      })
+          setTimeout(stripeStatus, 3000);
+        })
       .catch(error => {
           showError(error);
       });

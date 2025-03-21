@@ -145,10 +145,6 @@ function lambdaCall(name, param) {
         headers
     )
         .then((response) => {
-            // console.log("response", response);
-            
-            if(!response.data) throw new Error("Empty lambdaCall result");
-
             return response.data;
         })
         .catch((error) => {
