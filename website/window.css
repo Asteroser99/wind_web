@@ -475,6 +475,16 @@ input {
     height: 40px; 
 }
 
+.icon-img.mid{ 
+    width: 30px;
+    height: 30px;
+}
+
+.icon-img.small{ 
+    width: 25px;
+    height: 25px;
+}
+
 #programBar {
     font-size: 20px;
     font-weight: bold;
@@ -574,6 +584,7 @@ input {
 
 .hPanel {
     display: flex;
+    align-items: center;
 }
 
 #loggedOffContainer {
@@ -596,4 +607,16 @@ input {
 
 #loginCloseButton:hover {
     background: #2973B2;
+}
+
+#loginContainer table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#loginContainer td {
+    border: 1px solid #9ACBD0;
+    padding: 5px;
+    vertical-align: middle;
+    text-align: left;
 }

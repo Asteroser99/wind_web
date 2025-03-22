@@ -93,12 +93,13 @@ function drawPattern() {
     
     // points
     let points = [];
+    const colorBase = 170;
     const colorStep = 360 / Coils;
     for (let i = 0; i <= Coils; i++) {
         let angle = i * angleStep;
         const x = cx + Math.cos(angle) * radius;
         const y = cy + Math.sin(angle) * radius;
-        const c = i * colorStep
+        const c = (colorBase + i * colorStep) % 360;
         points.push({ x, y, c });
     }
     

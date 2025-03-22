@@ -99,6 +99,10 @@ function cognitoCodeExchange(){
       let delay = cognitoTime(idToken.exp) - Date.now();
       setTimeout(cognitoExpire, delay);
 
+    }).catch((error) => {
+        console.error('Error exchanging code for token:', error);
+    
+    }).finally(() => {
       // remove code from url
       const urlParams = new URLSearchParams(window.location.search);
       urlParams.delete('code');
@@ -108,8 +112,6 @@ function cognitoCodeExchange(){
       const newUrl = `${window.location.origin}${window.location.pathname}${strUrlParams}`;
       window.history.replaceState(null, '', newUrl);
 
-    }).catch((error) => {
-        console.error('Error exchanging code for token:', error);
     });
   }
 }
@@ -123,21 +125,28 @@ function cognitoExpire() {
     cognitoStatus();
 }
 
-function cognitoStatus() {
-    let idToken = localGet('idToken');
+function cognitoLogged() {
+  let idToken = localGet('idToken');
 
-    let logged = false;
-    if (idToken) {
-      logged = Date.now() <= cognitoTime(idToken.exp);
-    }
+  let logged = false;
+  if (idToken) {
+    logged = Date.now() <= cognitoTime(idToken.exp);
+  }
+
+  return logged;
+}
+
+function cognitoStatus() {
+  const logged = cognitoLogged()
 
   changeImage("logImg", logged ? "logIn.png" : "logOff.png");
 
   if (logged) {
+    const idToken = localGet('idToken');
     document.getElementById("loggedInContainer" ).style.display = "flex";
     document.getElementById("loggedOffContainer").style.display = "none";
     document.getElementById('user-email'  ).textContent = idToken.email;
-    document.getElementById('user-expires').textContent = "Session expires at " + cognitoTime(idToken.exp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('user-expires').textContent = cognitoTime(idToken.exp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } else {
     document.getElementById("loggedInContainer" ).style.display = "none";
     document.getElementById("loggedOffContainer").style.display = "flex";
@@ -149,40 +158,40 @@ function cognitoStatus() {
 
 function formatDate(dateStr) {
   let date = new Date(dateStr);
-  return date.toLocaleString("en-EN", { 
-      year: "2-digit", 
-      month: "2-digit", 
-      day: "2-digit", 
-      hour: "2-digit", 
-      minute: "2-digit",
-      timeZoneName: "short"
-  }).replace(",", "");
+  let day = String(date.getDate()).padStart(2, "0");
+  let month = String(date.getMonth() + 1).padStart(2, "0");
+  let year = String(date.getFullYear()).slice(-2);
+  let hours = String(date.getHours()).padStart(2, "0");
+  let minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
 
 function stripeStatus(){
-  const idToken = localGet('idToken');
-  if (!idToken) return
+  if (!cognitoLogged()) return
 
   lambdaCall("payment.status", [])
       .then(res => {
-          console.log(res);
-          // {start: 1742434956, end: 1745113356, status: 'active'}
-
           const res_ = !!res;
 
           document.getElementById("SubscriptionExist"   ).style.display =  res_ ? "flex" : "none";
           document.getElementById("SubscriptionNotExist").style.display = !res_ ? "flex" : "none";
 
           if (res_){
-            document.getElementById('subscriptionDescription').innerHTML = ""
-              + "Started:" + "<br>"
-              + formatDate(cognitoTime(res.start)) + "<br>"
-              + "Expires:" + "<br>"
-              + formatDate(cognitoTime(res.end  )) + "<br>"
-              + "Auto-renew: "
-              + (res.cancel_at_period_end ? "Off" : "On") + "<br>"
-            ;
-
+            document.getElementById('subscriptionDescription').innerHTML = `
+              <table>
+                <tr><td>Started:</td><td>${formatDate(cognitoTime(res.start))}</td></tr>
+                <tr><td>Expires:</td><td>${formatDate(cognitoTime(res.end))}</td></tr>
+                <tr>
+                  <td>Auto-renew:</td>
+                  <td>
+                    <div class="hPanel">
+                      <img class="icon-img small" src="./img/${res.cancel_at_period_end ? "reNewOff" : "reNewOn"}.png">
+                      ${res.cancel_at_period_end ? "Off" : "On"}
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            `;
             document.getElementById("reNewOn" ).style.display = !res.cancel_at_period_end ? "flex" : "none";
             document.getElementById("reNewOff").style.display =  res.cancel_at_period_end ? "flex" : "none";
           }
@@ -194,10 +203,10 @@ function stripeStatus(){
 
 function stripeSubscribe(){
   const idToken = localGet('idToken');
-  const autoRenewal = document.getElementById("cbAutoRenewal").checked;
+  // const autoRenewal = document.getElementById("cbAutoRenewal").checked;
 
   loading();
-  lambdaCall("payment.subscribe", [autoRenewal, idToken.email])
+  lambdaCall("payment.subscribe", [idToken.email])
       .then(res => {
           loaded();
           if (res)
@@ -214,13 +223,13 @@ function stripeRenew(param){
   lambdaCall("payment.renew", [param == "On"])
       .then(res => {
           loaded();
-          setTimeout(stripeStatus, 3000);
+          setTimeout(stripeStatus, 1500);
         })
       .catch(error => {
           showError(error);
       });
 }
-window.stripeUnSubscribe = stripeUnSubscribe
+window.stripeRenew = stripeRenew
 
 
 function cognitoOnLoad() {
