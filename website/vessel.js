@@ -872,11 +872,13 @@ async function CNCExport() {
         const writable = await handle.createWritable();
         await writable.write(txt);
         await writable.close();
-        console.log("File saved");
+
     } catch (error) {
         showError("Failed to save file: " + error);
+
     } finally {
         loaded();
+        
     }
 }
 
