@@ -491,7 +491,7 @@ document.getElementById('thicknessGet').addEventListener(
             return;
         }
 
-        return lambdaCall("thickness", [coilCorrected, coilMeridian, fieldGet('band')])
+        return lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, fieldGet('band')])
             .then((res) => {
                 mandrelSet("Winded", res);
                 loaded();
@@ -540,7 +540,7 @@ function coilCalc() {
     if (!mandrel) return null;
 
     try {
-        return lambdaCall("vitok", [mandrel, fieldGet("poleR"), fieldGet("band")])
+        return lambdaCall("vitok.vitok", [mandrel, fieldGet("poleR"), fieldGet("band")])
             .then(res => {
                 const [coil, meridian] = res
                 coilSet("Initial", coil);
@@ -606,7 +606,7 @@ function tapeCalc(prefix) {
     const coil = coilGet(prefix)
     if (coil) {
         loading();
-        lambdaCall("tape", [coil, fieldGet("band")])
+        lambdaCall("calc.tape", [coil, fieldGet("band")])
             .then(res => {
                 fieldSet("tape" + prefix, res);
                 coilDraws();
@@ -730,7 +730,7 @@ function Winding(param = undefined){
         return
     }
 
-    lambdaCall("winding", [coilCorrected, fieldGet('safetyR'), fieldGet('lineCount'), fieldGet('band')])
+    lambdaCall("calc.winding", [coilCorrected, fieldGet('safetyR'), fieldGet('lineCount'), fieldGet('band')])
         .then(res => {
             coilSet ("Interpolated"            , res[0]);
             // fieldSet("tapeInterpolated"        , res[1]);
