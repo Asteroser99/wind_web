@@ -131,10 +131,10 @@ function lambdaCall(name, param) {
         path = 'http://127.0.0.1:5000/';   // local flask server
     }
 
-    const accessToken = localGet('accessToken');
+    const cognitoAccessToken = localGet('cognitoAccessToken');
     const headers = {
         headers: {
-            auth: `Bearer ${accessToken}`,
+            auth: `Bearer ${cognitoAccessToken}`,
             'Content-Type': 'application/json',
         },
     }
@@ -878,7 +878,7 @@ async function CNCExport() {
 
     } finally {
         loaded();
-        
+
     }
 }
 

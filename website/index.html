@@ -410,15 +410,16 @@
             <div id="loggedInContainer" class="vPanel">
                 <div class="hPanel">
                     <img class="icon-img mid" src="./img/logIn.png">
-                    <h3>Logged in</h3>
+                    <h3>Signed in</h3>
                 </div>
 
                 <table>
-                    <tr><td>E-mail:</td><td><div class="hPanel" id="user-email" class="user-logged"></div></td></tr>
-                    <tr><td>Expires:</td><td><div class="hPanel" id="user-expires" class="user-logged"></div></td></tr>
+                    <tr><td>E-mail: </td><td><div class="hPanel" id="cognitoEMail"    class="user-logged"></div></td></tr>
+                    <tr><td>Signed in: </td><td><div class="hPanel" id="cognitoAuthTime" class="user-logged"></div></td></tr>
+                    <tr><td>Expires:</td><td><div class="hPanel" id="cognitoExpires"  class="user-logged"></div></td></tr>
                 </table>
 
-                <button class="image-button small function-button" data-function="cognitoLogOff" title="Logoff"><img src="./img/logOff.png">&nbsp;Log off</button>
+                <button class="image-button small function-button" data-function="cognitoLogOff" title="Sign out"><img src="./img/logOff.png">&nbsp;Sign out</button>
 
                 <hr>
                 <div id="SubscriptionExist" class="vPanel" style="display:none">
@@ -449,9 +450,9 @@
             <div id="loggedOffContainer">
                 <div class="hPanel">
                     <img class="icon-img mid" src="./img/logOff.png">
-                    <h3>Logged off</h3>
+                    <h3>Signed out</h3>
                 </div>
-                <button class="image-button function-button" data-function="cognitoLogIn"  title="Login" ><img src="./img/logIn.png" >&nbsp;Log in</button>
+                <button class="image-button function-button" data-function="cognitoLogIn"  title="Sign in" ><img src="./img/logIn.png" >&nbsp;Sign in</button>
             </div>
 
             <button id="loginCloseButton" class="toggle-button" data-function="toggleLogin" >&times;</button>

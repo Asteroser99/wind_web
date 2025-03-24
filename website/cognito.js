@@ -44,9 +44,7 @@ function cognitoLogIn() {
 window.cognitoLogIn = cognitoLogIn
 
 function cognitoLogOff() {
-  localClear('accessToken');
-  localClear('idToken');
-  localClear('refreshToken')
+  cognitoClear();
 
   window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(redirectUri)}`;
 }
@@ -70,7 +68,18 @@ function decodeJwt(token) {
 function cognitoTime(time) {
     return new Date(time * 1000);
 }
-  
+
+function timeNow() {
+  return new Date(Date.now());
+}
+
+function cognitoClear() {
+  localClear('cognitoEMail');
+  localClear('cognitoAccessToken');
+  localClear('cognitoAuthTime');
+  localClear('cognitoExpires');
+}
+
 function cognitoCodeExchange(){
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
@@ -88,16 +97,24 @@ function cognitoCodeExchange(){
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     }).then((response) => {
-      const idToken = decodeJwt(response.data.id_token);
-      localSet('idToken', idToken);
+      const cognitoIdToken = decodeJwt(response.data.id_token);
+      localSet('cognitoEMail', cognitoIdToken.email);
 
-      const access_token = response.data.access_token;
-      localSet('accessToken', access_token);
+      const cognitoAccessToken = response.data.access_token;
+      localSet('cognitoAccessToken', cognitoAccessToken);
+
+      const cognitoAccessTokenDecoded  = decodeJwt(cognitoAccessToken);
+      const cognitoAuthTime = cognitoAccessTokenDecoded.auth_time
+      localSet('cognitoAuthTime', cognitoAuthTime);
+      const cognitoExpires = cognitoAccessTokenDecoded.exp
+      localSet('cognitoExpires', cognitoExpires);
 
       cognitoStatus();
 
-      let delay = cognitoTime(idToken.exp) - Date.now();
+      let delay = cognitoTime(cognitoExpires) - Date.now();
       setTimeout(cognitoExpire, delay);
+
+      stripeStatus();
 
     }).catch((error) => {
         console.error('Error exchanging code for token:', error);
@@ -111,26 +128,24 @@ function cognitoCodeExchange(){
 
       const newUrl = `${window.location.origin}${window.location.pathname}${strUrlParams}`;
       window.history.replaceState(null, '', newUrl);
-
     });
   }
 }
 
 function cognitoExpire() {
-    showError("Session expired. Please log in again.");
+    showError("Session expired. Please sign in again.");
 
-    // localClear('accessToken');
-    // localClear('idToken');
+    // cognitoClear()
 
     cognitoStatus();
 }
 
 function cognitoLogged() {
-  let idToken = localGet('idToken');
-
   let logged = false;
-  if (idToken) {
-    logged = Date.now() <= cognitoTime(idToken.exp);
+
+  const cognitoAccessTokenExpires = localGet('cognitoExpires');
+  if (cognitoAccessTokenExpires) {
+    logged = timeNow() <= cognitoTime(cognitoAccessTokenExpires);
   }
 
   return logged;
@@ -142,11 +157,12 @@ function cognitoStatus() {
   changeImage("logImg", logged ? "logIn.png" : "logOff.png");
 
   if (logged) {
-    const idToken = localGet('idToken');
     document.getElementById("loggedInContainer" ).style.display = "flex";
     document.getElementById("loggedOffContainer").style.display = "none";
-    document.getElementById('user-email'  ).textContent = idToken.email;
-    document.getElementById('user-expires').textContent = cognitoTime(idToken.exp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    document.getElementById('cognitoEMail'   ).textContent = localGet('cognitoEMail');
+    document.getElementById('cognitoAuthTime').textContent = cognitoTime(localGet('cognitoAuthTime')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('cognitoExpires' ).textContent = cognitoTime(localGet('cognitoExpires')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   } else {
     document.getElementById("loggedInContainer" ).style.display = "none";
     document.getElementById("loggedOffContainer").style.display = "flex";
@@ -202,18 +218,17 @@ function stripeStatus(){
 }
 
 function stripeSubscribe(){
-  const idToken = localGet('idToken');
-  // const autoRenewal = document.getElementById("cbAutoRenewal").checked;
-
   loading();
-  lambdaCall("payment.subscribe", [idToken.email])
+  lambdaCall("payment.subscribe", [localGet('cognitoEMail')])
       .then(res => {
           loaded();
           if (res)
             window.location.href = res;
+
       })
       .catch(error => {
           showError(error);
+
       });
 }
 window.stripeSubscribe = stripeSubscribe

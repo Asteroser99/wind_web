@@ -167,13 +167,13 @@ function showError(error) {
     else if (error.code === "ERR_NETWORK" && error.name === "AxiosError"
         // && error.response && error.response.status === 401
     ) {
-        message = "Session expired or network error<br>Try to relogin";
+        message = "Please sign in";
     } else if (error.name === "AxiosError" // error.code === "ERR_BAD_RESPONSE" && 
         && error.response && error.response.status != 200
         && error.response.data
     ) {
         message = error.response.data.replaceAll("\n", "<br>");
-    } else if (error.message && error.message === "Empty lambdaCall result") {
+    } else if (error.message && error.message === "Lambda call failed") {
         return;
     } else if (error.message) {
         message = "err: " + error.message;
