@@ -181,8 +181,8 @@ function stripeStatus(){
               <table>
                 <tr><td>Started:</td><td>${formatDate(cognitoTime(res.start))}</td></tr>
                 <tr><td>Expires:</td><td>${formatDate(cognitoTime(res.end))}</td></tr>
-                <tr>
-                  <td>Auto-renew:</td>
+                <tr><td>Call count:</td><td>${res.callCount != undefined ? res.callCount : 0}</td></tr>
+                <tr><td>Auto-renew:</td>
                   <td>
                     <div class="hPanel">
                       <img class="icon-img small" src="./img/${res.cancel_at_period_end ? "reNewOff" : "reNewOn"}.png">
