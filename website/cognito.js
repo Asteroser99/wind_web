@@ -223,7 +223,7 @@ function stripeRenew(param){
   lambdaCall("payment.renew", [param == "On"])
       .then(res => {
           loaded();
-          setTimeout(stripeStatus, 1500);
+          setTimeout(stripeStatus, 3000);
         })
       .catch(error => {
           showError(error);
