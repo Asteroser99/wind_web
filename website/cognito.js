@@ -32,11 +32,20 @@ function toggleLogin(toggled){
   loginContainer.style.display = !toggled ? "none" : "flex";
   if (toggled)
       document.getElementById("loginCloseButton").classList.add('active');
-  else 
+  else
       document.getElementById("loginToggle").classList.remove('active');
 }
 window.toggleLogin = toggleLogin
 
+function toggleImpressum(toggled){
+  const container = document.getElementById("impressumContainer");
+  container.style.display = !toggled ? "none" : "flex";
+  if (toggled)
+      document.getElementById("impressumCloseButton").classList.add('active');
+  else
+      document.getElementById("impressumToggle").classList.remove('active');
+}
+window.toggleImpressum = toggleImpressum
 
 function cognitoLogIn() {
     window.location.href = `${domain}/login?client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}`;
@@ -63,7 +72,7 @@ function decodeJwt(token) {
     );
     const res = JSON.parse(jsonPayload);
     return res;
-  }
+}
 
 function cognitoTime(time) {
     return new Date(time * 1000);
@@ -173,11 +182,11 @@ function cognitoStatus() {
 // Stripe
 
 function formatDate(dateStr) {
-  let date = new Date(dateStr);
-  let day = String(date.getDate()).padStart(2, "0");
-  let month = String(date.getMonth() + 1).padStart(2, "0");
-  let year = String(date.getFullYear()).slice(-2);
-  let hours = String(date.getHours()).padStart(2, "0");
+  let date    = new Date(dateStr);
+  let day     = String(date.getDate()).padStart(2, "0");
+  let month   = String(date.getMonth() + 1).padStart(2, "0");
+  let year    = String(date.getFullYear()).slice(-2);
+  let hours   = String(date.getHours()).padStart(2, "0");
   let minutes = String(date.getMinutes()).padStart(2, "0");
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }

@@ -111,6 +111,7 @@ button {
     display: flex;
     flex-grow: 1;
     height: 100vh;
+    position: relative;
 }
 
 #canvas-container {
@@ -490,6 +491,15 @@ input {
     font-weight: bold;
 }
 
+.vPanel {
+    display: flex;
+    flex-direction: column;
+}
+
+.hPanel {
+    display: flex;
+    align-items: center;
+}
 
 /* error */
 #error-container { 
@@ -541,31 +551,14 @@ input {
     overflow: auto;
 }
 
-#helpCloseButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #9ACBD0;
-    color: white;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 50%;
-}
-
-#helpCloseButton:hover {
-    background: #2973B2;
-}
-
 #loginContainer {
-    display: flex;
+    display: none;
     flex-direction: column;
     padding: 20px;
     box-sizing: border-box;
     display: none;
     position: absolute;
-    top: 80px;
+    top: 10px;
     right: 10px;
     min-width: 200px;  /* Минимальная ширина */
     /* max-width: 400px;  Опционально: ограничение по ширине */
@@ -577,22 +570,12 @@ input {
     overflow: auto;
 }
 
-.vPanel {
-    display: flex;
-    flex-direction: column;
-}
-
-.hPanel {
-    display: flex;
-    align-items: center;
-}
-
 #loggedOffContainer {
     display: flex;
     flex-direction: column;
 }
 
-#loginCloseButton {
+.closeButton {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -605,7 +588,7 @@ input {
     border-radius: 50%;
 }
 
-#loginCloseButton:hover {
+.closeButton:hover {
     background: #2973B2;
 }
 
@@ -619,4 +602,17 @@ input {
     padding: 5px;
     vertical-align: middle;
     text-align: left;
+}
+
+#impressumContainer {
+    padding: 10px;
+    box-sizing: border-box;
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.95);
+    text-align: justify;
+    font-size: 20px;
+    z-index: 30;
+    overflow: auto;
 }

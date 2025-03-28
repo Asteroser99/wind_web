@@ -326,6 +326,15 @@ function toggleButtonInit(){
     });
 }
 
+function loadContent(path, id){
+    fetch("txt/" + path + ".html")
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById(id).innerHTML = data;
+        })
+        .catch(error => console.error("Ошибка загрузки:", error));
+}
+
 
 // OnLoad
 
@@ -333,6 +342,14 @@ function windowOnLoad(){
     inputFieldInit();
     funcButtonInit();
     toggleButtonInit();
+
+    loadContent("impressum", "impressum-text");
+    loadContent("vessel"   , "help-vessel");
+    loadContent("mandrel"  , "help-mandrel");
+    loadContent("coil"     , "help-coil");
+    loadContent("patterns" , "help-patterns");
+    loadContent("winding"  , "help-winding");
+    loadContent("thickness", "help-thickness");
 }
 
 window.onload = function () {
