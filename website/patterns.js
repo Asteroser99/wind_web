@@ -12,8 +12,8 @@ function fibboRenderTable() {
 
     patterns.forEach((item, index) => {
         const row = document.createElement("tr");
+            // <td>${item.Turns}</td>
         row.innerHTML = `
-            <td>${item.Turns}</td>
             <td>${item.Coils}</td>
             <td>${item.Correction.toFixed(3)}</td>
         `;

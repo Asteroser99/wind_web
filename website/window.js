@@ -275,20 +275,38 @@ function inputFieldInit(){
             }
         });
         
-        input.addEventListener("input", () => {
-            const value = input.type === "number" ? parseFloat(input.value) : input.value;
+        function inputValue(input){
+            let val = input.value;
+            if (input.type === "number") {
+                val = parseFloat(val);
+            } else if (input.type === "checkbox") {
+                val = input.checked;
+            } else {
+                val = input.value;
+            }
+            return val;
+        }
+
+        const listener = input.type === "checkbox" ? "click" : "input";
+        input.addEventListener(listener, () => {
+            const value = inputValue(input);
+            // console.log("field set", id, fieldGet(id), "->", value);
             fieldSet(id, value);
         });
     
         const storedValue = fieldGet(id);
     
         if (storedValue !== undefined && storedValue !== null) {
-            input.value = storedValue;
-            // console.log("val to form", id, storedValue, fieldGet(id));
+            // console.log("val to form", id, inputValue(input), "->", storedValue);
+            if (input.type === "checkbox") {
+                input.checked = storedValue;
+            } else {
+                input.value = storedValue;
+            }
         } else {
-            const initialValue = input.type === "number" ? parseFloat(input.value) : input.value;
+            const initialValue = inputValue(input);
+            // console.log("form to val", id, storedValue, initialValue);
             fieldSet(id, initialValue);
-            // console.log("form to val", id, initialValue, fieldGet(id));
         }
     });
 }

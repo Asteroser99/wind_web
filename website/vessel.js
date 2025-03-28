@@ -756,12 +756,16 @@ document.getElementById('conv').addEventListener(
     'change', function (event) { patternsCalc() }
 );
 
+document.getElementById('netStructure').addEventListener(
+    'click', function (event) { patternsCalc() }
+);
+
 function patternsCalc() {
     loading();
 
     const coil = coilGet("Initial");
 
-    lambdaCall("fibbo", [coil, fieldGet("band"), fieldGet("conv")])
+    lambdaCall("fibbo", [coil, fieldGet("band"), fieldGet("conv"), fieldGet("netStructure")])
         .then((patterns) => {
             fieldSet("patterns", patterns);
             fibboRenderTable();
