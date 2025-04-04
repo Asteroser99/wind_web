@@ -1,9 +1,32 @@
-<main>
-    <section>
-        <h2>Preparing your mandrels for calculation</h2>
-        <p>✦  Our platform allows you to use some tools to prepare your mandrel profiles in advance.<br />
-           ✦  A mandrel is described by a set of points whose coordinates r = r(x) are listed in two columns,<br />
-              and the position of column r can be specified in the dialog, so you can use any of your csv files for import.<br />
-           ✦  Import your file with a full or half profile of the mandrel and transform it to get a complete profile ready for further calculations.</p>
-    </section>
-</main>
+<section>
+    <h2>Preparing your mandrels for calculation</h2>
+    <p>✦  Our platform allows you to use some tools to prepare your mandrel profiles in advance.<br />
+        ✦  A mandrel is described by a set of points whose coordinates r = r(x) are listed in two columns,<br />
+            and the position of column r can be specified in the dialog, so you can use any of your csv files for import.<br />
+        ✦  Import your file with a full or half profile of the mandrel and transform it to get a complete profile ready for further calculations.</p>
+</section>
+
+<section>
+    <h2>Mandrel import</h2>
+    <p>Import mandrel from CSV file by clicking <strong>Import mandrel</strong> button.</p>
+    <p>Format example:</p>
+    <pre><code>
+        x, r
+        3.4, 1.2
+        2.3, 1.2
+        4.5, 2.3
+    </code></pre>
+</section>
+
+<section>
+    <h2>Mandrel transformation</h2>
+    <p>You can use basic transformations with mandrel using <strong>Transform</strong> actions.</p>
+    <p>Keep in mind that the mandrel curve is directional. The starting point of the curve is marked with a circle on the graph.</p>
+    <p>Handle this block with caution — improper processing may render the mandrel unsuitable for further use.</p>
+    <ul>
+        <li><strong>Swap</strong>: swaps coordinates X vs ℝ.</li>
+        <li><strong>Reverse</strong>: rotates the mandrel about X axis.</li>
+        <li><strong>Redirect</strong>: changes the direction of the mandrel curve.</li>
+        <li><strong>Mirror</strong>: Completes the reflection of the mandrel curve relative to its start. Be careful - the operation is irreversible!</li>
+    </ul>
+</section>

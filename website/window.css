@@ -8,10 +8,18 @@ body {
     background-color: #9ACBD0;
 }
   
+.header h1 {
+    margin: 0;
+    font-size: 1.6em;
+}
+
 h2 {
     /* color: rgb(215, 215, 215); */
+    color: #23486A;
     margin: 3px;
-    font-weight: 100;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 1.3em;
 } 
   
 h3 {
@@ -19,11 +27,21 @@ h3 {
     margin: 3px;
     font-weight: 75;
 } 
-  
+
+strong {
+    color: #23486A;
+}
+
+ul {
+    margin-top: 0px;
+    margin-bottom: 6px;
+}
+
 p {
     margin-top: 0px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     /* padding: 5px; */
+    font-size: 1.0em;
 }
 
 button {
@@ -42,11 +60,6 @@ button {
     background-color: #F2EFE7;
     width: 65px;
     height: 100%;
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 1.6em;
 }
 
 .header {
