@@ -982,6 +982,7 @@ function vesselOnLoad() {
     if (!vessel.mandrelRaw) {
         toggleHelp(true);
         vesselloadFromURL("Example1");
+        document.getElementById('toggle-button-equidistanta').click();
     } else {
         drawAll();
     }

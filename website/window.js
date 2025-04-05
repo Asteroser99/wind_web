@@ -229,8 +229,11 @@ function closeModal() {
 function toggleHelp(toggle){
     const helpOverlay = document.getElementById("help-container");
     helpOverlay.style.display = !toggle ? "none" : "flex";
+
     document.getElementById("file-container"   ).style.display = toggle ? "none" : "flex";
     document.getElementById("actions-container").style.display = toggle ? "none" : "flex";
+    document.getElementById("animateControls"  ).style.display = toggle ? "none" : "flex";
+
     document.querySelectorAll('.toggle-help').forEach(el => {
         if (toggle) {
             el.classList.add('active');
