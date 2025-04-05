@@ -952,12 +952,14 @@ async function loadFromYamlURL(url) {
     fieldAllSet(loadFromYaml(await response.text()));
 }
 function vesselloadFromURL(name) {
+    loading();
     vesselClear();
     clearScene();
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(() => {
         SetPole();
         drawAll();
+        loaded();
     })
 };
 window.vesselloadFromURL = vesselloadFromURL
@@ -978,6 +980,7 @@ function vesselOnLoad() {
 
     fieldAllUpdateFromStorage();
     if (!vessel.mandrelRaw) {
+        toggleHelp(true);
         vesselloadFromURL("Example1");
     } else {
         drawAll();

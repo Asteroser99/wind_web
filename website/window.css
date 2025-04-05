@@ -106,7 +106,8 @@ button {
 .buttons button.active:hover {
     background-color: #48A6A7;
 }
-.buttons button::after {
+.div-logo button::before,
+.buttons button::before {
     content: "";
     position: absolute;
     left: 20%;
@@ -116,7 +117,8 @@ button {
     bottom: 0px;
     background-color: #2973B2; /* Цвет полосы */
 }
-.buttons button.active::after {
+.div-logo button.active::before,
+.buttons button.active::before {
     background-color: #9acbd0;
 }
 
@@ -138,7 +140,7 @@ button {
 
 .head-tab-link {
     position: relative;
-    transform: rotate(180deg);
+    transform: rotate(270deg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -200,9 +202,8 @@ button {
 .tabs button.active:hover {
     background-color: #48A6A7;
 }
-.tabs button::after
- , .div-logo button::after 
-{
+.div-logo button::after,
+.tabs button::after {
     content: "";
     position: absolute;
     top: 20%;   /* Отступ сверху */
@@ -211,9 +212,8 @@ button {
     width: 5px; /* Ширина полосы */
     background-color: #2973B2; /* Цвет полосы */
 }
-.tabs button.active::after
- , .div-logo button.active::after 
-{
+.div-logo button.active::after,
+.tabs button.active::after {
     background-color: #9acbd0;
 }
 
@@ -629,3 +629,24 @@ input {
     z-index: 30;
     overflow: auto;
 }
+
+
+.center-button {
+    display: block;
+    width: 200px;
+    height: 50px;
+    margin: 20px auto;
+    background-color: #2973B2;
+    color: white;
+    font-size: 16px;
+    text-align: center;
+    line-height: 50px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .center-button:hover {
+    background-color: #48A6A7;
+  }

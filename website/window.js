@@ -64,7 +64,7 @@ window.inputValue = inputValue
 
 //
 export function openTab(tabId) {
-    if (!tabId) return;
+    if (!tabId) tabId = "vessel";
     fieldSet("page", tabId);
 
     let hideIt = false;
@@ -226,15 +226,18 @@ function closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
-function toggleHelp(toggled){
+function toggleHelp(toggle){
     const helpOverlay = document.getElementById("help-container");
-    helpOverlay.style.display = !toggled ? "none" : "flex";
-    document.getElementById("file-container"   ).style.display = toggled ? "none" : "flex";
-    document.getElementById("actions-container").style.display = toggled ? "none" : "flex";
-    if (toggled)
-        document.getElementById("helpCloseButton").classList.add('active');
-    else 
-        document.getElementById("helpToggle").classList.remove('active');
+    helpOverlay.style.display = !toggle ? "none" : "flex";
+    document.getElementById("file-container"   ).style.display = toggle ? "none" : "flex";
+    document.getElementById("actions-container").style.display = toggle ? "none" : "flex";
+    document.querySelectorAll('.toggle-help').forEach(el => {
+        if (toggle) {
+            el.classList.add('active');
+        } else {
+            el.classList.remove('active');
+        }
+    });    
 }
 window.toggleHelp = toggleHelp
 
@@ -321,21 +324,35 @@ function inputFieldSet(id, value) {
 }
 window.inputFieldSet = inputFieldSet;
 
+function InitGoToWork(){
+    const button = document.getElementById("begin-to-work-button");
+    button.addEventListener('click', (event) => {
+        handleToggleButtonClick(event.currentTarget);
+    });
+    button.classList.add('active');
+}
+
+function handleToggleButtonClick(button) {
+    let active = button.classList.contains('active');
+
+    active = !active;
+
+    if (active) {
+        button.classList.add('active');
+    } else {
+        button.classList.remove('active');
+    }
+
+    const func = button.dataset.function;
+    if (typeof window[func] === 'function') {
+        window[func](active);
+    }
+}
+
 function toggleButtonInit(){
     document.querySelectorAll('.toggle-button').forEach(button => {
         button.addEventListener('click', (event) => {
-            const button = event.currentTarget
-            let active = button.classList.contains('active')
-
-            active = !active
-            if (active) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
-
-            const func = button.dataset.function;
-            window[func](active);
+            handleToggleButtonClick(event.currentTarget);
         });
 
         const active = button.classList.contains('active')
@@ -344,30 +361,33 @@ function toggleButtonInit(){
     });
 }
 
-function loadContent(path, id){
+function loadContent(path, id, runAfter = undefined){
     fetch("txt/" + path + ".html")
         .then(response => response.text())
         .then(data => {
             document.getElementById(id).innerHTML = data;
+            if (typeof runAfter === 'function') {
+                runAfter();
+            }
         })
-        .catch(error => console.error("Ошибка загрузки:", error));
+        .catch(error => console.error("loading error:", error));
 }
 
 
 // OnLoad
 
 function windowOnLoad(){
-    inputFieldInit();
-    funcButtonInit();
-    toggleButtonInit();
-
     loadContent("impressum", "impressum-text");
-    loadContent("vessel"   , "help-vessel");
+    loadContent("vessel"   , "help-vessel", InitGoToWork);
     loadContent("mandrel"  , "help-mandrel");
     loadContent("coil"     , "help-coil");
     loadContent("patterns" , "help-patterns");
     loadContent("winding"  , "help-winding");
     loadContent("thickness", "help-thickness");
+
+    inputFieldInit();
+    funcButtonInit();
+    toggleButtonInit();
 }
 
 window.onload = function () {
