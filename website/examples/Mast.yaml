@@ -3,7 +3,7 @@ band: 12
 conv: 7
 safetyR: 0
 lineCount: 500
-PartNumber: Name
+PartNumber: Mast
 LayerNumber: 1
 csvColumn: 1
 mandrelRaw:

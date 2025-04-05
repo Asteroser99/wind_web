@@ -939,10 +939,6 @@ function coilLoadOnFileLoad(event) {
 
 
 // Examples
-
-document.getElementById('vesselExample1').addEventListener(
-    'click', () => { vesselloadFromURL("Example1"); }
-);
 async function loadFromYamlURL(url) {
     let response = null;
     try {
@@ -964,6 +960,7 @@ function vesselloadFromURL(name) {
         drawAll();
     })
 };
+window.vesselloadFromURL = vesselloadFromURL
 
 
 // Clear
