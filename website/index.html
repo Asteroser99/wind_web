@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./img/logo.png" type="image/x-icon">
-    <title>Filament winding</title>
+    <title>WinderCAM</title>
 
     <!-- "three": "https://unpkg.com/three@v0.174.0/build/three.module.js",
     "three/addons/": "https://unpkg.com/three@v0.174.0/examples/jsm/" -->
@@ -50,7 +50,7 @@
                 <img id="logo" src="./img/logo.gif" alt="Logo">
             </button>
         </div>
-        <div class="title"><h1>Filament Winding</h1></div>
+        <div class="title"><h1>WinderCAM</h1></div>
         <div class="buttons">
             <button class="header-btn small toggle-button toggle-help" data-function="toggleHelp" ><img src="./img/help.png"><br>Help</button>
             <button id="loginToggle" class="header-btn small toggle-button" data-function="toggleLogin"><img id="logImg" src="./img/logOff.png"><br>Account</button>
@@ -120,10 +120,31 @@
                         <div id="mandrel-csvColumn"></div>
 
                         <h3>Transform</h3>
-                        <button id="mandrelSwap"     class="image-button small" title="Swap R/X">Swap&nbsp;<img src="./img/transform.png"></button><br>
-                        <button id="mandrelReverse"  class="image-button small" title="Reverse" >Reverse&nbsp;<img src="./img/transform.png"></button><br>
-                        <button id="mandrelRedirect" class="image-button small" title="Redirect">Redirect&nbsp;<img src="./img/transform.png"></button><br>
-                        <button id="mandrelMirror"   class="image-button small" title="Mirror"  >Mirror&nbsp;<img src="./img/transform.png"></button><br>
+
+                        <label for="shift">Shift:</label>
+                        <input type="number" id="shift"
+                            min="0" max="999" step="1.0" 
+                            value="10.000" pattern="\d{1,3}(\.\d{1,3})?" 
+                            title="shift"
+                            style="text-align: right;"
+                        ><br>
+                        <button class="image-button small function-button" data-function="mandrelShiftX" title="Shift X">+ X &nbsp;<img src="./img/transform.png"></button>
+                        <button class="image-button small function-button" data-function="mandrelShiftR" title="Shift R">+ R &nbsp;<img src="./img/transform.png"></button><br>
+
+                        <label for="koeff">K:</label>
+                        <input type="number" id="koeff"
+                            min="0" max="999" step="0.001" 
+                            value="1.000" pattern="\d{1,3}(\.\d{1,3})?" 
+                            title="Koefficient"
+                            style="text-align: right;"
+                        ><br>
+                        <button class="image-button small function-button" data-function="mandrelMultiplyX" title="Multiply X">* X &nbsp;<img src="./img/transform.png"></button>
+                        <button class="image-button small function-button" data-function="mandrelMultiplyR" title="Multiply R">* R &nbsp;<img src="./img/transform.png"></button><br>
+
+                        <button class="image-button small function-button" data-function="mandrelSwap"      title="Swap R/X"  >Swap       &nbsp;<img src="./img/transform.png"></button><br>
+                        <button class="image-button small function-button" data-function="mandrelMirror"    title="Mirror"    >Mirror     &nbsp;<img src="./img/transform.png"></button><br>
+                        <button class="image-button small function-button" data-function="mandrelReverse"   title="Reverse"   >Reverse    &nbsp;<img src="./img/transform.png"></button><br>
+                        <button class="image-button small function-button" data-function="mandrelRedirect"  title="Redirect"  >Redirect   &nbsp;<img src="./img/transform.png"></button><br>
                     </div>
                     <div id="help-mandrel"></div>
                 </div>

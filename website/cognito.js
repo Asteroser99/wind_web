@@ -1,8 +1,8 @@
 const clientId    = '760tl57va0f4esqlrn9kdprdqe';
 const domain      = 'https://eu-central-1jasxje83x.auth.eu-central-1.amazoncognito.com';
-const scope       = "email+openid+phone";
+const scope       = "email+openid"; // +phone
 
-const redirectUri = 'https://winding.surge.sh/';
+const redirectUri = window.location.origin + '/';
 
 const poolData = {
     UserPoolId: 'eu-central-1_jaSxje83x',

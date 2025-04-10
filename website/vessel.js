@@ -422,59 +422,88 @@ window.mandrelClear = mandrelClear;
 
 // mandrel transformation
 
-// reverse
-document.getElementById('mandrelReverse').addEventListener(
-    'click', () => {
-        const mandrel = mandrelGet("Raw");
-        if (!mandrel) return null;
-        let { x, r } = mandrel;
-        x = x.map(value => -value);
-        mandrelSet("Raw", x, r);
-    }
-);
 
-// mirror
-document.getElementById('mandrelMirror').addEventListener(
-    'click', () => {
-        const mandrel = mandrelGet("Raw");
-        if (!mandrel) return null;
-        let { x, r } = mandrel;
-    
-        // 1. shift X to 0
-        const shiftValue = x[0];
-        const xSh = x.map(val => val - shiftValue);
-    
-        // 2. mirror by Y
-        const xReflected = xSh.map((val, index) => (index === 0 ? val : -val)).reverse().slice(0, xSh.length - 1);
-        const rReflected = [...r].reverse().slice(0, r.length - 1);
-        
-        // 3. combine halfs
-        x = [...xReflected, ...xSh];
-        r = [...rReflected, ...r];
-    
-        mandrelSet("Raw", x, r);
-    }
-);
+function mandrelShiftX(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+    x = x.map(value => value + inputValue("shift"));
+    mandrelSet("Raw", x, r);
+}
+window.mandrelShiftX = mandrelShiftX;
 
-// swap
-document.getElementById('mandrelSwap').addEventListener(
-    'click', () => {
-        const mandrel = mandrelGet("Raw");
-        if (!mandrel) return null;
-        let { x, r } = mandrel;
-        mandrelSet("Raw", r, x)
-    }
-);
+function mandrelShiftR(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+    r = r.map(value => value + inputValue("shift"));
+    mandrelSet("Raw", x, r);
+}
+window.mandrelShiftR = mandrelShiftR;
 
-// reDir
-document.getElementById('mandrelRedirect').addEventListener(
-    'click', () => {
-        const mandrel = mandrelGet("Raw");
-        if (!mandrel) return null;
-        let { x, r } = mandrel;
-        mandrelSet("Raw", x.reverse(), r.reverse())
-    }
-);
+function mandrelMultiplyX(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+    x = x.map(value => value * inputValue("koeff"));
+    mandrelSet("Raw", x, r);
+}
+window.mandrelMultiplyX = mandrelMultiplyX;
+
+function mandrelMultiplyR(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+    r = r.map(value => value * inputValue("koeff"));
+    mandrelSet("Raw", x, r);
+}
+window.mandrelMultiplyR = mandrelMultiplyR;
+
+function mandrelReverse(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+    x = x.map(value => -value);
+    mandrelSet("Raw", x, r);
+}
+window.mandrelReverse = mandrelReverse;
+
+function mandrelSwap(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+    mandrelSet("Raw", r, x)
+};
+window.mandrelSwap = mandrelSwap;
+
+function mandrelRedirect(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+    mandrelSet("Raw", x.reverse(), r.reverse())
+}
+window.mandrelRedirect = mandrelRedirect;
+
+function mandrelMirror(){
+    const mandrel = mandrelGet("Raw");
+    if (!mandrel) return null;
+    let { x, r } = mandrel;
+
+    // 1. shift X to 0
+    const shiftValue = x[0];
+    const xSh = x.map(val => val - shiftValue);
+
+    // 2. mirror by Y
+    const xReflected = xSh.map((val, index) => (index === 0 ? val : -val)).reverse().slice(0, xSh.length - 1);
+    const rReflected = [...r].reverse().slice(0, r.length - 1);
+    
+    // 3. combine halfs
+    x = [...xReflected, ...xSh];
+    r = [...rReflected, ...r];
+
+    mandrelSet("Raw", x, r);
+}
+window.mandrelMirror = mandrelMirror;
 
 
 // Thickness

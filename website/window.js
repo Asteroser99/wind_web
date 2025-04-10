@@ -275,13 +275,7 @@ function inputFieldInit(){
     document.querySelectorAll(".inputField").forEach(input => {
         const id = input.id;
     
-        input.addEventListener("keydown", (event) => {
-            if (event.key === " ") {
-                event.stopPropagation();
-            }
-        });
-        
-        function inputValue(input){
+        function inputValue1(input){
             let val = input.value;
             if (input.type === "number") {
                 val = parseFloat(val);
@@ -293,9 +287,15 @@ function inputFieldInit(){
             return val;
         }
 
+        input.addEventListener("keydown", (event) => {
+            if (event.key === " ") {
+                event.stopPropagation();
+            }
+        });
+        
         const listener = input.type === "checkbox" ? "click" : "input";
         input.addEventListener(listener, () => {
-            const value = inputValue(input);
+            const value = inputValue1(input);
             // console.log("field set", id, fieldGet(id), "->", value);
             fieldSet(id, value);
         });
@@ -303,14 +303,14 @@ function inputFieldInit(){
         const storedValue = fieldGet(id);
     
         if (storedValue !== undefined && storedValue !== null) {
-            // console.log("val to form", id, inputValue(input), "->", storedValue);
+            // console.log("val to form", id, inputValue1(input), "->", storedValue);
             if (input.type === "checkbox") {
                 input.checked = storedValue;
             } else {
                 input.value = storedValue;
             }
         } else {
-            const initialValue = inputValue(input);
+            const initialValue = inputValue1(input);
             // console.log("form to val", id, storedValue, initialValue);
             fieldSet(id, initialValue);
         }
