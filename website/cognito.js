@@ -25,7 +25,7 @@ function localClear(id){
 }
 
 
-function toggleLogin(toggled){
+function toggleLogin(toggled, param){
   cognitoStatus();
 
   const loginContainer = document.getElementById("loginContainer");
@@ -37,15 +37,25 @@ function toggleLogin(toggled){
 }
 window.toggleLogin = toggleLogin
 
-function toggleImpressum(toggled){
+function showImpressumContainer(){
   const container = document.getElementById("impressumContainer");
+  const toggled = true;
   container.style.display = !toggled ? "none" : "flex";
-  if (toggled)
-      document.getElementById("impressumCloseButton").classList.add('active');
-  else
-      document.getElementById("impressumToggle").classList.remove('active');
 }
-window.toggleImpressum = toggleImpressum
+
+function showImpressum(param){
+  loadContent(param, "impressum-text", showImpressumContainer);
+}
+window.showImpressum = showImpressum
+
+function hideImpressum(param){
+  const container = document.getElementById("impressumContainer");
+  const toggled = false;
+  container.style.display = !toggled ? "none" : "flex";
+  // document.getElementById("impressumToggle").classList.remove('active');
+}
+window.hideImpressum = hideImpressum
+
 
 function cognitoLogIn() {
     window.location.href = `${domain}/login?client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}`;
@@ -204,6 +214,7 @@ function stripeStatus(){
           if (res_){
             document.getElementById('subscriptionDescription').innerHTML = `
               <table>
+                <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Active</div></td></tr>
                 <tr><td>Started:</td><td>${formatDate(cognitoTime(res.start))}</td></tr>
                 <tr><td>Expires:</td><td>${formatDate(cognitoTime(res.end))}</td></tr>
                 <tr><td>Call count:</td><td>${res.callCount != undefined ? res.callCount : 0}</td></tr>
@@ -220,6 +231,8 @@ function stripeStatus(){
             document.getElementById("reNewOn" ).style.display = !res.cancel_at_period_end ? "flex" : "none";
             document.getElementById("reNewOff").style.display =  res.cancel_at_period_end ? "flex" : "none";
           }
+
+          stripeRenewDisabled(false);
         })
       .catch(error => {
           showError(error);
@@ -242,12 +255,19 @@ function stripeSubscribe(){
 }
 window.stripeSubscribe = stripeSubscribe
 
+function stripeRenewDisabled(disabled){
+  document.querySelectorAll('button.stripe-renew').forEach(btn => {
+    btn.disabled = disabled;
+  });
+}
+
 function stripeRenew(param){
   loading();
+  stripeRenewDisabled(true);
   lambdaCall("payment.renew", [param == "On"])
       .then(res => {
           loaded();
-          setTimeout(stripeStatus, 3000);
+          setTimeout(stripeStatus, 5000);
         })
       .catch(error => {
           showError(error);

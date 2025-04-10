@@ -226,7 +226,7 @@ function closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
-function toggleHelp(toggle){
+function toggleHelp(toggle, param){
     const helpOverlay = document.getElementById("help-container");
     helpOverlay.style.display = !toggle ? "none" : "flex";
 
@@ -346,9 +346,10 @@ function handleToggleButtonClick(button) {
         button.classList.remove('active');
     }
 
-    const func = button.dataset.function;
+    const func  = button.dataset.function;
+    const param = button.dataset.parameter;
     if (typeof window[func] === 'function') {
-        window[func](active);
+        window[func](active, param);
     }
 }
 
@@ -375,6 +376,7 @@ function loadContent(path, id, runAfter = undefined){
         })
         .catch(error => console.error("loading error:", error));
 }
+window.loadContent = loadContent
 
 
 // OnLoad

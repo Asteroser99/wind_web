@@ -25,6 +25,7 @@ h2 {
 h3 {
     /* color: rgb(215, 215, 215); */
     margin: 3px;
+    margin-top: 6px;
     font-weight: 75;
 } 
 
@@ -42,6 +43,7 @@ p {
     margin-bottom: 6px;
     /* padding: 5px; */
     font-size: 1.0em;
+    text-indent: 2em; 
 }
 
 button {
@@ -400,9 +402,9 @@ input {
     z-index: 10;
 
     /* display: flex; */
-    flex-direction: column; /*Вертикальное расположение*/
-    align-items: center; /* Центрирование внутренних div */
-    justify-content: center; /* Центрирование по вертикали */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 #modeBar {
@@ -514,6 +516,11 @@ input {
     align-items: center;
 }
 
+.center {
+    display: flex;
+    justify-content: center;
+}
+
 /* error */
 #error-container { 
     position: fixed;
@@ -612,7 +619,7 @@ input {
 
 #loginContainer td {
     border: 1px solid #9ACBD0;
-    padding: 5px;
+    padding: 2px;
     vertical-align: middle;
     text-align: left;
 }
@@ -632,20 +639,26 @@ input {
 
 
 .center-button {
-    display: block;
-    width: 200px;
-    height: 50px;
-    margin: 20px auto;
-    background-color: #2973B2;
-    color: white;
+    display: flex;
+    width: 175px;
+    height: 40px;
+    margin: 5px auto;
+    background-color: #9ACBD0;
+    color: #F2EFE7;
     font-size: 16px;
-    text-align: center;
-    line-height: 50px;
     border: none;
     border-radius: 3px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  }
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.center-button img{ 
+    width: 25px;
+    height: 25px;
+}
   
   .center-button:hover {
     background-color: #48A6A7;
