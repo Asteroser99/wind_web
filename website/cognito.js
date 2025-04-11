@@ -2,7 +2,7 @@ const clientId    = '760tl57va0f4esqlrn9kdprdqe';
 const domain      = 'https://eu-central-1jasxje83x.auth.eu-central-1.amazoncognito.com';
 const scope       = "email+openid"; // +phone
 
-const redirectUri = window.location.origin + '/';
+const originURL = window.location.origin + '/';
 
 const poolData = {
     UserPoolId: 'eu-central-1_jaSxje83x',
@@ -58,14 +58,14 @@ window.hideImpressum = hideImpressum
 
 
 function cognitoLogIn() {
-    window.location.href = `${domain}/login?client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+    window.location.href = `${domain}/login?client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${encodeURIComponent(originURL)}`;
 };
 window.cognitoLogIn = cognitoLogIn
 
 function cognitoLogOff() {
   cognitoClear();
 
-  window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(redirectUri)}`;
+  window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(originURL)}`;
 }
 window.cognitoLogOff = cognitoLogOff;
 
@@ -109,7 +109,7 @@ function cognitoCodeExchange(){
     axios.post(`${domain}/oauth2/token`, new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: clientId,
-      redirect_uri: redirectUri,
+      redirect_uri: originURL,
       code: code,
     }), {
       headers: {
