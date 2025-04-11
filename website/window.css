@@ -628,12 +628,12 @@ input {
     padding: 10px;
     box-sizing: border-box;
     display: none;
-    position: absolute;
+    position: fixed;
     inset: 0;
     background: rgba(255, 255, 255, 0.95);
     text-align: justify;
     font-size: 20px;
-    z-index: 30;
+    z-index: 99;
     overflow: auto;
 }
 
@@ -660,6 +660,12 @@ input {
     height: 25px;
 }
   
-  .center-button:hover {
+.center-button:hover:not(:disabled) {
     background-color: #48A6A7;
-  }
+}
+
+.center-button:disabled {
+    opacity: 0.5;
+    cursor: progress;
+    filter: grayscale(100%);
+}

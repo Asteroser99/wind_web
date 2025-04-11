@@ -168,6 +168,10 @@ function showError(error) {
         // && error.response && error.response.status === 401
     ) {
         message = "Please sign in";
+    } else if (error.code === "ERR_BAD_REQUEST" && error.name === "AxiosError"
+        && error.response && error.response.status === 401
+    ) {
+        message = "Please subscribe to use the calculation functions";
     } else if (error.name === "AxiosError" // error.code === "ERR_BAD_RESPONSE" && 
         && error.response && error.response.status != 200
         && error.response.data
@@ -193,28 +197,29 @@ window.showError = showError;
 
 function funcButtonInit(){
     document.querySelectorAll('.function-button').forEach(button => {
-        button.addEventListener('click', (event) => {
+        button.onclick = (event) => {
             window.funcButtonFunction  = event.currentTarget.dataset.function;
             window.funcButtonParameter = event.currentTarget.dataset.parameter;
             window.funcButtonQuery     = event.currentTarget.dataset.query;
             
             if (window.funcButtonQuery){
-                document.getElementById('modal-text').innerText = window.funcButtonQuery;
+                document.getElementById('modal-text').innerHTML = window.funcButtonQuery;
                 document.getElementById('modal-overlay').style.display = 'block';
+                funcButtonInit();
             } else {
                 executeFunction();
             }
-        });
+        };
     });
 }
 
-document.getElementById('questionYes'  ).addEventListener( 'click', () => { executeFunction(); });
+document.getElementById('questionYes'  ).addEventListener( 'click', () => { closeModal(); executeFunction(); });
 document.getElementById('questionNo'   ).addEventListener( 'click', () => { closeModal(); });
 document.getElementById('modal-overlay').addEventListener( 'click', () => { closeModal(); });
+document.getElementById('modal-text'   ).addEventListener( 'click', (event) => { event.stopPropagation(); });
 document.getElementById('modal'        ).addEventListener( 'click', (event) => { event.stopPropagation(); });
 
 function executeFunction() {
-    closeModal();
     if (typeof window[window.funcButtonFunction] === 'function') {
         window[window.funcButtonFunction](window.funcButtonParameter);
     } else {
