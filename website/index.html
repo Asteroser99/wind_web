@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./img/logo.png" type="image/x-icon">
-    <title>WinderCAM</title>
+    <title>Winder CAM</title>
 
     <!-- "three": "https://unpkg.com/three@v0.174.0/build/three.module.js",
     "three/addons/": "https://unpkg.com/three@v0.174.0/examples/jsm/" -->
@@ -78,10 +78,12 @@
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
                         <h3>Examples</h3>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Shell" title="Load Shell"><img src="./img/load.png">&nbsp;Example 1</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Mesh" title="Load Mesh"><img src="./img/load.png">&nbsp;Indo</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Shell" title="Load Shell"><img src="./img/load.png">&nbsp;Shell</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Full" title="Load Full"><img src="./img/load.png">&nbsp;Full</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Mesh" title="Load Mesh"><img src="./img/load.png">&nbsp;Mesh</button><br>
                         <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Mast" title="Load Mast"><img src="./img/load.png">&nbsp;Mast</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="V2 Engine" title="Load V2 Engine"><img src="./img/load.png">&nbsp;WSim</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="V2_Engine" title="Load V2_Engine"><img src="./img/load.png">&nbsp;V2_Engine</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Convex" title="Load Convex"><img src="./img/load.png">&nbsp;Convex</button><br>                        
                     </div>
 
                     <div id="file-vessel">
@@ -191,7 +193,7 @@
                             style="text-align: right;" 
                         ><br>
                         
-                        <div class="hPanel">Net structure<input class="inputField" type="checkbox" id="netStructure" title="Net structure" value=false></div><br>
+                        <div class="hPanel">es-module-shims structure<input class="inputField" type="checkbox" id="netStructure" title="Net structure" value=false></div><br>
 
                         <label for="conv">Select pattern:</label><br>
                         <table id="data-table">
@@ -326,7 +328,7 @@
                     <div id="modeBar">
                         <div>
                             <button class="mode-button active" data-mode="first">First coil</button>
-                            <button class="mode-button" data-mode="round">First round</button>
+                            <button class="mode-button" data-mode="round">First touch</button>
                             <button class="mode-button" data-mode="all">Full winding</button>
                         </div>
                         <div>
