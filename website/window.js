@@ -338,6 +338,8 @@ function InitGoToWork(){
         handleToggleButtonClick(event.currentTarget);
     });
     button.classList.add('active');
+
+    funcButtonInit();
 }
 
 function handleToggleButtonClick(button) {
