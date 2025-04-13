@@ -46,6 +46,19 @@ p {
     text-indent: 2em; 
 }
 
+a {
+    background: none;
+    border: none;
+    color: #48A6A7;
+    text-decoration: underline;
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+}
+a:hover {
+    color: #23486A;
+}
+
 button {
     font-family: Arial;
 }
