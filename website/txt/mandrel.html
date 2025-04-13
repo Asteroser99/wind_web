@@ -1,9 +1,11 @@
 <section>
-    <h2>Preparing your mandrels for calculation</h2>
-    <p> On this page you can use some tools to prepare the mandrel profiles in advance.<br />
+    <!-- <h2>Preparing your mandrels for calculation</h2> -->
+    <p> <br />    On this page you can use some tools to prepare the mandrel profiles in advance.<br />
         A mandrel is described by a set of points whose coordinates r = r(x) are listed in two columns,<br />
         the position of column r can be specified in the dialog,<br />
-        so you can use <strong>your CSV files</strong> with the position of coordinate r in the first or second column for import.</p>
+        so you can use <strong>your CSV files</strong> with the position of coordinate r in the first or second column for import.<br />
+        The column x must contain <strong>strictly increasing</strong> values of the profile abscissa.<br />
+    </p>
 </section>
 
 <section>
@@ -12,8 +14,8 @@
     <p>Format example:</p>
     <pre><code>
         x, r
-        3.4, 1.2
-        2.3, 1.2
+        2.4, 1.2
+        3.3, 1.2
         4.5, 2.3
     </code></pre>
 </section>
@@ -28,6 +30,6 @@
         <li><strong>Reverse</strong>: rotates the mandrel about X axis.</li>
         <li><strong>Redirect</strong>: changes the direction of the mandrel curve.</li>
         <li><strong>Mirror</strong>: Completes the reflection of the mandrel curve relative to its start. Be careful - the operation is irreversible!</li>
-    </ul>
+    </ul><br />
     <p>After transformations we get a <strong>complete mandrel profile</strong>, ready for further calculations</p>
 </section>
