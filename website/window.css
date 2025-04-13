@@ -46,6 +46,11 @@ p {
     text-indent: 2em; 
 }
 
+p.big {
+    font-size: 1.3rem;
+    text-indent: 0;
+}
+
 a {
     background: none;
     border: none;
