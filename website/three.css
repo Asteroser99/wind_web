@@ -28,9 +28,10 @@
   gap: 16px;
 } */
 
-button, label {
+button, label, p.p-button {
   font-weight: bold;
   font-size: 0.8em;
+  margin: 0px;
 }
 
 
