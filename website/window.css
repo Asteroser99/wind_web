@@ -92,6 +92,11 @@ button {
     height: 65px;
 }
 
+.table-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+    display: block;
+}
 
 .clickable-row {
     cursor: pointer;
