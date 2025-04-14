@@ -50,6 +50,11 @@ p.big {
     font-size: 1.3rem;
     text-indent: 0;
 }
+p.small {
+    font-size: 0.75rem;
+    text-indent: 0;
+    margin-top: 5px;
+}
 
 a {
     background: none;

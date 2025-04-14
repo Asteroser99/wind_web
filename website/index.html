@@ -63,7 +63,7 @@
                 <!-- <button id="button-vessel"   class="tab-link active" onclick="openTab('vessel'  )">Vessel</button> -->
                 <button id="button-mandrel"   class="tab-link" onclick="openTab('mandrel'  )">Mandrel</button>
                 <button id="button-coil"      class="tab-link" onclick="openTab('coil'     )">Coil</button>
-                <button id="button-patterns"  class="tab-link" onclick="openTab('patterns' )">Patterns</button>
+                <button id="button-patterns"  class="tab-link" onclick="openTab('patterns' )">Correction</button>
                 <button id="button-winding"   class="tab-link" onclick="openTab('winding'  )">Winding</button>
                 <button id="button-thickness" class="tab-link" onclick="openTab('thickness')">Thickness</button>
             </div>
@@ -401,7 +401,7 @@
                         <button
                             class="center-button function-button"
                             data-function="stripeSubscribe"
-                            data-query="<p>I have read, understand and agree<br>to the <a class='function-button' data-function='showImpressum' data-parameter='terms' title='Terms and Conditions'>Terms and Conditions</a>.</p><p>Ich habe die <a class='function-button' data-function='showImpressum' data-parameter='bedingungen' title='Terms and Conditions'>Allgemeinen<br>Geschäftsbedingungen</a><br>gelesen, verstanden und stimme ihnen zu.</p>"
+                            data-query="<p>I have read, understand and agree to the <a class='function-button' data-function='showImpressum' data-parameter='terms' title='Terms and Conditions'>Terms and Conditions</a>.</p><p>Ich habe die <a class='function-button' data-function='showImpressum' data-parameter='bedingungen' title='Terms and Conditions'>Allgemeinen Geschäftsbedingungen</a> gelesen, verstanden und stimme ihnen zu.</p>"
                             title="Subscribe"
                         >
                             <img src="./img/subscribe.png" >&nbsp;Subscribe
@@ -426,11 +426,15 @@
             <!-- <div class="vPanel">
                 <h3>Legal Information</h3>
                 <button class="function-button" data-function="showImpressum" data-parameter="terms"       title="Terms and Conditions">Terms and Conditions</button>
-                <button class="function-button" data-function="showImpressum" data-parameter="bedingungen" title="Allgemeine Geschäftsbedingungen">Allgemeine<br>Geschäftsbedingungen</button>
+                <button class="function-button" data-function="showImpressum" data-parameter="bedingungen" title="Allgemeine Geschäftsbedingungen">Allgemeine Geschäftsbedingungen</button>
                 <button class="function-button" data-function="showImpressum" data-parameter="datenschutz" title="Datenschutzerklärung">Datenschutzerklärung</button>
                 <button class="function-button" data-function="showImpressum" data-parameter="impressum"   title="Impressum"           >Impressum           </button>
             </div> -->
-            
+            <p class="small">
+            <a class="function-button" data-function="showImpressum" data-parameter="datenschutz" title="Datenschutzerklärung">Datenschutzerklärung</a>
+            <a class="function-button" data-function="showImpressum" data-parameter="impressum"   title="Impressum"           >Impressum           </a>
+            </p>
+                
             <button id="loginCloseButton" class="closeButton toggle-button" data-function="toggleLogin" >&times;</button>
         </div>
 
