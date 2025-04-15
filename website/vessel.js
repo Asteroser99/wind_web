@@ -74,6 +74,8 @@ const fieldAllSet = async (newVessel) => {
     const promises = Object.entries(newVessel).map(([key, value]) =>
         fieldAsyncStorageSet(key, value)
     );
+
+    inputFieldInit();
 };
 
 const fieldAllUpdateFromStorage = () => {
