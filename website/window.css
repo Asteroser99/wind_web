@@ -152,6 +152,38 @@ button {
     background-color: #9acbd0;
 }
 
+
+#actions-vessel table {
+    background-color: transparent;
+    background: none;
+    padding: 3px;
+    border-collapse: collapse;
+}
+  
+#actions-vessel td {
+    background: none;
+    background-color: transparent;
+    padding: 3px;
+    border: none;
+}
+  
+#actions-vessel .image-button {
+    background: none;
+    background-color: transparent;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+  
+#actions-vessel .image-button img {
+    background: none;
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+
 .main-container {
     display: flex;
     flex-grow: 1;
@@ -382,23 +414,23 @@ canvas {
 
 /* Selecting table */
 
-table {
+.table-wrapper table {
     width: 100%;
     border-collapse: collapse;
 }
-th, td {
+.table-wrapper th, td {
     border: 1px solid black;
     padding: 4px;
     text-align: center;
 }
-th {
+.table-wrapper th {
     background-color: #9ACBD0;
 }
-tr.selected {
+.table-wrapper tr.selected {
     background-color: #2973B2;
     color: #F2EFE7;
 }
-tr {
+.table-wrapper tr {
     background-color: white;
 }
 

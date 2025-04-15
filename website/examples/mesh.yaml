@@ -3,7 +3,7 @@ band: 12
 conv: 4
 safetyR: 40
 lineCount: 500
-PartNumber: Name
+PartNumber: Mesh
 LayerNumber: 1
 csvColumn: 1
 mandrelRaw:
