@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./img/logo.png" type="image/x-icon">
-    <title>Winder CAM</title>
+    <title>WinderCAM</title>
 
     <!-- "three": "https://unpkg.com/three@v0.174.0/build/three.module.js",
     "three/addons/": "https://unpkg.com/three@v0.174.0/examples/jsm/" -->
@@ -78,13 +78,13 @@
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
                         <h3>Examples</h3>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Shell" title="Load Shell"><img src="./img/load.png">&nbsp;Shell</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Full" title="Load Full"><img src="./img/load.png">&nbsp;Full</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Mesh" title="Load Mesh"><img src="./img/load.png">&nbsp;Mesh</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="LongTank" title="Load LongTank"><img src="./img/load.png">&nbsp;LongTank</button><br>            
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Mast" title="Load Mast"><img src="./img/load.png">&nbsp;Mast</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="V2_Engine" title="Load V2_Engine"><img src="./img/load.png">&nbsp;V2_Engine</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="Convex" title="Load Convex"><img src="./img/load.png">&nbsp;Convex</button><br>                        
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shell" title="Load Shell"><img src="./img/load.png">&nbsp;Shell</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh" title="Load Mesh"><img src="./img/load.png">&nbsp;Mesh</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shortTank" title="Load Short tank"><img src="./img/load.png">&nbsp;Long tank</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="longTank" title="Load Long tank"><img src="./img/load.png">&nbsp;Long tank</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mast" title="Load Mast"><img src="./img/load.png">&nbsp;Mast</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Load Engine"><img src="./img/load.png">&nbsp;Engine</button><br>
+                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="convex" title="Load Convex"><img src="./img/load.png">&nbsp;Convex</button><br>
                     </div>
 
                     <div id="file-vessel">
@@ -336,7 +336,7 @@
                             <button class="mode-button" data-mode="all">Full winding</button>
                         </div>
                         <div>
-                            <button class="toggle-button active" data-function="toggleMandrel">Mandrel</button>
+                            <button id="toggle-button-mandrel"class="toggle-button active" data-function="toggleMandrel">Mandrel</button>
                             <button class="toggle-button" data-function="toggleLine">Line</button>
                             <button class="toggle-button active" data-function="toggleTape">Tape</button>
                             <button id="toggle-button-equidistanta" class="toggle-button" data-function="toggleEquidistanta">Equidistanta</button>

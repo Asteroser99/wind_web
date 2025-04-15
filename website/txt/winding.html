@@ -1,32 +1,56 @@
 <section>
-    <h2>Visual Simulation of Machine Operation and CNC Program Generation</h2>
-    <p> You can see in detail how the winding machine executes the calculated program of controlled coordinate motion.<br />
+    <p class="big"> This page allows you to visualize how the winding machine executes a CNC-controlled motion program based on your selected parameters.</p>
+</section>
+
 <section>
-    <h2>For animate Winding process: </h2>
+    <h2>Calculating the Winding Process</h2>
     <ul>
-        <li>You need to select the desired <strong>Safety ℝ</strong> which is the distance by which the center of the roller is offset from the mandrel surface. </li>
-        <li>You need to select the desired <strong>G-code length</strong> of the NC program in frames.</li>
-        <li>To calculate the coordinate motion you must click the <strong>Winding</strong> button.</li>
-        <br />
+        <li>Select the desired <strong>Safety ℝ</strong> — the offset distance between the roller center and the mandrel surface.</li>
+        <li>Specify the required <strong>G-code length</strong> — the number of frames (steps) in the CNC program.</li>
+        <li>Click the <strong>Winding</strong> button to calculate and simulate the coordinate motion.</li>
     </ul>
-    <h2>Visualisation: </h2>
+</section>
+
+<section>
+    <h2>Download the CNC Program</h2>
+    <p>Click the <strong>Download CNC</strong> button to save the generated program.</p>
+</section>
+
+<section>
+    <p class="big">
+        Make sure to verify the <strong>CNC program format</strong> to ensure compatibility with your specific CNC controller.
+        The generated motion data from <strong>WinderCAM</strong> can be used for actual winding, as long as your machine’s kinematic diagram matches the simulation model.
+    </p>
+</section>
+
+
+<section>
+    <h2>Visualisation</h2>
+    <p>Use the mouse to rotate the simulation scene</p>
+</section>
+
+<section>
+    <h3>Winding visualisation</h3>
+    <p>Use the buttons at the bottom of the screen to select how the winding is displayed:</p>
     <ul>
-        <li>To control the animation you can use the <strong>Video player</strong> controls.</li>
-        <li>To control the the opacity of elements you can use the display <strong>Controls </strong> at the bottom of the screen:</li>
-        <li>   - Mandrel</li>
-        <li>   - Lines</li>
-        <li>   - Tape</li>
-        <li>   - Equidistanta</li>
-        <br />
+        <li><strong>First coil</strong> — animated view of the initial coil is shown.</li>
+        <li><strong>First touch</strong> — displays N+1 coils, where N is the selected <strong>Convenience</strong> value.</li>
+        <li><strong>Full winding</strong> — shows the complete shell coverage with the tape.</li>
     </ul>
-    <h2>For downloading CNC program: </h2>
-    <u1>
-        <li>You can get your CNC program by clicking <strong>Download CNC</strong> button.</li><br />
-        <br />
-    </u1>
-    <h2>Results: </h2>
-    <u1>
-        <li>To apply the data correctly, you must carefully check the <strong>CNC program format</strong> for the specific brand of your CNC rack.</li>
-        <li>You can use the text generated in <strong>WinderCAM</strong> for the actuator movements of your winder, provided the kinematic diagram is identical.</li>
+</section>
+
+<section>
+    <h3>Visibility Controls</h3>
+    <p>The visibility and transparency of individual elements can be adjusted using the control buttons located at the bottom right of the screen. Each button corresponds to a specific visual component:</p>
+    <ul>
+        <li>Mandrel</li>
+        <li>Lines</li>
+        <li>Tape</li>
+        <li>Equidistanta</li>
     </ul>
+</section>
+
+<section>
+    <h3>Animation Controls</h3>
+    <p>Use the <strong>Video player</strong> controls to play, pause, and step through the winding animation.</p>
 </section>

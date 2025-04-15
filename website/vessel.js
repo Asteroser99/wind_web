@@ -1007,7 +1007,8 @@ function vesselOnLoad() {
     fieldAllUpdateFromStorage();
     if (!vessel.mandrelRaw) {
         toggleHelp(true);
-        vesselloadFromURL("V2_Engine");
+        vesselloadFromURL("Engine");
+        document.getElementById('toggle-button-mandrel').click();
         document.getElementById('toggle-button-equidistanta').click();
     } else {
         drawAll();
