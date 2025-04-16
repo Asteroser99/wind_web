@@ -62,7 +62,7 @@ const fieldAllClear = () => {
 
     localStorage.removeItem('vessel_keys');
 
-    localStorage.clear();
+    // localStorage.clear();
     vessel = {};
 };
 
@@ -76,6 +76,7 @@ const fieldAllSet = async (newVessel) => {
     );
 
     inputFieldInit();
+    modeButtonInit();
 };
 
 const fieldAllUpdateFromStorage = () => {

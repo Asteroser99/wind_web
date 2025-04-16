@@ -461,6 +461,7 @@ function modeButtonInit(){
             button.click();
     });
 }
+window.modeButtonInit = modeButtonInit
 
 function animateOnLoad(){
     // let animateSlider = document.getElementById("animateSlider");
