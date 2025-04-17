@@ -249,39 +249,51 @@ function mandrelFromCSV(csvText, colNum = 0) {
 
 // Export CSV
 
-async function saveCsvWithDialog(name) {
-    const data = fieldGet("mandrel" + name)
-    if (!data) {
-        showError("No data to save");
-        return
-    }
-
+async function saveFile(fun, par, suggestedName, type = "text/plain") {
     try {
-        if (!window.showSaveFilePicker) {
-            showError("File System Access API is not supported by your browser");
-            return;
+        if (window.showSaveFilePicker) {
+            const handle = await window.showSaveFilePicker({
+                suggestedName,
+                types: [
+                    {
+                        description: `${type} file`,
+                        accept: { [type]: [`.${suggestedName.split('.').pop()}`] }
+                    }
+                ]
+            });
+
+            const data = await fun(par);
+
+            const writable = await handle.createWritable();
+            await writable.write(data);
+            await writable.close();
+
+        } else { // Fallback: trigger file download
+            const blob = new Blob([data], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+
+            a.href = url;
+            a.download = suggestedName;
+            a.click();
+
+            URL.revokeObjectURL(url);
         }
-
-        const handle = await window.showSaveFilePicker({
-            suggestedName: "vessel.csv",
-            types: [
-                {
-                    description: "CSV file",
-                    accept: { "text/csv": [".csv"] }
-                }
-            ]
-        });
-
-        const writable = await handle.createWritable();
-        await writable.write(convertArrayToCsv(data));
-        await writable.close();
 
     } catch (error) {
         showError(error);
-
     }
 }
-window.saveCsvWithDialog = saveCsvWithDialog
+
+async function saveCsvWithDialog(name) {
+    const mandrel = fieldGet("mandrel" + name);
+    if (!mandrel) {
+        showError("No mandrel data to save");
+        return;
+    }
+    const filename = fieldGet("PartNumber") + "_" + fieldGet("LayerNumber") + "_" + name + ".csv";
+    await saveFile(convertArrayToCsv, mandrel, filename, "text/csv");
+}
 
 function convertArrayToCsv(data) {
     const keys = Object.keys(data); // Получаем заголовки (x, r)
@@ -302,25 +314,6 @@ function mandrelGet(name){
     return fieldGet("mandrel" + name);
 }
 window.mandrelGet = mandrelGet
-
-function mandrelGet_obsolete(isSmoothed = null){
-    if (isSmoothed == null){
-        let mandrel = fieldGet("mandrelSmoothed");
-
-        if (mandrel)
-            return {mandrel, isSmoothed: true};
-        
-        mandrel = fieldGet("mandrelRaw");
-        if (mandrel)
-            return {mandrel, isSmoothed: false};
-        
-        return undefined
-
-    } else {
-        return {mandrel: fieldGet(isSmoothed ? "mandrelSmoothed" : "mandrelRaw"), isSmoothed};
-
-    }
-}
 
 function generatrixRender(mandrel, resolution) {
     const { x: x, r: r } = mandrel;
@@ -865,55 +858,25 @@ document.getElementById('coilCorrect').addEventListener('click', () => {
         });
 });
 
+async function CNCGet(itpEqd) {
+    return await lambdaCall("CNC", [itpEqd]);
+}
 
-document.getElementById('CNCExport').addEventListener(
-    'click', () => CNCExport()
-);
 async function CNCExport() {
     loading();
     const itpEqd = fieldGet("equidistantaInterpolated");
     if (!itpEqd) {
         showError("No interpolated equidistanta yet");
-        return;
-    }
-
-    // Проверяем поддержку API
-    if (!window.showSaveFilePicker) {
-        showError("File System Access API is not supported by your browser.");
-        return;
-    }
-
-    let handle;
-    try {
-        handle = await window.showSaveFilePicker({
-            suggestedName: "CNC.txt",
-            types: [
-                {
-                    description: "Text file",
-                    accept: { "text/csv": [".txt"] }
-                }
-            ]
-        });
-    } catch (error) {
-        showError("File picker was cancelled or failed: " + error);
-        return;
-    }
-
-    try {
-        const txt = await lambdaCall("CNC", [itpEqd]);
-
-        const writable = await handle.createWritable();
-        await writable.write(txt);
-        await writable.close();
-
-    } catch (error) {
-        showError("Failed to save file: " + error);
-
-    } finally {
         loaded();
-
+        return;
     }
+
+    const txt = await lambdaCall("CNC", [itpEqd]);
+    const filename = fieldGet("PartNumber") + "_" + fieldGet("LayerNumber") + "_CNC.txt";
+    await saveFile(CNCGet, itpEqd, filename, "text/plain");
+    loaded();
 }
+window.CNCExport = CNCExport
 
 
 // ALL
@@ -926,28 +889,15 @@ function drawAll() {
 
 
 // vesselSave
-
-function downloadYamlFile(data, fileName) {
-    const yamlString = jsyaml.dump(data);
-
-    const blob = new Blob([yamlString], { type: "text/yaml" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+function convertToYaml(data){
+    return jsyaml.dump(data)
 }
 
-document.getElementById('vesselSave').addEventListener(
-    'click', () => {
-        downloadYamlFile(vessel, "vessel.yaml");
-    }
-);
+async function vesselSave(){
+    const filename = fieldGet("PartNumber") + "_" + fieldGet("LayerNumber") + ".yaml";
+    await saveFile(convertToYaml, vessel, filename, "application/x-yaml");
+}
+window.vesselSave = vesselSave;
 
 
 // vesselLoad
