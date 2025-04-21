@@ -294,6 +294,7 @@ async function saveCsvWithDialog(name) {
     const filename = fieldGet("PartNumber") + "_" + fieldGet("LayerNumber") + "_" + name + ".csv";
     await saveFile(convertArrayToCsv, mandrel, filename, "text/csv");
 }
+window.saveCsvWithDialog = saveCsvWithDialog;
 
 function convertArrayToCsv(data) {
     const keys = Object.keys(data); // Получаем заголовки (x, r)
