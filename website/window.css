@@ -4,7 +4,7 @@ body {
     /* font-family: 'Courier New'; */
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
     background-color: #9ACBD0;
 }
   
@@ -74,7 +74,7 @@ button {
 }
   
 .title {
-    padding: 20px;
+    padding: 15px;
     /* font-size: 2.0em; */
     flex: 1;
     text-align: left;
@@ -84,7 +84,7 @@ button {
     padding: 0px;
     background-color: #F2EFE7;
     width: 65px;
-    height: 100%;
+    height: 65px;
 }
 
 .header {
@@ -187,8 +187,8 @@ button {
 .main-container {
     display: flex;
     flex-grow: 1;
-    height: 100vh;
-    position: relative;
+    /* height: 100%; */
+    /* position: relative; */
 }
 
 #canvas-container {
@@ -228,6 +228,7 @@ button {
 
 .tab-container {
     display: flex;
+    width: 65px;
     height: 100%;
 }
 

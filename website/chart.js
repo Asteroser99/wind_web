@@ -223,8 +223,8 @@ function createScatterConfig() {
         padding: {
           top: 20,
           bottom: 20,
-          right: 140,
-          left: 80
+          right: 20,
+          left: 20
         }
       }
     },

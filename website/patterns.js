@@ -126,7 +126,7 @@ function drawPattern() {
     ctx.strokeStyle = "black";
 
     const segment = (Math.PI * 2) / Coils;
-    const size = segment * radius / (1 - segment)
+    const size = Math.min(Math.max(segment * radius / (1 - segment), 20), 30)
 
     for (let i = 0; i < points.length - 1; i++) {
         let point = points[i];
