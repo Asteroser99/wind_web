@@ -211,7 +211,7 @@ function stripeStatus(){
           document.getElementById("SubscriptionExist"   ).style.display =  res_ ? "flex" : "none";
           document.getElementById("SubscriptionNotExist").style.display = !res_ ? "flex" : "none";
 
-          if (res_){
+          if (res_ && false){ // betaversion
             document.getElementById('subscriptionDescription').innerHTML = `
               <table>
                 <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Active</div></td></tr>

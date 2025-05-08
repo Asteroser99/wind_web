@@ -5,7 +5,7 @@
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="icon" href="./img/logo.png" type="image/x-icon">
-    <title>WinderCAM v.0.1</title>
+    <title>WinderCAM <!-- betaversion -->beta</title>
 
     <!-- "three": "https://unpkg.com/three@v0.174.0/build/three.module.js",
     "three/addons/": "https://unpkg.com/three@v0.174.0/examples/jsm/" -->
@@ -51,7 +51,7 @@
                 <img id="logo" src="./img/logo.gif" alt="Logo">
             </button>
         </div>
-        <div class="title"><h1>WinderCAM</h1></div>
+        <div class="title"><h1>WinderCAM<!-- betaversion --><sub><small>beta</small></sub></h1></div>
         <div class="buttons">
             <button class="header-btn small toggle-button toggle-help" data-function="toggleHelp" ><img src="./img/help.png"><br>Help</button>
             <button id="loginToggle" class="header-btn small toggle-button" data-function="toggleLogin"><img id="logImg" src="./img/logOff.png"><br>Account</button>
@@ -79,17 +79,9 @@
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
                         <h3>Examples</h3>
-                        <!-- <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shell" title="Load Shell"><img src="./img/load.png">&nbsp;Shell</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh" title="Load Mesh"><img src="./img/load.png">&nbsp;Mesh</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shortTank" title="Load Short tank"><img src="./img/load.png">&nbsp;Short tank</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="longTank" title="Load Long tank"><img src="./img/load.png">&nbsp;Long tank</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mast" title="Load Mast"><img src="./img/load.png">&nbsp;Mast</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Load Engine"><img src="./img/load.png">&nbsp;Engine</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="convex" title="Load Convex"><img src="./img/load.png">&nbsp;Convex</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="integral" title="Load Integral"><img src="./img/load.png">&nbsp;Integral</button><br>
-                        <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="pot" title="Load Pot"><img src="./img/load.png">&nbsp;Pot</button><br> -->
-                        <table>
-                            <td><button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Engine"><img src="./examples/engine.png"></button></td>                            <tr>
+                        <!-- <table>
+                            <tr>
+                            <td><button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Engine"><img src="./examples/engine.png"></button></td>
                             </tr>
                             <tr>
                             <td><button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh" title="Mesh"><img src="./examples/mesh.png"></button></td>
@@ -121,7 +113,26 @@
                             <tr>
                             <td><button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="bottle" title="Bottle"><img src="./examples/bottle.png"></button></td>
                             </tr>
-                        </table>
+                        </table> -->
+
+                        <div class="button-grid">
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Engine"><img src="./examples/engine.png"></button>
+                            <button class="image-button function-button offset" data-function="vesselloadFromURL" data-parameter="mesh" title="Mesh"><img src="./examples/mesh.png"></button>
+                          
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shortTank" title="Short tank"><img src="./examples/shortTank.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="longTank" title="Long tank"><img src="./examples/longTank.png"></button>
+                          
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mast" title="Mast"><img src="./examples/mast.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shell" title="Shell"><img src="./examples/shell.png"></button>
+                          
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="convex" title="Convex"><img src="./examples/convex.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="integral" title="Integral"><img src="./examples/integral.png"></button>
+                          
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="pot" title="Honey pot"><img src="./examples/pot.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="sphere" title="Sphere"><img src="./examples/sphere.png"></button>
+                          
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="bottle" title="Bottle"><img src="./examples/bottle.png"></button>
+                        </div>
                     </div>
                     
                     <div id="file-vessel">
@@ -403,6 +414,22 @@
         </div>
 
         <div id="loginContainer">
+            <div id="loggedOffContainer">
+                <h3>Sign in</h3>
+                <table>
+                    <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/logOff.png">&nbsp;Signed out</div></td></tr>
+                </table>
+
+                <div class="hPanel center">
+                    <button
+                        class="center-button small function-button"
+                        data-function="cognitoLogIn"
+                        title="Sign in"
+                        data-query="<p class='big'>I have read, understand and agree to the <a class='function-button' data-function='showImpressum' data-parameter='terms' title='Terms and Conditions'>Terms and Conditions</a>.</p><p class='big'>Ich habe die <a class='function-button' data-function='showImpressum' data-parameter='bedingungen' title='Allgemeinen Geschäftsbedingungen'>Allgemeinen Geschäftsbedingungen</a> gelesen, verstanden und stimme ihnen zu.</p>"
+                    ><img src="./img/logIn.png" >&nbsp;Sign in</button>
+                </div>
+            </div>
+
             <div id="loggedInContainer" class="vPanel">
                 <h3>Sign in</h3>
                 <table>
@@ -416,17 +443,12 @@
                     <button class="center-button small function-button" data-function="cognitoLogOff" title="Sign out"><img src="./img/logOff.png">&nbsp;Sign out</button>
                 </div>
 
-                <div id="SubscriptionExist" class="vPanel" style="display:none">
-                    <div class="hPanel">
-                        <h3>Subscription</h3>
-                    </div>
-                    <div id="subscriptionDescription"></div>
-                    <div id="reNewOn" class="hPanel center">
-                        <button class="stripe-renew center-button function-button small" data-function="stripeRenew" data-parameter="Off" data-query="If auto-renewal is disabled, after the subscription is completed, the next payment will not be charged and the subscription will not be renewed. Only subscribed users have access to the calculation functions. Are you sure you want to turn off auto-renewal?" title=""><img src="./img/reNewOff.png">&nbsp;Turn off<br>auto-renewal</button>
-                    </div>
-                    <div id="reNewOff" class="hPanel center">
-                        <button class="stripe-renew center-button function-button small" data-function="stripeRenew" data-parameter="On" data-query="If auto-renewal is enabled, after the subscription is completed, the next payment will be charged and the subscription will be renewed. Are you sure you want to turn on auto-renewal?" title=""><img src="./img/reNewOn.png">&nbsp;Turn on<br>auto-renewal</button>
-                    </div>
+                <!-- betaversion -->
+                <div id="SubscriptionBeta" class="vPanel" style="display:none">
+                    <h3>Subscription</h3>
+                    <table>
+                        <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/Subscribe.png">&nbsp;Free Beta mode</div></td></tr>
+                    </table>
                 </div>
 
                 <div id="SubscriptionNotExist" class="vPanel" style="display:none">
@@ -447,31 +469,21 @@
                     <!-- <div class="hPanel"><input type="checkbox" id="cbAutoRenewal" title="If auto-renewal is enabled, after the subscription is completed, the next payment will be charged and the subscription will be renewed.">Auto-renew</div> -->
                 </div>
 
-            </div>
-
-            <div id="loggedOffContainer">
-                <h3>Sign in</h3>
-                <table>
-                    <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/logOff.png">&nbsp;Signed out</div></td></tr>
-                </table>
-
-                <div class="hPanel center">
-                    <button
-                        class="center-button small function-button"
-                        data-function="cognitoLogIn"
-                        title="Sign in"
-                        data-query="<p class='big'>I have read, understand and agree to the <a class='function-button' data-function='showImpressum' data-parameter='terms' title='Terms and Conditions'>Terms and Conditions</a>.</p><p class='big'>Ich habe die <a class='function-button' data-function='showImpressum' data-parameter='bedingungen' title='Allgemeinen Geschäftsbedingungen'>Allgemeinen Geschäftsbedingungen</a> gelesen, verstanden und stimme ihnen zu.</p>"
-                    ><img src="./img/logIn.png" >&nbsp;Sign in</button>
+                <div id="SubscriptionExist" class="vPanel" style="display:none">
+                    <div class="hPanel">
+                        <h3>Subscription</h3>
+                    </div>
+                    <div id="subscriptionDescription"></div>
+                    <div id="reNewOn" class="hPanel center">
+                        <button class="stripe-renew center-button function-button small" data-function="stripeRenew" data-parameter="Off" data-query="If auto-renewal is disabled, after the subscription is completed, the next payment will not be charged and the subscription will not be renewed. Only subscribed users have access to the calculation functions. Are you sure you want to turn off auto-renewal?" title=""><img src="./img/reNewOff.png">&nbsp;Turn off<br>auto-renewal</button>
+                    </div>
+                    <div id="reNewOff" class="hPanel center">
+                        <button class="stripe-renew center-button function-button small" data-function="stripeRenew" data-parameter="On" data-query="If auto-renewal is enabled, after the subscription is completed, the next payment will be charged and the subscription will be renewed. Are you sure you want to turn on auto-renewal?" title=""><img src="./img/reNewOn.png">&nbsp;Turn on<br>auto-renewal</button>
+                    </div>
                 </div>
+
             </div>
 
-            <!-- <div class="vPanel">
-                <h3>Legal Information</h3>
-                <button class="function-button" data-function="showImpressum" data-parameter="terms"       title="Terms and Conditions">Terms and Conditions</button>
-                <button class="function-button" data-function="showImpressum" data-parameter="bedingungen" title="Allgemeine Geschäftsbedingungen">Allgemeine Geschäftsbedingungen</button>
-                <button class="function-button" data-function="showImpressum" data-parameter="datenschutz" title="Datenschutzerklärung">Datenschutzerklärung</button>
-                <button class="function-button" data-function="showImpressum" data-parameter="impressum"   title="Impressum"           >Impressum           </button>
-            </div> -->
             <p class="small">
             <a class="function-button" data-function="showImpressum" data-parameter="datenschutz" title="Datenschutzerklärung">Datenschutzerklärung</a>
             <a class="function-button" data-function="showImpressum" data-parameter="impressum"   title="Impressum"           >Impressum           </a>
@@ -484,8 +496,8 @@
             <div id="modal" class="modal">
                 <p id="modal-text"></p>
                 <div class="modal-buttons">
-                    <button id="questionYes">Yes</button>
-                    <button id="questionNo" >No</button>
+                    <button id="questionYes" class="question-button">Yes</button>
+                    <button id="questionNo"  class="question-button">No</button>
                 </div>
             </div>
         </div>

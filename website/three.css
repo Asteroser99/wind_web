@@ -43,7 +43,7 @@ button, label, p.p-button {
   font-size: 1.2em;
   /* font-family: 'Courier New'; */
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 4px;
   transition: all 0.3s ease;
 }
 
@@ -77,13 +77,15 @@ button, label, p.p-button {
   align-items: center;
   justify-content: left;
   padding: 10px 10px;
-  transition: all 0.3s ease;
+  /* transition: all 0.3s ease; */
   font-weight: bold;
+  border-radius: 4px;
 }
 
 .image-button:hover {
   /* background: linear-gradient(90deg, #777, #bbb); */
-  transform: scale(1.1);
+  /* transform: scale(1.1); */
+  background-color: #fff;
 }
 
 .image-button:active {
