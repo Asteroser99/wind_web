@@ -143,7 +143,7 @@ function createScatterConfig() {
           },
         },
         {
-          label: "Winded",
+          label: "Wound",
           data: [],
           borderColor: "#48A6A7",
           showLine: true,
@@ -257,7 +257,7 @@ function mandrelChartUpdate(name){
   let index;
   if        (name == "Raw"){
     index = 0;
-  } else if (name == "Winded"){
+  } else if (name == "Wound"){
     index = 1;
   } else if (name == "Smoothed"){
     index = 2;

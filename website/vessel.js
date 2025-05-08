@@ -371,7 +371,7 @@ function mandrelTreeUpdate(name) {
             color = 0x2973B2;
             transpatent = 1.;
             setScale = true;
-        } else if (name == "Winded"){
+        } else if (name == "Wound"){
             color = 0x48A6A7;
             transpatent = 0.5;
         } else if (name == "Smoothed"){
@@ -407,7 +407,7 @@ function mandrelDraw(name) {
 
 function mandrelsDraw() {
     mandrelDraw("Raw")
-    mandrelDraw("Winded")
+    mandrelDraw("Wound")
     mandrelDraw("Smoothed")
 }
 
@@ -519,7 +519,7 @@ document.getElementById('thicknessGet').addEventListener(
 
         return lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, fieldGet('band')])
             .then((res) => {
-                mandrelSet("Winded", res);
+                mandrelSet("Wound", res);
                 loaded();
             })
             .catch(error => {
@@ -535,9 +535,9 @@ document.getElementById('mandrelSmooth').addEventListener(
     'click', () => {
         loading();
 
-        const mandrel = mandrelGet("Winded");
+        const mandrel = mandrelGet("Wound");
         if (!mandrel) {
-            showError("No winded mandrel");
+            showError("No wound mandrel");
             return;
         }
 

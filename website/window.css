@@ -200,6 +200,7 @@ button {
     flex-grow: 1;
     height: 100%;
     width: 100%;
+    border-radius: 4px;
 }
 
 
@@ -534,6 +535,8 @@ input {
     position: relative;
     width: 100%;
     height: 100%;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
 #animateSlider {
@@ -759,12 +762,9 @@ input {
 .button-grid {
     display: grid;
     grid-template-columns: auto auto;
-    /* column-gap: 20px;
-    row-gap: 10px; */
     position: relative;
-  }
+}
 
-  /* Сдвиг второй колонки вниз */
-  .button-grid > *:nth-child(2n) {
-    transform: translateY(32px); /* половина картинки (если она 64px высотой) */
-  }
+/* .button-grid > *:nth-child(2n) {
+    margin-top: 35px;
+} */
