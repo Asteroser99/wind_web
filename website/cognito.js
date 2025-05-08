@@ -204,39 +204,44 @@ function formatDate(dateStr) {
 function stripeStatus(){
   if (!cognitoLogged()) return
 
-  lambdaCall("payment.status", [])
-      .then(res => {
-          const res_ = !!res;
+  let betaversion = true
+  if (betaversion){
+    document.getElementById("SubscriptionBeta").style.display = "flex";
+  } else {
+    lambdaCall("payment.status", [])
+        .then(res => {
+            const res_ = !!res;
 
-          document.getElementById("SubscriptionExist"   ).style.display =  res_ ? "flex" : "none";
-          document.getElementById("SubscriptionNotExist").style.display = !res_ ? "flex" : "none";
+            document.getElementById("SubscriptionExist"   ).style.display =  res_ ? "flex" : "none";
+            document.getElementById("SubscriptionNotExist").style.display = !res_ ? "flex" : "none";
 
-          if (res_ && false){ // betaversion
-            document.getElementById('subscriptionDescription').innerHTML = `
-              <table>
-                <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Active</div></td></tr>
-                <tr><td>Started:</td><td>${formatDate(cognitoTime(res.start))}</td></tr>
-                <tr><td>Expires:</td><td>${formatDate(cognitoTime(res.end))}</td></tr>
-                <tr><td>Call count:</td><td>${res.callCount != undefined ? res.callCount : 0}</td></tr>
-                <tr><td>Auto-renew:</td>
-                  <td>
-                    <div class="hPanel">
-                      <img class="icon-img small" src="./img/${res.cancel_at_period_end ? "reNewOff" : "reNewOn"}.png">
-                      ${res.cancel_at_period_end ? "Off" : "On"}
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            `;
-            document.getElementById("reNewOn" ).style.display = !res.cancel_at_period_end ? "flex" : "none";
-            document.getElementById("reNewOff").style.display =  res.cancel_at_period_end ? "flex" : "none";
-          }
+            if (res_){
+              document.getElementById('subscriptionDescription').innerHTML = `
+                <table>
+                  <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Active</div></td></tr>
+                  <tr><td>Started:</td><td>${formatDate(cognitoTime(res.start))}</td></tr>
+                  <tr><td>Expires:</td><td>${formatDate(cognitoTime(res.end))}</td></tr>
+                  <tr><td>Call count:</td><td>${res.callCount != undefined ? res.callCount : 0}</td></tr>
+                  <tr><td>Auto-renew:</td>
+                    <td>
+                      <div class="hPanel">
+                        <img class="icon-img small" src="./img/${res.cancel_at_period_end ? "reNewOff" : "reNewOn"}.png">
+                        ${res.cancel_at_period_end ? "Off" : "On"}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              `;
+              document.getElementById("reNewOn" ).style.display = !res.cancel_at_period_end ? "flex" : "none";
+              document.getElementById("reNewOff").style.display =  res.cancel_at_period_end ? "flex" : "none";
+            }
 
-          stripeRenewDisabled(false);
-        })
-      .catch(error => {
-          showError(error);
-      });
+            stripeRenewDisabled(false);
+          })
+        .catch(error => {
+            showError(error);
+        });
+  }
 }
 
 function stripeSubscribe(){
