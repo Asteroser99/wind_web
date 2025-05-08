@@ -2,23 +2,14 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// let scene = null;
-// let renderer = null;
-// let camera = null;
-// let controls = null;
-// let canvas = null;
 window.scene = { scene: null, renderer: null, camera: null, controls: null, canvas: null}
 window.scale = { x: {}, y: {}, z: {}, factor: 1 };
-
-// let spotLight = null;
 
 let meshes = {}
 
 function createGradientTexture() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    // canvas.width = 512; // Размер текстуры
-    // canvas.height = 512;
 
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradient.addColorStop(0, `hsl(139, 70%, 80%)`);
@@ -34,11 +25,6 @@ function createGradientTexture() {
 
 function resizeScene() {
   const parent = scene.canvas.parentElement;
-  // if (parent.offsetWidth == 0 || parent.offsetHeight == 0) return
-  // if (!parent.classList.contains("active")) {
-  //   console.log("not active")
-  //   return
-  // }
 
   let width = Math.max(parent.offsetWidth - 1, 0);
   let height = Math.max(parent.offsetHeight - 1, 0);
@@ -54,9 +40,6 @@ function resizeScene() {
   scene.camera.right = d * aspect;
   scene.camera.top = d;
   scene.camera.bottom = -d;
-
-//  scene.camera.near = 0.001;
-  // scene.camera.aspect = width / height;
   scene.camera.updateProjectionMatrix();
 }
 window.resizeScene = resizeScene
@@ -135,117 +118,64 @@ function threeInit() {
 
   floorInit();
 
-  // frameInit();
-
   scaleSet();
 }
 
 function resizeMesh(mesh) {
-  // console.log("resize scale = ", scale)
   mesh.scale.set(scale.factor, scale.factor, scale.factor);
 }
 
 // models
 
 function floorInit() {
-  // const groundGeometry = new THREE.PlaneGeometry(20, 20, 32, 32);
-  // groundGeometry.rotateX(-Math.PI / 2);
-  // const groundMaterial = new THREE.MeshStandardMaterial({
-  //   color: 0x556655,
-  //   side: THREE.DoubleSide
-  // });
-  // const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-  // groundMesh.castShadow = false;
-  // groundMesh.receiveShadow = true;
-  // scene.scene.add(groundMesh);
-
 
   // floor
-
-  // const floor = new THREE.GridHelper(100, 100);
-  // floor.material.transparent = true;
-  // floor.material.opacity = 0.5;
-  // floor.matrixAutoUpdate = false; // Отключаем автообновление матрицы
-  // floor.matrix.makeTranslation(0, -2, 0); // Смещаем вручную
-  // scene.scene.add(floor);
-
-  // const floor = new THREE.GridHelper(100, 100);
-  // floor.material.transparent = true;
-  // floor.material.opacity = 0.5;
-  // floor.position.y = -2; // Опускаем на -100 по оси Y
-  // scene.scene.add(floor);
-
-  // const planeGeometry = new THREE.PlaneGeometry(100, 100);
-  // const planeMaterial = new THREE.ShadowMaterial({ opacity: 0.5 });
-  // // const planeMaterial = new THREE.MeshStandardMaterial({
-  // //   // map: colorTexture,
-  // //   // normalMap: normalTexture,
-  // //   // roughnessMap: roughnessTexture,
-  // //   roughness: 0.3, // Подстройка уровня шероховатости
-  // //   metalness: 0.5, // Придаёт металлический блеск
-  // // });
-  // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  // plane.rotation.x = -Math.PI / 2; // Разворачиваем в горизонтальное положение
-  // plane.position.y = -2; // Опускаем под кубик
-  // plane.receiveShadow = true; // Позволяет принимать тени
-  // scene.scene.add(plane);
-
-
   const vertexShader = `
-  varying vec2 vUv; // Передаём координаты в фрагментный шейдер
+  varying vec2 vUv;
   void main() {
-      vUv = uv; // Запоминаем координаты
+      vUv = uv;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
   `;
   
   const fragmentShader = `
   varying vec2 vUv;
-  uniform vec2 uCenter; // Центр затухания
-  uniform float uFade;  // Коэффициент затухания
-  uniform float uGridSize; // Размер квадратов в сетке
+  uniform vec2 uCenter;
+  uniform float uFade;
+  uniform float uGridSize;
 
   void main() {
-      // Основное затухание (круг)
-      float dist = distance(vUv, uCenter);
+      float dist = distance(vUv, uCenter); // main fading
       float alpha = smoothstep(1.0, 0.0, dist * uFade); 
 
-      // Квадратная сетка
-      vec2 grid = mod(vUv * uGridSize, 1.0); // Создаём повторяющиеся клетки
-      float lineThickness = 0.02; // Толщина линий сетки
-      float gridLines = max(step(grid.x, lineThickness), step(grid.y, lineThickness)); // Линии по X и Y
+      // square grid
+      vec2 grid = mod(vUv * uGridSize, 1.0);
+      float lineThickness = 0.02;
+      float gridLines = max(step(grid.x, lineThickness), step(grid.y, lineThickness));
 
-      // Итоговая прозрачность (сетку тоже делаем затухающей)
-      float gridAlpha = gridLines * alpha; // Используем основное затухание для сетки
+      float gridAlpha = gridLines * alpha; // main fading for grid
 
-      // Основной цвет (бирюзовый)
       vec3 baseColor = vec3(72. / 256., 166. / 256., 167. / 256.);
-      // Цвет сетки (чёрный)
       vec3 gridColor = vec3(154. / 256., 203. / 256., 208. / 256.);
 
-      // Смешиваем цвет сетки и основного фона
+      // mixing colors
       vec3 finalColor = mix(baseColor, gridColor, gridAlpha);
 
       gl_FragColor = vec4(finalColor, alpha);
   }`;
 
-  // gl_FragColor = vec4(41. / 256., 115. / 256., 178. / 256., alpha);
-  // gl_FragColor = vec4(154. / 256., 203. / 256., 208. / 256., alpha);
-  // gl_FragColor = vec4(72. / 256., 166. / 256., 167. / 256., alpha);
-
   const material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
       uniforms: {
-          uCenter: { value: new THREE.Vector2(0.5, 0.5) }, // Центр текстурных координат (0.5, 0.5 = середина)
-          uFade: { value: 4.0 }, // Насколько быстро затухает прозрачность
-          uGridSize: { value: 70.0 },  // Количество квадратов на единицу
-          // uLineThickness: { value: 0.05 }, // Толщина линий
+          uCenter: { value: new THREE.Vector2(0.5, 0.5) },
+          uFade: { value: 4.0 },
+          uGridSize: { value: 70.0 },
         },
       transparent: true
   });
   
-  // Создаём обычный `PlaneGeometry` и накладываем на него градиентный шейдер
+  // create PlaneGeometry and apply shader
   const geometry = new THREE.PlaneGeometry(100, 100, 10, 10);
   const mesh = new THREE.Mesh(geometry, material);
   mesh.rotation.x = -Math.PI / 2;
@@ -281,38 +211,19 @@ function addMeshfromfile() {
 function addBox() {
   const geometry = new THREE.BoxGeometry(2, 2, 2);
 
-  // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-
   const textureLoader = new THREE.TextureLoader();
 
   const colorTexture = textureLoader.load('Pic.jpg');
-  // const normalTexture    = textureLoader.load('./texture/Fabric004/NormalDX.png');
-  // const roughnessTexture = textureLoader.load('./texture/Fabric004/Roughness.png');
 
   colorTexture.wrapS = THREE.RepeatWrapping;
   colorTexture.wrapT = THREE.RepeatWrapping;
   colorTexture.repeat.set(2, 2);
 
-  // normalTexture.wrapS = THREE.RepeatWrapping;
-  // normalTexture.wrapT = THREE.RepeatWrapping;
-  // normalTexture.repeat.set(4, 4);
-
-  // roughnessTexture.wrapS = THREE.RepeatWrapping;
-  // roughnessTexture.wrapT = THREE.RepeatWrapping;
-  // roughnessTexture.repeat.set(4, 4);
-
   const material = new THREE.MeshStandardMaterial({
     map: colorTexture,
-    // normalMap: normalTexture,
-    // roughnessMap: roughnessTexture,
-    roughness: 0.3, // Подстройка уровня шероховатости
-    metalness: 0.5, // Придаёт металлический блеск
+    roughness: 0.3,
+    metalness: 0.5,
   });
-
-  // const material = new THREE.MeshPhongMaterial({
-  //   color: new THREE.Color(0.5,0.5,0.5),
-  //   emissive: new THREE.Color(0.05,0.05,0.05)
-  // })  
 
   const cube = new THREE.Mesh(geometry, material);
   // cube.castShadow = true;
@@ -347,36 +258,12 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
   geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
 
 
-
-  // const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, flatShading: true });
-
-  // const textureLoader = new THREE.TextureLoader();
-
-  // Загрузка текстур
-  // const colorTexture     = textureLoader.load('Color.jpg');
-  // const normalTexture    = textureLoader.load('./texture/Fabric004/NormalDX.png');
-  // const roughnessTexture = textureLoader.load('./texture/Fabric004/Roughness.png');
-
-  // colorTexture.wrapS = THREE.RepeatWrapping;
-  // colorTexture.wrapT = THREE.RepeatWrapping;
-  // colorTexture.repeat.set(1.0, 1.0);
-
-  // normalTexture.wrapS = THREE.RepeatWrapping;
-  // normalTexture.wrapT = THREE.RepeatWrapping;
-  // normalTexture.repeat.set(4, 4);
-
-  // roughnessTexture.wrapS = THREE.RepeatWrapping;
-  // roughnessTexture.wrapT = THREE.RepeatWrapping;
-  // roughnessTexture.repeat.set(4, 4);
-
-
-  // Создание материала
   const material = new THREE.MeshStandardMaterial({
     // map: colorTexture,
     // normalMap: normalTexture,
     // roughnessMap: roughnessTexture,
-    roughness: 0.3, // Подстройка уровня шероховатости
-    metalness: 0.5, // Придаёт металлический блеск
+    roughness: 0.3,
+    metalness: 0.5,
     color: color,
     side: THREE.DoubleSide,
   });
@@ -399,7 +286,7 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
     const box = new THREE.Box3().setFromObject(mesh);
     const size = box.getSize(new THREE.Vector3());
 
-    const center = box.getCenter(new THREE.Vector3());  // Центр объекта
+    const center = box.getCenter(new THREE.Vector3());  // Object center
 
     let minX = 0, maxX = -0;
     let minY = 0, maxY = -0;
@@ -425,16 +312,9 @@ function addMesh(render, color = 0x4444FF, transparent = 1., setScale = false) {
       { size: size.z, center: center.z, max: maxZ, min: minZ }
     );
 
-    // mesh.position.sub(center);
-
-    scene.controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // Центр вращения 0, 0, 0
+    scene.controls.target.set(center.x * scale.factor, center.y * scale.factor, center.z * scale.factor); // rotation centre 0, 0, 0
     scene.controls.update();
 
-    // const pointLight = new THREE.PointLight(0xffffff, 1, 300);  // Сила света и радиус действия
-    // spotLight.position.set(0, size.y, 0);  // Размещаем свет выше объекта
-    // scene.scene.add(pointLight);
-
-    // frameUpdate()
   }
 
   resizeMesh(mesh);
@@ -479,12 +359,10 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
     materialproperties.opacity = 0.9;
   }
   const material = new THREE.LineBasicMaterial(materialproperties);
-  // material.depthTest = false;
 
   const lines = new THREE.LineSegments(geometry, material);
 
   lines.frustumCulled = false;
-  // lines.renderOrder = 999;
 
   scene.scene.add(lines);
 
@@ -584,10 +462,6 @@ function frameUpdate(){
     Xm, Zd, Yd,
     Xm, Zd, 0.,
     Xm, 0., 0.,
-
-    //  Xi, -Zd,  Yd,
-    //  Xi,   0,  Yd,
-    //  Xi,   0,  Ri,
   ];
 
   if (window.frameMesh) {
@@ -605,11 +479,6 @@ function frameUpdate(){
 
 }
 window.frameUpdate = frameUpdate
-
-// document.getElementById("safetyR").onchange = function() {
-//   frameInit();
-//   frameUpdate();
-// };
 
 function addMeshLine([vertices, indices], color = 0xff0000) {
   if (vertices.length == 0) return;
@@ -677,68 +546,22 @@ function mirrorXYZ(pTR, mirror){
 }
 window.mirrorXYZ = mirrorXYZ
 
-// -------
-
-// var quad_vertices =
-// [
-// -30.0,  30.0, 0.0,
-// 30.0,  30.0, 0.0,
-// 30.0, -30.0, 0.0,
-// -30.0, -30.0, 0.0
-// ];
-
-// var quad_uvs =
-// [
-// 0.0, 0.0,
-// 1.0, 0.0,
-// 1.0, 1.0,
-// 0.0, 1.0
-// ];
-
-// var quad_indices =
-// [
-// 0, 2, 1, 0, 3, 2
-// ];
-
-// var geometry = new THREE.BufferGeometry();
-
-// var vertices = new Float32Array( quad_vertices );
-// // Each vertex has one uv coordinate for texture mapping
-// var uvs = new Float32Array(quad_uvs);
-// // Use the four vertices to draw the two triangles that make up the square.
-// var indices = new Uint32Array( quad_indices )
-
-// // itemSize = 3 because there are 3 values (components) per vertex
-// geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-// geometry.setAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
-// geometry.setIndex( new THREE.BufferAttribute( indices, 1 ) );
-
-// // Load the texture asynchronously
-// let sprite = new THREE.TextureLoader().load('Pic.jpg');
-
-// var material = new THREE.MeshBasicMaterial( {map: sprite });
-// var mesh = new THREE.Mesh( geometry, material );
-// mesh.position.z = -100;
-
-// scene.scene.add(mesh);
-
-
 function removeMesh(object) {
   if (!object) return;
 
   if (object.geometry) {
-    object.geometry.dispose(); // Освобождаем ресурсы геометрии
+    object.geometry.dispose(); // free geometry resources
   }
 
   if (object.material) {
     if (Array.isArray(object.material)) {
-      object.material.forEach((material) => material.dispose()); // Освобождаем ресурсы материалов
+      object.material.forEach((material) => material.dispose()); // free materials
     } else {
       object.material.dispose();
     }
   }
 
-  scene.scene.remove(object); // Удаляем объект из сцены
+  scene.scene.remove(object); // removing object
 }
 window.removeMesh = removeMesh
 
@@ -758,10 +581,8 @@ function clearScene() {
 }
 window.clearScene = clearScene
 
-// document.addEventListener('DOMContentLoaded', function () {
-  function threeOnLoad() {
+function threeOnLoad() {
     threeInit();
     loaded();
-  }
-  window.threeOnLoad = threeOnLoad
-  
+}
+window.threeOnLoad = threeOnLoad

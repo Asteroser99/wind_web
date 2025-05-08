@@ -1,6 +1,6 @@
 const clientId    = '760tl57va0f4esqlrn9kdprdqe';
 const domain      = 'https://eu-central-1jasxje83x.auth.eu-central-1.amazoncognito.com';
-const scope       = "email+openid"; // +phone
+const scope       = "email+openid";
 
 const originURL = window.location.origin + '/';
 
@@ -52,7 +52,6 @@ function hideImpressum(param){
   const container = document.getElementById("impressumContainer");
   const toggled = false;
   container.style.display = !toggled ? "none" : "flex";
-  // document.getElementById("impressumToggle").classList.remove('active');
 }
 window.hideImpressum = hideImpressum
 
@@ -102,8 +101,6 @@ function cognitoClear() {
 function cognitoCodeExchange(){
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
-
-  // console.log(code);
 
   if (code) {
     axios.post(`${domain}/oauth2/token`, new URLSearchParams({
@@ -203,45 +200,44 @@ function formatDate(dateStr) {
 
 function stripeStatus(){
   if (!cognitoLogged()) return
-
-  let betaversion = true
-  if (betaversion){
-    document.getElementById("SubscriptionBeta").style.display = "flex";
-  } else {
-    lambdaCall("payment.status", [])
+  lambdaCall("payment.status", [])
         .then(res => {
-            const res_ = !!res;
 
-            document.getElementById("SubscriptionExist"   ).style.display =  res_ ? "flex" : "none";
-            document.getElementById("SubscriptionNotExist").style.display = !res_ ? "flex" : "none";
+            if(res == "beta"){
+              document.getElementById("SubscriptionBeta").style.display = "flex";
+            } else {
+              const res_ = !!res;
 
-            if (res_){
-              document.getElementById('subscriptionDescription').innerHTML = `
-                <table>
-                  <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Active</div></td></tr>
-                  <tr><td>Started:</td><td>${formatDate(cognitoTime(res.start))}</td></tr>
-                  <tr><td>Expires:</td><td>${formatDate(cognitoTime(res.end))}</td></tr>
-                  <tr><td>Call count:</td><td>${res.callCount != undefined ? res.callCount : 0}</td></tr>
-                  <tr><td>Auto-renew:</td>
-                    <td>
-                      <div class="hPanel">
-                        <img class="icon-img small" src="./img/${res.cancel_at_period_end ? "reNewOff" : "reNewOn"}.png">
-                        ${res.cancel_at_period_end ? "Off" : "On"}
-                      </div>
-                    </td>
-                  </tr>
-                </table>
-              `;
-              document.getElementById("reNewOn" ).style.display = !res.cancel_at_period_end ? "flex" : "none";
-              document.getElementById("reNewOff").style.display =  res.cancel_at_period_end ? "flex" : "none";
+              document.getElementById("SubscriptionExist"   ).style.display =  res_ ? "flex" : "none";
+              document.getElementById("SubscriptionNotExist").style.display = !res_ ? "flex" : "none";
+
+              if (res_){
+                document.getElementById('subscriptionDescription').innerHTML = `
+                  <table>
+                    <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Active</div></td></tr>
+                    <tr><td>Started:</td><td>${formatDate(cognitoTime(res.start))}</td></tr>
+                    <tr><td>Expires:</td><td>${formatDate(cognitoTime(res.end))}</td></tr>
+                    <tr><td>Call count:</td><td>${res.callCount != undefined ? res.callCount : 0}</td></tr>
+                    <tr><td>Auto-renew:</td>
+                      <td>
+                        <div class="hPanel">
+                          <img class="icon-img small" src="./img/${res.cancel_at_period_end ? "reNewOff" : "reNewOn"}.png">
+                          ${res.cancel_at_period_end ? "Off" : "On"}
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                `;
+                document.getElementById("reNewOn" ).style.display = !res.cancel_at_period_end ? "flex" : "none";
+                document.getElementById("reNewOff").style.display =  res.cancel_at_period_end ? "flex" : "none";
+              }
+
+              stripeRenewDisabled(false);
             }
-
-            stripeRenewDisabled(false);
           })
         .catch(error => {
-            showError(error);
-        });
-  }
+          showError(error);
+  });
 }
 
 function stripeSubscribe(){

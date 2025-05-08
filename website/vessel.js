@@ -24,10 +24,8 @@ const fieldAsyncStorageSet = (key, value) => {
 const fieldGet = (key) => {
     if (Object.keys(vessel).length === 0) {
         const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
-        // console.log(keys);
         keys.forEach((storedKey) => {
             let value = localStorage.getItem(`vessel_${storedKey}`);
-            // console.log(key, typeof value, value);
             if (value && value != undefined){
                 try {
                     value = JSON.parse(value);
@@ -236,7 +234,6 @@ function mandrelFromCSV(csvText, colNum = 0) {
     const k = (headers[colNum * 2 + 0].includes("x") || headers[colNum * 2 + 0].includes("y")) ? [x, r] : [r, x];
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].split(div);
-        // const [v0, v1] = line;
         const [v0, v1] = [line[colNum * 2 + 0], line[colNum * 2 + 1]]
         if (v0.trim() == "" && v1.trim() == "") continue;
         k[0].push(parseFloat(v0.trim()));
@@ -297,12 +294,12 @@ async function saveCsvWithDialog(name) {
 window.saveCsvWithDialog = saveCsvWithDialog;
 
 function convertArrayToCsv(data) {
-    const keys = Object.keys(data); // Получаем заголовки (x, r)
+    const keys = Object.keys(data); // headers (x, r)
     const rows = [];
 
-    // Формируем строки CSV
+    // CSV lines
     for (let i = 0; i < data[keys[0]].length; i++) {
-        rows.push(keys.map(key => data[key][i]).join(",")); // x[i], r[i]
+        rows.push(keys.map(key => data[key][i]).join(","));
     }
 
     return keys.join(",") + "\n" + rows.join("\n");
@@ -609,7 +606,6 @@ function coilRender(suffix) {
     vertices.push(...pointXYZ(coil, i));
     j++;
 
-    // for (let i = 0; i < n; i++) {
     for (let round = 0, fiShift = 0; round < Coils; round++) {
 
         for (i = 1; i < n; i++, j++) {
@@ -719,7 +715,6 @@ function tapeRender(suffix) {
     const pT0 = pointXYZ(coil, i, 0, th0, coil)
     const pTR = pointXYZ(tape, i, 0, th0, coil)
     vertices.push(...pTR);
-    // const pTL = pointXYZ(tape, i, 0, 0, 0, pT0)
     const pTL = mirrorXYZ(pTR, pT0)
     vertices.push(...pTL);
     j++;
@@ -759,11 +754,9 @@ function Winding(param = undefined){
     lambdaCall("calc.winding", [coilCorrected, fieldGet('safetyR'), fieldGet('lineCount'), fieldGet('band')])
         .then(res => {
             coilSet ("Interpolated"            , res[0]);
-            // fieldSet("tapeInterpolated"        , res[1]);
             fieldSet("equidistantaInterpolated", res[1]);
             fieldSet("rolleyInterpolated"      , res[2]);
 
-            // drawAll();
             coilDraws();
             animateInit();
 

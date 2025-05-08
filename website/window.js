@@ -34,12 +34,10 @@ function moveButtons(prefix, tabId) {
     const fileElement = document.getElementById(fileId);
 
     if (fileElement) {
-        // Сохраняем исходное местоположение
+        // save initial position
         if (!fileElement.dataset.originalParent) {
             fileElement.dataset.originalParent = fileElement.parentElement.id;
         }
-        
-        // Перемещаем элемент
         fileContainer.appendChild(fileElement);
     }
 }
@@ -62,7 +60,6 @@ window.inputValue = inputValue
 
 
 
-//
 export function openTab(tabId) {
     if (!tabId) tabId = "vessel";
     fieldSet("page", tabId);
@@ -98,9 +95,6 @@ export function openTab(tabId) {
         hideIt = true;
         contentId = "mandrel-canvas-div";
         document.getElementById("thickness-csvColumn").appendChild(document.getElementById("div-csvColumn"));
-    // } else if (tabId == "info"    ) {
-    //     hideIt = true;
-    //     contentId = "info-canvas-div";
     }
     
     document.getElementById("tabs-content").classList.toggle('active', !hideIt);
@@ -164,15 +158,13 @@ function showError(error) {
     let message;
     if (typeof error === "string")
         message = error;
-    else if (error.code === "ERR_NETWORK" && error.name === "AxiosError"
-        // && error.response && error.response.status === 401
-    ) {
+    else if (error.code === "ERR_NETWORK" && error.name === "AxiosError") {
         message = "Please sign in";
     } else if (error.code === "ERR_BAD_REQUEST" && error.name === "AxiosError"
         && error.response && error.response.status === 401
     ) {
         message = "Please subscribe to use the calculation functions";
-    } else if (error.name === "AxiosError" // error.code === "ERR_BAD_RESPONSE" && 
+    } else if (error.name === "AxiosError"
         && error.response && error.response.status != 200
         && error.response.data
     ) {

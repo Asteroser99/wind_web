@@ -12,10 +12,6 @@ function getT(begin=0, end=0, long=false){
     for (let i = begin, thi = th0 + begin * thd; i < end; i++, thi += thd) {
         const j = (i - begin) * pN;
   
-        // const fiShift = 0. // (fieldGet('testMode') == 0 ? 0. : -window.animateEqd["fi"][i]);
-        // const yShift  = 0. // (fieldGet('testMode') <= 1 ? 0. : -window.animateEqd["r" ][i] + 120.);
-  
-
         const jCoil = j + 0;
         const pCoil = pointXYZ(window.animateCoil, i, 0, thi, window.animateCoil)
         vertices.push(...pCoil);
@@ -38,7 +34,6 @@ function getT(begin=0, end=0, long=false){
         vertices.push(...pRollR);
   
         const jRollR = j + 5;
-        // const pRollL = pointXYZ(window.animateRolley, i, pEqd)
         const pRollL = mirrorXYZ(pRollR, pEqd)
         vertices.push(...pRollL);
 
@@ -113,15 +108,6 @@ function animateInit(){
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
-    // if (!coil) {
-    //     coil = coilGet("Corrected");
-    //     tape = fieldGet("tapeCorrected");
-    //     eqd  = fieldGet("equidistanta");
-    //     roll = fieldGet("rolley");
-    //     eqdColor = 0xfea02a
-    //     freeColor = 0xfea02a
-    // }
-
     window.animateReady = coil != undefined && tape != undefined && eqd != undefined && roll != undefined
 
     window.animateOn = window.animateReady;
@@ -182,30 +168,22 @@ function animateInit(){
         removeMesh(window.freeLine);
         const vertices = Array(6 * 3).fill(0);
         const indices = [0, 3,  1, 2,  4, 5];
-        
         window.freeLine = addLine([vertices, indices], 0xff0000);
     };
 
     { // freeMesh
         removeMesh(window.freeMesh);
-        const vertices = Array(9 * (4+1)).fill(0);
-        // [
-        //     0, 0, 0, 2, 0, 1, 1, 0, 0, 
-        //     1, 1, 1, 0, 1, 0, 2, 1, 1, 
-        // ]
-
-        // const indices = [1, 0, 4,  4, 0, 3,  0, 2, 5,  0, 5, 3];
+        const vertices = Array(9 * (4 + 1)).fill(0);
         const indices = generateIndices(4);
-        
         window.freeMesh = addMesh([vertices, indices], freeColor);
     };
 
-    if (false) { // carretLine
-        removeMesh(window.carretLine);
-        const vertices = Array(4 * 3).fill(0);
-        const indices = [0, 1,  2, 3];
-        window.carretLine = addLine([vertices, indices], 0x00ff00);
-    };
+    // if (false) { // carretLine
+    //     removeMesh(window.carretLine);
+    //     const vertices = Array(4 * 3).fill(0);
+    //     const indices = [0, 1,  2, 3];
+    //     window.carretLine = addLine([vertices, indices], 0x00ff00);
+    // };
 
     { // rolleyMesh
         removeMesh(window.rolleyMesh);
@@ -236,10 +214,10 @@ function rolleyAnimate(){
     const eqd = window.animateEqd
     const rolleyVert = getT(i)[0];
 
-    if (window.tapeCorrectedMesh) { // tape
+    // if (window.tapeCorrectedMesh) { // tape
         // const pos = window.tapeCorrectedMesh.geometry.attributes.position;
         // console.log(pos.array)
-    }
+    // }
 
     if (window.freeLine) { // freeLine
         const pos = window.freeLine.geometry.attributes.position;
@@ -264,18 +242,18 @@ function rolleyAnimate(){
     const Yi = 0;
     const Zi = eqd.r[i]
 
-    if (window.carretLine) { // carretLine
-        const Fr = scale.y.max * 2;
-        const vert = [];
-        vert.push(Xi,  Yi,  Zi);
-        vert.push(Xi,  Yi,  Zi + Fr);
-        vert.push(Xi,  Yi,  Fr);
-        vert.push(Xi, -Fr,  Fr);
-        
-        const pos = window.carretLine.geometry.attributes.position;
-        pos.array.set(vert);
-        pos.needsUpdate = true;
-    }
+    // if (window.carretLine) { // carretLine
+    //     const Fr = scale.y.max * 2;
+    //     const vert = [];
+    //     vert.push(Xi,  Yi,  Zi);
+    //     vert.push(Xi,  Yi,  Zi + Fr);
+    //     vert.push(Xi,  Yi,  Fr);
+    //     vert.push(Xi, -Fr,  Fr);
+    //
+    //     const pos = window.carretLine.geometry.attributes.position;
+    //     pos.array.set(vert);
+    //     pos.needsUpdate = true;
+    // }
 
     if (window.carretMesh) { // carretMesh
         window.carretMesh.position.x = Xi * scale.factor;
@@ -340,7 +318,6 @@ function animateVisibilities(){
 
     const mesh = window.mandrelRawMesh;
     if (mesh){
-        // mesh.visible = window.mandrelShow;
         mesh.material.transparent = !window.mandrelShow;
         mesh.material.opacity     = !window.mandrelShow ? 0.1 : 1.;
     }
@@ -464,9 +441,6 @@ function modeButtonInit(){
 window.modeButtonInit = modeButtonInit
 
 function animateOnLoad(){
-    // let animateSlider = document.getElementById("animateSlider");
-    // animateSlider.addEventListener("input", () => window.animateAngle = parseFloat(animateSlider.value));
-
     const animateButton = document.getElementById("animateButton");
     animateButton.addEventListener("click", () => {
         window.animateAuto = !window.animateAuto;
@@ -475,23 +449,16 @@ function animateOnLoad(){
 
     document.addEventListener("keydown", function(event) {
         if (event.code === "Space") {
-            event.preventDefault(); // Чтобы страница не прокручивалась
+            event.preventDefault();
             animateButton.click();
         }
     });
 
 
     window.animateAuto = true;
-    // window.animateAngle = 0;
 
     modeButtonInit();
 
-    // window.animateAngle += 0.01;
-    // animateSlider.value = window.animateAngle;
-    // if (window.animateAuto) {
-    //     requestAnimationFrame(animateOnLoad);
-    // }
-    
     animate();
     animateVisibilities();
 }
