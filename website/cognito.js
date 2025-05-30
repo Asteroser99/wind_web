@@ -179,9 +179,12 @@ function cognitoStatus() {
     document.getElementById('cognitoEMail'   ).textContent = localGet('cognitoEMail');
     document.getElementById('cognitoAuthTime').textContent = cognitoTime(localGet('cognitoAuthTime')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     document.getElementById('cognitoExpires' ).textContent = cognitoTime(localGet('cognitoExpires')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('cognitoGet'     ).textContent = '<button onclick="showError(localGet(\'cognitoAccessToken\'))">show</button>';
+
   } else {
     document.getElementById("loggedInContainer" ).style.display = "none";
     document.getElementById("loggedOffContainer").style.display = "flex";
+
   }
 }
 
