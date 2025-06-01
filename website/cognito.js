@@ -179,7 +179,9 @@ function cognitoStatus() {
     document.getElementById('cognitoEMail'   ).textContent = localGet('cognitoEMail');
     document.getElementById('cognitoAuthTime').textContent = cognitoTime(localGet('cognitoAuthTime')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     document.getElementById('cognitoExpires' ).textContent = cognitoTime(localGet('cognitoExpires')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('cognitoGet'     ).textContent = '<button onclick="showError(localGet(\'cognitoAccessToken\'))">show</button>';
+
+    document.getElementById('cognitoGet'     ).innerHTML = '<button class="center-button verysmall function-button" data-query="' + "This is your current access token:<br><small>" + localGet('cognitoAccessToken') + '</small>" title="Token"><img src="./img/key.png">&nbsp;show</button>';
+    funcButtonInit();
 
   } else {
     document.getElementById("loggedInContainer" ).style.display = "none";
@@ -187,7 +189,6 @@ function cognitoStatus() {
 
   }
 }
-
 
 // Stripe
 

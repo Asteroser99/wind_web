@@ -197,6 +197,14 @@ function funcButtonInit(){
             if (window.funcButtonQuery){
                 document.getElementById('modal-text').innerHTML = window.funcButtonQuery;
                 document.getElementById('modal-overlay').style.display = 'block';
+                
+                const needsAnswer = window.funcButtonFunction != undefined;
+                console.log(needsAnswer)
+                document.getElementById('questionYes'  ).style.display =  needsAnswer ? 'block' : 'none';
+                document.getElementById('questionNo'   ).style.display =  needsAnswer ? 'block' : 'none';
+                document.getElementById('questionOk'   ).style.display = !needsAnswer ? 'block' : 'none';
+                console.log(document.getElementById('questionOk').style.display)
+
                 funcButtonInit();
             } else {
                 executeFunction();
@@ -204,15 +212,19 @@ function funcButtonInit(){
         };
     });
 }
+window.funcButtonInit = funcButtonInit;
 
 document.getElementById('questionYes'  ).addEventListener( 'click', () => { closeModal(); executeFunction(); });
 document.getElementById('questionNo'   ).addEventListener( 'click', () => { closeModal(); });
+document.getElementById('questionOk'   ).addEventListener( 'click', () => { closeModal(); });
 document.getElementById('modal-overlay').addEventListener( 'click', () => { closeModal(); });
 document.getElementById('modal-text'   ).addEventListener( 'click', (event) => { event.stopPropagation(); });
 document.getElementById('modal'        ).addEventListener( 'click', (event) => { event.stopPropagation(); });
 
 function executeFunction() {
-    if (typeof window[window.funcButtonFunction] === 'function') {
+    if (!window.funcButtonFunction) {
+        
+    } else if (typeof window[window.funcButtonFunction] === 'function') {
         window[window.funcButtonFunction](window.funcButtonParameter);
     } else {
         showError('Function ' + window.funcButtonFunction + ' is not found');

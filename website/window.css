@@ -400,6 +400,7 @@ canvas {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     text-align: justify;
     border-radius: 4px;
+    max-width: 90%;
 }
 .modal-buttons {
     margin-top: 10px;
@@ -416,6 +417,11 @@ canvas {
     justify-content: center;
     align-items: center;
     z-index: 90;
+}
+#modal-text {
+  max-width: 85vw;
+  word-break: break-all;
+  white-space: normal;
 }
 
 
@@ -735,6 +741,13 @@ input {
     cursor: progress;
     filter: grayscale(100%);
 }
+
+.center-button.verysmall {
+    width: 100px;
+    height: 30px;
+    margin: 0px auto;  
+}
+
 
 .question-button {
     width: 120px;
