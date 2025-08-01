@@ -10,23 +10,8 @@ const poolData = {
   };
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 
-
-function localSet(id, value){
-    localStorage.setItem(id, JSON.stringify(value));
-}
-
-function localGet(id){
-    return JSON.parse(localStorage.getItem(id));
-}
-window.localGet = localGet
-
-function localClear(id){
-    localStorage.removeItem(id);
-}
-
-
-function toggleLogin(toggled, param){
-  cognitoStatus();
+async function toggleLogin(toggled, param){
+  await cognitoStatus();
 
   const loginContainer = document.getElementById("loginContainer");
   loginContainer.style.display = !toggled ? "none" : "flex";
@@ -92,13 +77,13 @@ function timeNow() {
 }
 
 function cognitoClear() {
-  localClear('cognitoEMail');
-  localClear('cognitoAccessToken');
-  localClear('cognitoAuthTime');
-  localClear('cognitoExpires');
+  storageClear('cognito', 'EMail');
+  storageClear('cognito', 'AccessToken');
+  storageClear('cognito', 'AuthTime');
+  storageClear('cognito', 'Expires');
 }
 
-function cognitoCodeExchange(){
+async function cognitoCodeExchange(){
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
 
@@ -114,16 +99,16 @@ function cognitoCodeExchange(){
       },
     }).then((response) => {
       const cognitoIdToken = decodeJwt(response.data.id_token);
-      localSet('cognitoEMail', cognitoIdToken.email);
+      storageSet('cognito', 'EMail', cognitoIdToken.email);
 
       const cognitoAccessToken = response.data.access_token;
-      localSet('cognitoAccessToken', cognitoAccessToken);
+      storageSet('cognito', 'AccessToken', cognitoAccessToken);
 
       const cognitoAccessTokenDecoded  = decodeJwt(cognitoAccessToken);
       const cognitoAuthTime = cognitoAccessTokenDecoded.auth_time
-      localSet('cognitoAuthTime', cognitoAuthTime);
+      storageSet('cognito', 'AuthTime', cognitoAuthTime);
       const cognitoExpires = cognitoAccessTokenDecoded.exp
-      localSet('cognitoExpires', cognitoExpires);
+      storageSet('cognito', 'Expires', cognitoExpires);
 
       cognitoStatus();
 
@@ -148,18 +133,18 @@ function cognitoCodeExchange(){
   }
 }
 
-function cognitoExpire() {
+async function cognitoExpire() {
     showError("Session expired. Please sign in again.");
 
     // cognitoClear()
 
-    cognitoStatus();
+    await cognitoStatus();
 }
 
-function cognitoLogged() {
+async function cognitoLogged() {
   let logged = false;
 
-  const cognitoAccessTokenExpires = localGet('cognitoExpires');
+  const cognitoAccessTokenExpires = await storageGet('cognito', 'Expires');
   if (cognitoAccessTokenExpires) {
     logged = timeNow() <= cognitoTime(cognitoAccessTokenExpires);
   }
@@ -167,8 +152,8 @@ function cognitoLogged() {
   return logged;
 }
 
-function cognitoStatus() {
-  const logged = cognitoLogged()
+async function cognitoStatus() {
+  const logged = await cognitoLogged()
 
   changeImage("logImg", logged ? "logIn.png" : "logOff.png");
 
@@ -176,11 +161,11 @@ function cognitoStatus() {
     document.getElementById("loggedInContainer" ).style.display = "flex";
     document.getElementById("loggedOffContainer").style.display = "none";
     
-    document.getElementById('cognitoEMail'   ).textContent = localGet('cognitoEMail');
-    document.getElementById('cognitoAuthTime').textContent = cognitoTime(localGet('cognitoAuthTime')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    document.getElementById('cognitoExpires' ).textContent = cognitoTime(localGet('cognitoExpires')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('cognitoEMail'   ).textContent = await storageGet('cognito', 'EMail');
+    document.getElementById('cognitoAuthTime').textContent = cognitoTime(await storageGet('cognito', 'AuthTime')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('cognitoExpires' ).textContent = cognitoTime(await storageGet('cognito', 'Expires')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    document.getElementById('cognitoGet'     ).innerHTML = '<button class="center-button verysmall function-button" data-query="' + "This is your current access token:<br><small>" + localGet('cognitoAccessToken') + '</small>" title="Token"><img src="./img/key.png">&nbsp;show</button>';
+    document.getElementById('cognitoGet'     ).innerHTML = '<button class="center-button verysmall function-button" data-query="' + "This is your current access token:<br><small>" + await storageGet('cognito', 'AccessToken') + '</small>" title="Token"><img src="./img/key.png">&nbsp;show</button>';
     funcButtonInit();
 
   } else {
@@ -202,13 +187,13 @@ function formatDate(dateStr) {
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
 
-function stripeStatus(){
-  if (!cognitoLogged()) return
+async function stripeStatus(){
+  if (!await cognitoLogged()) return
   lambdaCall("payment.status", [])
         .then(res => {
 
-            if(res == "beta"){
-              document.getElementById("SubscriptionBeta").style.display = "flex";
+            if(res == "beta"){ // promo
+              document.getElementById("SubscriptionPromo").style.display = "flex";
             } else {
               const res_ = !!res;
 
@@ -244,9 +229,9 @@ function stripeStatus(){
   });
 }
 
-function stripeSubscribe(){
+async function stripeSubscribe(){
   loading();
-  lambdaCall("payment.subscribe", [localGet('cognitoEMail')])
+  lambdaCall("payment.subscribe", [await storageGet('cognito', 'EMail')])
       .then(res => {
           loaded();
           if (res)
@@ -281,9 +266,9 @@ function stripeRenew(param){
 window.stripeRenew = stripeRenew
 
 
-function cognitoOnLoad() {
-  cognitoCodeExchange();
-  cognitoStatus();
+async function cognitoOnLoad() {
+  await cognitoCodeExchange();
+  await cognitoStatus();
   stripeStatus();
 }
 window.cognitoOnLoad = cognitoOnLoad;

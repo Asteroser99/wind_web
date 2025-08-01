@@ -1,7 +1,7 @@
 // Table
 
-function fibboRenderTable() {
-    const patterns = fieldGet("patterns");
+async function fibboRenderTable() {
+    const patterns = await fieldGet("patterns");
     if(!patterns) return;
 
     const tableBody = document.querySelector("#data-table tbody");
@@ -23,16 +23,16 @@ function fibboRenderTable() {
         tableBody.appendChild(row);
     });
 
-    fibboSelectRow(fieldGet("fibboIndex"))
+    await fibboSelectRow(await fieldGet("fibboIndex"))
 }
 window.fibboRenderTable = fibboRenderTable;
 
-function fibboSelectRow(index) {
+async function fibboSelectRow(index) {
     const tableBody = document.querySelector("#data-table tbody");
     const row = tableBody.querySelector(`tr[data-index='${index}']`);
     if (!row) return;
 
-    fieldSet("fibboIndex", index);
+    await fieldSet("fibboIndex", index);
 
     const selected = tableBody.querySelector(".selected");
     if (selected) {
@@ -44,8 +44,8 @@ function fibboSelectRow(index) {
 }
 window.fibboSelectRow = fibboSelectRow;
 
-function fibboGetSelectedValues() {
-    const patterns = fieldGet("patterns");
+async function fibboGetSelectedValues() {
+    const patterns = await fieldGet("patterns");
     const selectedRow = document.querySelector("#data-table tbody .selected");
     if (!selectedRow) return { Turns: 0, Coils: 0 };
     
@@ -72,7 +72,7 @@ function resizePattern() {
 }
 window.resizePattern = resizePattern;
 
-function drawPattern() {
+async function drawPattern() {
     let gradient = pContext.createLinearGradient(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width / 2, pCanvas.height / 2);
     gradient.addColorStop(0, `hsl(139, 70%, 90%)`);
     gradient.addColorStop(1, `hsl(208, 70%, 90%)`);
@@ -80,8 +80,8 @@ function drawPattern() {
     pContext.fillStyle = gradient;
     pContext.fillRect(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
 
-    const { Turns, Coils } = fibboGetSelectedValues();
-    const conv = fieldGet("conv")
+    const { Turns, Coils } = await fibboGetSelectedValues();
+    const conv = await fieldGet("conv")
     const angleStep = Math.PI * 2 / Coils * Turns
     
     const cx = 0
@@ -205,13 +205,13 @@ function drawPattern() {
 }
 window.drawPattern = drawPattern
 
-function patternsOnLoad() {
+async function patternsOnLoad() {
     window.pCanvas = document.getElementById("patterns-canvas");
     window.pContext = window.pCanvas.getContext("2d");
 
     window.addEventListener("resize", resizePattern);
     resizePattern();
 
-    fibboRenderTable();
+    await fibboRenderTable();
 }
 window.patternsOnLoad = patternsOnLoad

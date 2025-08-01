@@ -1,94 +1,3 @@
-// storage
-
-const fieldAsyncStorageSet = (key, value) => {
-    return new Promise((resolve, reject) => {
-        try {
-            const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
-
-            if (!keys.includes(key)) {
-                keys.push(key);
-                localStorage.setItem('vessel_keys', JSON.stringify(keys));
-            }
-
-            localStorage.setItem(`vessel_${key}`, JSON.stringify(value));
-
-            resolve(`Key "${key}" updated successfully.`);
-
-        } catch (error) {
-            reject(`Error updating key "${key}": ${error}`);
-        }
-    });
-};
-
-
-const fieldGet = (key) => {
-    if (Object.keys(vessel).length === 0) {
-        const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
-        keys.forEach((storedKey) => {
-            let value = localStorage.getItem(`vessel_${storedKey}`);
-            if (value && value != undefined){
-                try {
-                    value = JSON.parse(value);
-                } catch (error) {
-                    value = undefined;
-                }
-            }
-            vessel[storedKey] = value;
-        });
-    }
-    return vessel[key];
-};
-window.fieldGet = fieldGet
-
-const fieldSet = async (key, value) => {
-    vessel[key] = value;
-
-    try {
-        const result = await fieldAsyncStorageSet(key, value);
-    } catch (error) {
-        showError(error);
-    }
-};
-window.fieldSet = fieldSet
-
-const fieldAllClear = () => {
-    const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
-
-    keys.forEach((key) => {
-        localStorage.removeItem(`vessel_${key}`);
-    });
-
-    localStorage.removeItem('vessel_keys');
-
-    // localStorage.clear();
-    vessel = {};
-};
-
-const fieldAllSet = async (newVessel) => {
-    fieldAllClear();
-
-    vessel = newVessel;
-
-    const promises = Object.entries(newVessel).map(([key, value]) =>
-        fieldAsyncStorageSet(key, value)
-    );
-
-    inputFieldInit();
-    modeButtonInit();
-};
-
-const fieldAllUpdateFromStorage = () => {
-    const keys = JSON.parse(localStorage.getItem('vessel_keys')) || [];
-
-    keys.forEach((key) => {
-        const jsonStr = localStorage.getItem(`vessel_${key}`)
-        if (jsonStr && jsonStr != "undefined") {
-            const value = JSON.parse(jsonStr);
-            vessel[key] = value;
-        }
-    });
-};
-
 // vesselLoad
 
 const vesselLoadInput = document.getElementById('vesselLoadInput');
@@ -107,8 +16,8 @@ function vesselLoadOnClick(event) {
 
     reader.readAsText(file);
 };
-function vesselLoadOnFileLoad(event) {
-    fieldAllSet(loadFromYaml(event.target.result));
+async function vesselLoadOnFileLoad(event) {
+    await fieldAllSet(loadFromYaml(event.target.result));
     drawAll()
 }
 function loadFromYaml(yamlString){
@@ -124,7 +33,7 @@ function loadFromYaml(yamlString){
 
 // lambdaCall
 
-function lambdaCall(name, param) {
+async function lambdaCall(name, param) {
     let path = 'https://z2qmzcusx7.execute-api.eu-central-1.amazonaws.com/prod/';
 
     const origin = window.location.origin;
@@ -132,7 +41,7 @@ function lambdaCall(name, param) {
         path = 'http://127.0.0.1:5000/';   // local flask server
     }
 
-    const cognitoAccessToken = localGet('cognitoAccessToken');
+    const cognitoAccessToken = await storageGet('cognito', 'AccessToken');
     const headers = {
         headers: {
             auth: `Bearer ${cognitoAccessToken}`,
@@ -192,21 +101,21 @@ function mandrelImportCSV(prefix){
 
 function mandrelImportCSVOnInputClick(file, prefix){
     const reader = new FileReader();
-    reader.onload = function(event) {
+    reader.onload = async function(event) {
         const colNumEl = document.getElementById('csvColumn');
         if(colNumEl.value == "") colNumEl.value = 1
-        mandrelImportCSVOnFileLoad(prefix, event.target.result, colNumEl.value - 1);
+        await mandrelImportCSVOnFileLoad(prefix, event.target.result, colNumEl.value - 1);
     };
     reader.readAsText(file);
 }
 window.mandrelImportCSV = mandrelImportCSV;
 
-function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
+async function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
     let mandrel
     try {
         if (prefix == "Raw") vesselClear();
         mandrel = mandrelFromCSV(text, colNum);
-        mandrelSet(prefix, mandrel)
+        await mandrelSet(prefix, mandrel)
     } catch (error) {
         showError(`Error importing file: ${error}`);
     }
@@ -283,12 +192,12 @@ async function saveFile(fun, par, suggestedName, type = "text/plain") {
 }
 
 async function saveCsvWithDialog(name) {
-    const mandrel = fieldGet("mandrel" + name);
+    const mandrel = await fieldGet("mandrel" + name);
     if (!mandrel) {
         showError("No mandrel data to save");
         return;
     }
-    const filename = fieldGet("PartNumber") + "_" + fieldGet("LayerNumber") + "_" + name + ".csv";
+    const filename = await fieldGet("PartNumber") + "_" + await fieldGet("LayerNumber") + "_" + name + ".csv";
     await saveFile(convertArrayToCsv, mandrel, filename, "text/csv");
 }
 window.saveCsvWithDialog = saveCsvWithDialog;
@@ -308,8 +217,8 @@ function convertArrayToCsv(data) {
 
 // mandrel
 
-function mandrelGet(name){
-    return fieldGet("mandrel" + name);
+async function mandrelGet(name){
+    return await fieldGet("mandrel" + name);
 }
 window.mandrelGet = mandrelGet
 
@@ -353,10 +262,10 @@ function generatrixRender(mandrel, resolution) {
 }
 window.generatrixRender = generatrixRender
 
-function mandrelTreeUpdate(name) {
+async function mandrelTreeUpdate(name) {
     removeMesh(window["mandrel" + name + "Mesh"]);
   
-    const mandrel = mandrelGet(name);
+    const mandrel = await mandrelGet(name);
 
     if (mandrel){
         const render = generatrixRender(mandrel, 90)
@@ -382,17 +291,18 @@ function mandrelTreeUpdate(name) {
 }
 window.mandrelTreeUpdate = mandrelTreeUpdate;
   
-function SetPole() {
-    const mandrel = mandrelGet("Raw")
+async function SetPole() {
+    const mandrel = await mandrelGet("Raw")
     if (!mandrel) return;
     const {x, r} = mandrel
-    if (r.length > 0) inputFieldSet('poleR', r[0]);
+    if (r.length > 0)
+        await inputFieldSet('poleR', r[0]);
 }
 
-function mandrelSet(name, xOrMandrel, r = null){
+async function mandrelSet(name, xOrMandrel, r = null){
     let mandrel = xOrMandrel;
     if (r) mandrel = { x: xOrMandrel, r: r };
-    fieldSet("mandrel" + name, mandrel);
+    await fieldSet("mandrel" + name, mandrel);
     if (name == "Raw") SetPole();
     mandrelDraw(name);
 }
@@ -408,8 +318,8 @@ function mandrelsDraw() {
     mandrelDraw("Smoothed")
 }
 
-function mandrelClear(name) {
-    mandrelSet(name, undefined);
+async function mandrelClear(name) {
+    await mandrelSet(name, undefined);
 }
 window.mandrelClear = mandrelClear;
 
@@ -417,69 +327,69 @@ window.mandrelClear = mandrelClear;
 // mandrel transformation
 
 
-function mandrelShiftX(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelShiftX(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
     x = x.map(value => value + inputValue("shift"));
-    mandrelSet("Raw", x, r);
+    await mandrelSet("Raw", x, r);
 }
 window.mandrelShiftX = mandrelShiftX;
 
-function mandrelShiftR(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelShiftR(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
     r = r.map(value => value + inputValue("shift"));
-    mandrelSet("Raw", x, r);
+    await mandrelSet("Raw", x, r);
 }
 window.mandrelShiftR = mandrelShiftR;
 
-function mandrelMultiplyX(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelMultiplyX(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
     x = x.map(value => value * inputValue("koeff"));
-    mandrelSet("Raw", x, r);
+    await mandrelSet("Raw", x, r);
 }
 window.mandrelMultiplyX = mandrelMultiplyX;
 
-function mandrelMultiplyR(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelMultiplyR(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
     r = r.map(value => value * inputValue("koeff"));
-    mandrelSet("Raw", x, r);
+    await mandrelSet("Raw", x, r);
 }
 window.mandrelMultiplyR = mandrelMultiplyR;
 
-function mandrelReverse(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelReverse(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
     x = x.map(value => -value);
-    mandrelSet("Raw", x, r);
+    await mandrelSet("Raw", x, r);
 }
 window.mandrelReverse = mandrelReverse;
 
-function mandrelSwap(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelSwap(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
-    mandrelSet("Raw", r, x)
+    await mandrelSet("Raw", r, x)
 };
 window.mandrelSwap = mandrelSwap;
 
-function mandrelRedirect(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelRedirect(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
-    mandrelSet("Raw", x.reverse(), r.reverse())
+    await mandrelSet("Raw", x.reverse(), r.reverse())
 }
 window.mandrelRedirect = mandrelRedirect;
 
-function mandrelMirror(){
-    const mandrel = mandrelGet("Raw");
+async function mandrelMirror(){
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
 
@@ -495,7 +405,7 @@ function mandrelMirror(){
     x = [...xReflected, ...xSh];
     r = [...rReflected, ...r];
 
-    mandrelSet("Raw", x, r);
+    await mandrelSet("Raw", x, r);
 }
 window.mandrelMirror = mandrelMirror;
 
@@ -503,20 +413,20 @@ window.mandrelMirror = mandrelMirror;
 // Thickness
 
 document.getElementById('thicknessGet').addEventListener(
-    'click', () => {
+    'click', async () => {
         loading();
 
-        const coilCorrected = coilGet("Corrected")
-        const coilMeridian = fieldGet("coilMeridian");
+        const coilCorrected = await coilGet("Corrected")
+        const coilMeridian = await fieldGet("coilMeridian");
 
         if (!coilCorrected || !coilMeridian) {
             showError("No data");
             return;
         }
 
-        return lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, fieldGet('band')])
-            .then((res) => {
-                mandrelSet("Wound", res);
+        return lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, await fieldGet('band')])
+            .then(async (res) => {
+                await mandrelSet("Wound", res);
                 loaded();
             })
             .catch(error => {
@@ -529,18 +439,18 @@ document.getElementById('thicknessGet').addEventListener(
 // Smooth
 
 document.getElementById('mandrelSmooth').addEventListener(
-    'click', () => {
+    'click', async () => {
         loading();
 
-        const mandrel = mandrelGet("Wound");
+        const mandrel = await mandrelGet("Wound");
         if (!mandrel) {
             showError("No wound mandrel");
             return;
         }
 
         return lambdaCall("smooth_full", [mandrel])
-            .then((res) => {
-                mandrelSet("Smoothed", res);
+            .then(async (res) => {
+                await mandrelSet("Smoothed", res);
                 loaded();
             })
             .catch(error => {
@@ -556,18 +466,18 @@ document.getElementById('coilCalc').addEventListener(
     'click', () => { coilCalc(); }
 );
 
-function coilCalc() {
+async function coilCalc() {
     loading();
 
-    const mandrel = mandrelGet("Raw");
+    const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
 
     try {
-        return lambdaCall("vitok.vitok", [mandrel, fieldGet("poleR"), fieldGet("band")])
-            .then(res => {
+        return lambdaCall("vitok.vitok", [mandrel, await fieldGet("poleR"), await fieldGet("band")])
+            .then(async (res) => {
                 const [coil, meridian] = res
                 coilSet("Initial", coil);
-                fieldSet("coilMeridian", meridian);
+                await fieldSet("coilMeridian", meridian);
 
                 loaded();
 
@@ -581,20 +491,20 @@ function coilCalc() {
     }
 }
 
-function coilRender(suffix) {
-    const coil = coilGet(suffix)
+async function coilRender(suffix) {
+    const coil = await coilGet(suffix)
     if (!coil) return undefined;
 
     const n = coil.x.length
 
-    const mode = suffix == "Initial" ? "first" : fieldGet("windingMode");
+    const mode = suffix == "Initial" ? "first" : await fieldGet("windingMode");
     let Coils = 1
     if (mode == "first"){
         Coils = 1
     } else if (mode == "round") {
-        Coils = fieldGet("conv") + 1
+        Coils = await fieldGet("conv") + 1
     } else if (mode == "all") {
-        const fibboGetSelected = fibboGetSelectedValues();
+        const fibboGetSelected = await fibboGetSelectedValues();
         Coils = fibboGetSelected["Coils"]
     }
 
@@ -624,22 +534,22 @@ function coilRender(suffix) {
 
 // Tape
 
-function tapeCalc(prefix) {
-    const coil = coilGet(prefix)
+async function tapeCalc(prefix) {
+    const coil = await coilGet(prefix)
     if (coil) {
         loading();
-        lambdaCall("calc.tape", [coil, fieldGet("band")])
-            .then(res => {
-                fieldSet("tape" + prefix, res);
-                coilDraws();
+        lambdaCall("calc.tape", [coil, await fieldGet("band")])
+            .then(async res => {
+                await fieldSet("tape" + prefix, res);
+                await coilDraws();
                 loaded();
             })
             .catch(error => {
                 showError(error);
             });
     } else {
-        fieldSet("tape" + prefix, undefined);
-        coilDraws();
+        await fieldSet("tape" + prefix, undefined);
+        await coilDraws();
     }
 }
 
@@ -649,13 +559,13 @@ function tapeRemove(suffix) {
     removeMesh(window["tape" + suffix + "Mesh"]);
 }
 
-function coilDraw(suffix) {
-    let render = coilRender(suffix);
+async function coilDraw(suffix) {
+    let render = await coilRender(suffix);
     if(render){
         window["coil" + suffix + "Line"] = addLine(render);
     }
 
-    render = tapeRender(suffix);
+    render = await tapeRender(suffix);
     if (render){
         const colorLine = 0xd38629
         window["tape" + suffix + "Line"] = addLine([render[0], render[1]], colorLine);
@@ -665,33 +575,33 @@ function coilDraw(suffix) {
     }
 }
 
-function coilDraws() {
-    const mode = fieldGet("windingMode");
+async function coilDraws() {
+    const mode = await fieldGet("windingMode");
 
     tapeRemove("Initial");
     tapeRemove("Corrected");
     tapeRemove("Interpolated");
 
-    if (coilGet("Interpolated")){
-        coilDraw("Interpolated");
-    } else if (coilGet("Corrected")){
-        coilDraw("Corrected");
+    if (await coilGet("Interpolated")){
+        await coilDraw("Interpolated");
+    } else if (await coilGet("Corrected")){
+        await coilDraw("Corrected");
     } else {
-        coilDraw("Initial");
+        await coilDraw("Initial");
     }
 
-    animateInit();
+    await animateInit();
 }
 window.coilDraws = coilDraws
 
-function tapeRender(suffix) {
-    const coil = coilGet(suffix);
+async function tapeRender(suffix) {
+    const coil = await coilGet(suffix);
     if (!coil) return undefined
 
-    const tape = fieldGet("tape" + suffix);
+    const tape = await fieldGet("tape" + suffix);
     if (!tape) return undefined;
 
-    const mode = suffix == "Initial" ? "first" : fieldGet("windingMode");
+    const mode = suffix == "Initial" ? "first" : await fieldGet("windingMode");
     const n = coil.x.length;
     
     const vertices = [];
@@ -702,9 +612,9 @@ function tapeRender(suffix) {
     if (mode == "first"){
         Coils = 1
     } else if (mode == "round") {
-        Coils = fieldGet("conv") + 1
+        Coils = await fieldGet("conv") + 1
     } else if (mode == "all") {
-        const fibboGetSelected = fibboGetSelectedValues();
+        const fibboGetSelected = await fibboGetSelectedValues();
         Coils = fibboGetSelected["Coils"]
     }
 
@@ -742,22 +652,22 @@ function tapeRender(suffix) {
 
 
 // Winding
-function Winding(param = undefined){
+async function Winding(param = undefined){
     loading();
 
-    const coilCorrected = coilGet("Corrected");
+    const coilCorrected = await coilGet("Corrected");
     if (!coilCorrected){
         showError("No coil data")
         return
     }
 
-    lambdaCall("calc.winding", [coilCorrected, fieldGet('safetyR'), fieldGet('lineCount'), fieldGet('band')])
-        .then(res => {
+    lambdaCall("calc.winding", [coilCorrected, await fieldGet('safetyR'), await fieldGet('lineCount'), await fieldGet('band')])
+        .then(async res => {
             coilSet ("Interpolated"            , res[0]);
-            fieldSet("equidistantaInterpolated", res[1]);
-            fieldSet("rolleyInterpolated"      , res[2]);
+            await fieldSet("equidistantaInterpolated", res[1]);
+            await fieldSet("rolleyInterpolated"      , res[2]);
 
-            coilDraws();
+            await coilDraws();
             animateInit();
 
             loaded();
@@ -779,17 +689,17 @@ document.getElementById('netStructure').addEventListener(
     'change', function (event) { patternsCalc() }
 );
 
-function patternsCalc() {
+async function patternsCalc() {
     loading();
-    lambdaCall("fibbo", [coilGet("Initial"), fieldGet("band"), fieldGet("conv"), fieldGet("netStructure")])
-        .then((patterns) => {
-            fieldSet("patterns", patterns);
-            fibboRenderTable();
+    lambdaCall("fibbo", [await coilGet("Initial"), await fieldGet("band"), await fieldGet("conv"), await fieldGet("netStructure")])
+        .then(async (patterns) => {
+            await fieldSet("patterns", patterns);
+            await fibboRenderTable();
 
             const minIndex = patterns.reduce((minIdx, entry, idx, arr) => 
                 Math.abs(entry.Correction) < Math.abs(arr[minIdx].Correction) ? idx : minIdx
             , 0);
-            fibboSelectRow(minIndex);
+            await fibboSelectRow(minIndex);
 
             loaded();
         })
@@ -801,25 +711,25 @@ function patternsCalc() {
 
 // Correct coils
 
-function coilSet(suffix, coil) {
-    fieldSet("coil" + suffix, coil)
+async function coilSet(suffix, coil) {
+    await fieldSet("coil" + suffix, coil)
 
     if (suffix == "Initial") {
-        coilSet("Corrected", undefined);
+        await coilSet("Corrected", undefined);
     } else if (suffix == "Corrected") {
-        coilSet("Interpolated", undefined);
+        await coilSet("Interpolated", undefined);
     }
 
-    tapeCalc(suffix);
+    await tapeCalc(suffix);
 }
 
-function coilGet(suffix) {
-    let coil = fieldGet("coil" + suffix);
+async function coilGet(suffix) {
+    let coil = await fieldGet("coil" + suffix);
 
     if (!coil) return undefined;
     
     if (suffix == "Corrected") {
-        const coilInitial = fieldGet("coilInitial");
+        const coilInitial = await fieldGet("coilInitial");
         coil = {
             x : coilInitial["x" ],
             r : coilInitial["r" ],
@@ -830,14 +740,14 @@ function coilGet(suffix) {
 
     return coil;
 }
-window.coilGet = coilGet
+window.coilGet = await coilGet
 
 
-document.getElementById('coilCorrect').addEventListener('click', () => {
+document.getElementById('coilCorrect').addEventListener('click', async () => {
     loading();
 
-    const coil = coilGet("Initial");
-    const { Turns, Coils } = fibboGetSelectedValues();
+    const coil = await coilGet("Initial");
+    const { Turns, Coils } = await fibboGetSelectedValues();
 
     lambdaCall("conte", [coil, Turns, Coils])
         .then(res => {
@@ -858,7 +768,7 @@ async function CNCGet(itpEqd) {
 
 async function CNCExport() {
     loading();
-    const itpEqd = fieldGet("equidistantaInterpolated");
+    const itpEqd = await fieldGet("equidistantaInterpolated");
     if (!itpEqd) {
         showError("No interpolated equidistanta yet");
         loaded();
@@ -866,7 +776,7 @@ async function CNCExport() {
     }
 
     const txt = await lambdaCall("CNC", [itpEqd]);
-    const filename = fieldGet("PartNumber") + "_" + fieldGet("LayerNumber") + "_CNC.txt";
+    const filename = await fieldGet("PartNumber") + "_" + await fieldGet("LayerNumber") + "_CNC.txt";
     await saveFile(CNCGet, itpEqd, filename, "text/plain");
     loaded();
 }
@@ -875,10 +785,10 @@ window.CNCExport = CNCExport
 
 // ALL
 
-function drawAll() {
+async function drawAll() {
     mandrelsDraw();
-    coilDraws()
-    animateInit();
+    await coilDraws()
+    await animateInit();
 }
 
 
@@ -888,7 +798,7 @@ function convertToYaml(data){
 }
 
 async function vesselSave(){
-    const filename = fieldGet("PartNumber") + "_" + fieldGet("LayerNumber") + ".yaml";
+    const filename = await fieldGet("PartNumber") + "_" + await fieldGet("LayerNumber") + ".yaml";
     await saveFile(convertToYaml, vessel, filename, "application/x-yaml");
 }
 window.vesselSave = vesselSave;
@@ -905,9 +815,9 @@ function coilLoadOnClick(event) {
 
     reader.readAsText(file);
 };
-function coilLoadOnFileLoad(event) {
-    fieldSet("coilInitial", loadFromYaml(event.target.result));
-    tapeCalc("Corrected");
+async function coilLoadOnFileLoad(event) {
+    await fieldSet("coilInitial", loadFromYaml(event.target.result));
+    await tapeCalc("Corrected");
 }
 
 
@@ -922,7 +832,7 @@ async function loadFromYamlURL(url) {
     } catch (error) {
         showError(error);
     }
-    fieldAllSet(loadFromYaml(await response.text()));
+    await fieldAllSet(loadFromYaml(await response.text()));
 }
 function vesselloadFromURL(name) {
     loading();
@@ -931,27 +841,31 @@ function vesselloadFromURL(name) {
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(() => {
         SetPole();
-        drawAll();
         loaded();
+        drawAll();
     })
 };
 window.vesselloadFromURL = vesselloadFromURL
 
 
 // Clear
-function vesselClear() {
-    fieldAllClear();
-    inputFieldInit();
+async function vesselClear() {
+    await fieldAllClear();
+    await inputFieldInit();
     clearScene();
     drawAll();
 }
 window.vesselClear = vesselClear
 
-function vesselOnLoad() {
+async function vesselOnLoad() {
     window.tapeThickness = 0.05
     window.tapeThicknessFirst = window.tapeThickness * 5
 
-    fieldAllUpdateFromStorage();
+    await fieldAllUpdateFromStorage();
+}
+window.vesselOnLoad = vesselOnLoad
+
+async function vesselLoadExample() {
     if (!vessel.mandrelRaw) {
         toggleHelp(true);
         vesselloadFromURL("engine");
@@ -962,4 +876,4 @@ function vesselOnLoad() {
     }
     SetPole();
 }
-window.vesselOnLoad = vesselOnLoad
+window.vesselLoadExample = vesselLoadExample

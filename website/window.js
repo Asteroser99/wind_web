@@ -60,9 +60,9 @@ window.inputValue = inputValue
 
 
 
-export function openTab(tabId) {
+export async function openTab(tabId) {
     if (!tabId) tabId = "vessel";
-    fieldSet("page", tabId);
+    await fieldSet("page", tabId);
 
     let hideIt = false;
     const activeTab  = document.querySelector('.tab-content.active' );
@@ -199,7 +199,6 @@ function funcButtonInit(){
                 document.getElementById('modal-overlay').style.display = 'block';
                 
                 const needsAnswer = window.funcButtonFunction != undefined;
-                console.log(needsAnswer)
                 document.getElementById('questionYes'  ).style.display =  needsAnswer ? 'block' : 'none';
                 document.getElementById('questionNo'   ).style.display =  needsAnswer ? 'block' : 'none';
                 document.getElementById('questionOk'   ).style.display = !needsAnswer ? 'block' : 'none';
@@ -253,35 +252,37 @@ function toggleHelp(toggle, param){
 }
 window.toggleHelp = toggleHelp
 
-function toggleEquidistanta(toggled){
+async function toggleEquidistanta(toggled){
     window.equidistantaShow = toggled
-    animateVisibilities();
+    await animateVisibilities();
 }
 window.toggleEquidistanta = toggleEquidistanta
 
-function toggleMandrel(toggled){
+async function toggleMandrel(toggled){
     window.mandrelShow = toggled;
-    animateVisibilities();
+    await animateVisibilities();
 }
 window.toggleMandrel = toggleMandrel
 
-function toggleLine(toggled){
+async function toggleLine(toggled){
     window.lineShow = toggled;
-    animateVisibilities();
+    await animateVisibilities();
 }
 window.toggleLine = toggleLine
 
-function toggleTape(toggled){
+async function toggleTape(toggled){
     window.tapeShow = toggled;
-    animateVisibilities();
+    await animateVisibilities();
 }
 window.toggleTape = toggleTape
 
 
 // Init
 
-function inputFieldInit(){
-    document.querySelectorAll(".inputField").forEach(input => {
+async function inputFieldInit(){
+    // document.querySelectorAll(".inputField").forEach(input => {
+    const inputs = document.querySelectorAll(".inputField");
+    for (const input of inputs) {
         const id = input.id;
     
         function inputValue1(input){
@@ -303,13 +304,13 @@ function inputFieldInit(){
         });
         
         const listener = input.type === "checkbox" ? "click" : "input";
-        input.addEventListener(listener, () => {
+        input.addEventListener(listener, async () => {
             const value = inputValue1(input);
-            // console.log("field set", id, fieldGet(id), "->", value);
-            fieldSet(id, value);
+            // console.log("field set", id, await fieldGet(id), "->", value);
+            await fieldSet(id, value);
         });
     
-        const storedValue = fieldGet(id);
+        const storedValue = await fieldGet(id);
     
         if (storedValue !== undefined && storedValue !== null) {
             // console.log("val to form", id, inputValue1(input), "->", storedValue);
@@ -321,26 +322,27 @@ function inputFieldInit(){
         } else {
             const initialValue = inputValue1(input);
             // console.log("form to val", id, storedValue, initialValue);
-            fieldSet(id, initialValue);
+            await fieldSet(id, initialValue);
         }
-    });
+    };
 }
 window.inputFieldInit = inputFieldInit
 
-function inputFieldSet(id, value) {
+async function inputFieldSet(id, value) {
     const input = document.getElementById(id);
     if (input) {
         input.value = value;
-        fieldSet(id, value);
+        await fieldSet(id, value);
     }
 }
 window.inputFieldSet = inputFieldSet;
 
 function InitGoToWork(){
     const button = document.getElementById("begin-to-work-button");
-    button.addEventListener('click', (event) => {
+    button.onclick = (event) => {
+    // button.addEventListener('click', (event) => {
         handleToggleButtonClick(event.currentTarget);
-    });
+    };
     button.classList.add('active');
 
     funcButtonInit();
@@ -366,9 +368,10 @@ function handleToggleButtonClick(button) {
 
 function toggleButtonInit(){
     document.querySelectorAll('.toggle-button').forEach(button => {
-        button.addEventListener('click', (event) => {
+        button.onclick = (event) => {
+        // button.addEventListener('click', (event) => {
             handleToggleButtonClick(event.currentTarget);
-        });
+        };
 
         const active = button.classList.contains('active')
         const func = button.dataset.function;
@@ -392,7 +395,7 @@ window.loadContent = loadContent
 
 // OnLoad
 
-function windowOnLoad(){
+async function windowOnLoad(){
     loadContent("impressum", "impressum-text");
     loadContent("vessel"   , "help-vessel", InitGoToWork);
     loadContent("mandrel"  , "help-mandrel");
@@ -401,22 +404,25 @@ function windowOnLoad(){
     loadContent("winding"  , "help-winding");
     loadContent("thickness", "help-thickness");
 
-    inputFieldInit();
+    await inputFieldInit();
     funcButtonInit();
     toggleButtonInit();
 }
 
-window.onload = function () {
+window.onload = async function () {
     window.vessel = {};
 
-    windowOnLoad();
-    threeOnLoad();
-    patternsOnLoad();
-    vesselOnLoad();
-    cognitoOnLoad();
-    animateOnLoad();
+    await storageOnLoad();
+    await windowOnLoad();
+    await threeOnLoad();
+    await patternsOnLoad();
+    await vesselOnLoad();
+    await cognitoOnLoad();
+    await animateOnLoad();
     
-    openTab(fieldGet("page"))
+    await openTab(await fieldGet("page"))
 
+    await vesselLoadExample()
+    
     loaded();
 };

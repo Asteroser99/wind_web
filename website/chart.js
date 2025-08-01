@@ -116,8 +116,8 @@ function mandrelConfig() {
   };
 }
 
-function mandrelChartUpdate(name){
-  const mandrel = mandrelGet(name);
+async function mandrelChartUpdate(name){
+  const mandrel = await mandrelGet(name);
   const {x, r} = mandrel ? mandrel : {x: [], r: []};
 
   const data = x.map((value, index) => ({ 

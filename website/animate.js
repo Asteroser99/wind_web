@@ -100,11 +100,11 @@ function generateIndices(rows) {
     return newIndices;
 }
 
-function animateInit(){
-    let coil = coilGet("Interpolated");
-    let tape = fieldGet("tapeInterpolated");
-    let eqd  = fieldGet("equidistantaInterpolated");
-    let roll = fieldGet("rolleyInterpolated");
+async function animateInit(){
+    let coil = await coilGet("Interpolated");
+    let tape = await fieldGet("tapeInterpolated");
+    let eqd  = await fieldGet("equidistantaInterpolated");
+    let roll = await fieldGet("rolleyInterpolated");
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
@@ -112,10 +112,10 @@ function animateInit(){
 
     window.animateOn = window.animateReady;
 
-    frameInit()
-    frameUpdate();
+    await frameInit()
+    await frameUpdate();
 
-    animateVisibilities();
+    await animateVisibilities();
 
     if (!window.animateReady) return;
 
@@ -127,7 +127,7 @@ function animateInit(){
 
 
     { // tails
-        const { Turns, Coils } = fibboGetSelectedValues();
+        const { Turns, Coils } = await fibboGetSelectedValues();
         window.angleStep = 2 * Math.PI * Turns / Coils;
 
         removeMesh(window.tapeLineTail);
@@ -188,7 +188,7 @@ function animateInit(){
     { // rolleyMesh
         removeMesh(window.rolleyMesh);
   
-        const band = fieldGet('band') / 2
+        const band = await fieldGet('band') / 2
         const rolleyMandrel = {
             x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
             r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
@@ -201,7 +201,7 @@ function animateInit(){
         window.rolleyMesh = mesh;
     }
 
-    animateVisibilities();
+    await animateVisibilities();
 
     rolleyAnimate();
 }
@@ -304,8 +304,8 @@ function tapeVisibility(prefix){
     }
 }
 
-function animateVisibilities(){
-    window.animateOn = fieldGet("windingMode") == "first";
+async function animateVisibilities(){
+    window.animateOn = await fieldGet("windingMode") == "first";
 
     const on = window.animateOn && window.animateReady
 
@@ -422,16 +422,16 @@ function animate(timestamp) {
 }
 window.animate = animate
 
-function modeButtonInit(){
+async function modeButtonInit(){
     const buttons = document.querySelectorAll(".mode-button");
     buttons.forEach(button => {
-        button.addEventListener("click", () => {
+        button.addEventListener("click", async () => {
             buttons.forEach(btn => btn.classList.remove("active"));
             button.classList.add("active");
             const mode = button.getAttribute("data-mode");
-            fieldSet("windingMode", mode);
-            coilDraws();
-            animateVisibilities();
+            await fieldSet("windingMode", mode);
+            await coilDraws();
+            await animateVisibilities();
         });
 
         if(button.classList.contains('active'))
@@ -440,7 +440,7 @@ function modeButtonInit(){
 }
 window.modeButtonInit = modeButtonInit
 
-function animateOnLoad(){
+async function animateOnLoad(){
     const animateButton = document.getElementById("animateButton");
     animateButton.addEventListener("click", () => {
         window.animateAuto = !window.animateAuto;
@@ -457,9 +457,9 @@ function animateOnLoad(){
 
     window.animateAuto = true;
 
-    modeButtonInit();
+    await modeButtonInit();
 
     animate();
-    animateVisibilities();
+    await animateVisibilities();
 }
 window.animateOnLoad = animateOnLoad

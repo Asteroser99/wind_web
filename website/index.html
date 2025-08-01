@@ -23,7 +23,7 @@
 
     <link rel="canonical" href="https://WinderCAM.de/" />
 
-    <title>WinderCAM beta</title><!-- betaversion -->
+    <title>WinderCAM promo</title><!-- promo -->
 
     <script type="importmap">
         {
@@ -33,6 +33,9 @@
             }
         }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
+    <script type="module" src="./storage.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
     <script type="module" src="./window.js"></script>
@@ -67,7 +70,7 @@
                 <img id="logo" src="./img/logo.gif" alt="Logo">
             </button>
         </div>
-        <div class="title"><h1>WinderCAM<!-- betaversion --><sub><small>beta</small></sub></h1></div>
+        <div class="title"><h1>WinderCAM<!-- promo --><sub><small>promo</small></sub></h1></div>
         <div class="buttons">
             <button class="header-btn small toggle-button toggle-help" data-function="toggleHelp" ><img src="./img/help.png"><br>Help</button>
             <button id="loginToggle" class="header-btn small toggle-button" data-function="toggleLogin"><img id="logImg" src="./img/logOff.png"><br>Account</button>
@@ -425,11 +428,11 @@
                     <button class="center-button small function-button" data-function="cognitoLogOff" title="Sign out"><img src="./img/logOff.png">&nbsp;Sign out</button>
                 </div>
 
-                <!-- betaversion -->
-                <div id="SubscriptionBeta" class="vPanel" style="display:none">
+                <!-- promo -->
+                <div id="SubscriptionPromo" class="vPanel" style="display:none">
                     <h3>Subscription</h3>
                     <table>
-                        <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Beta: free mode</div></td></tr>
+                        <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Promo: free mode</div></td></tr>
                     </table>
                 </div>
 

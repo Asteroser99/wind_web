@@ -372,10 +372,10 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
 }
 window.addLine = addLine
 
-function frameInit(){
+async function frameInit(){
   const Fr = scale.y.max;
   const Fd = Fr / 50;
-  const SR = fieldGet("safetyR");
+  const SR = await fieldGet("safetyR");
 
   { // frameMesh
     const vertices = Array(6 * 3).fill(0);
@@ -447,9 +447,9 @@ function frameInit(){
 }
 window.frameInit = frameInit
 
-function frameUpdate(){
+async function frameUpdate(){
   const Rm = scale.y.max;
-  const SR = fieldGet("safetyR");
+  const SR = await fieldGet("safetyR");
   const Xn = scale.x.min - (Rm + SR);
   const Xm = scale.x.max + (Rm + SR);
   const Yd = + (Rm * 1.5 + SR);
@@ -581,7 +581,7 @@ function clearScene() {
 }
 window.clearScene = clearScene
 
-function threeOnLoad() {
+async function threeOnLoad() {
     threeInit();
     loaded();
 }
