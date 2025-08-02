@@ -1,3 +1,68 @@
+// layers
+
+async function layersRenderTable() {
+    // const layers = await fieldGet("layers");
+    const layers = ["First", "Second"];
+    if(!layers) return;
+
+    const tableBody = document.querySelector("#layers-table tbody");
+
+    while (tableBody.firstChild) {
+        tableBody.removeChild(tableBody.firstChild);
+    }    
+
+    layers.forEach((item, index) => {
+        const row = document.createElement("tr");
+            // <td>${item.Turns}</td>
+        row.innerHTML = `
+            <td>${item}</td>
+        `;
+        row.addEventListener("click", () => layersSelectRow(index));
+        row.dataset.index = index;
+        row.classList.add("clickable-row");
+        tableBody.appendChild(row);
+    });
+
+    await layersSelectRow(await fieldGet("layersIndex"))
+}
+window.layersRenderTable = layersRenderTable;
+
+async function layersSelectRow(index) {
+    const tableBody = document.querySelector("#layers-table tbody");
+    const row = tableBody.querySelector(`tr[data-index='${index}']`);
+    if (!row) return;
+
+    await fieldSet("layersIndex", index);
+
+    const selected = tableBody.querySelector(".selected");
+    if (selected) {
+        selected.classList.remove("selected");
+    }
+    row.classList.add("selected");
+
+    drawPattern();
+}
+window.layersSelectRow = layersSelectRow;
+
+async function layersGetSelectedValues() {
+    // const layers = await fieldGet("layers");
+    const layers = ["First", "Second"];
+    const selectedRow = document.querySelector("#layers-table tbody .selected");
+    if (!selectedRow) return { Turns: 0, Coils: 0 };
+    
+    const index = selectedRow.dataset.index;
+    if (index === undefined || !layers || !layers[index]) return { Turns: 0, Coils: 0 };
+
+    return {
+        Turns: layers[index].Turns,
+        Coils: layers[index].Coils
+    };
+}
+window.layersGetSelectedValues = layersGetSelectedValues;
+
+
+
+
 // vesselLoad
 
 const vesselLoadInput = document.getElementById('vesselLoadInput');
@@ -18,6 +83,8 @@ function vesselLoadOnClick(event) {
 };
 async function vesselLoadOnFileLoad(event) {
     await fieldAllSet(loadFromYaml(event.target.result));
+    await inputFieldInit();
+    await modeButtonInit();
     drawAll()
 }
 function loadFromYaml(yamlString){
@@ -839,9 +906,13 @@ function vesselloadFromURL(name) {
     vesselClear();
     clearScene();
 
-    loadFromYamlURL('./examples/' + name + '.yaml').then(() => {
-        SetPole();
+    loadFromYamlURL('./examples/' + name + '.yaml').then(async () => {
         loaded();
+
+        await inputFieldInit();
+        await modeButtonInit();
+        SetPole();
+        
         drawAll();
     })
 };
@@ -861,11 +932,12 @@ async function vesselOnLoad() {
     window.tapeThickness = 0.05
     window.tapeThicknessFirst = window.tapeThickness * 5
 
-    await fieldAllUpdateFromStorage();
+    await fieldAllGet();
 }
 window.vesselOnLoad = vesselOnLoad
 
 async function vesselLoadExample() {
+    await layersRenderTable()
     if (!vessel.mandrelRaw) {
         toggleHelp(true);
         vesselloadFromURL("engine");

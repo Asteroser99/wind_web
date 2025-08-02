@@ -1,25 +1,13 @@
-// import Dexie from 'dexie';
 const db = new Dexie("WinderCAM");
 
-// storage
 
-function storageTableGet(tableName) {
-  if (!db[tableName]) {
-    throw new Error(`Table "${tableName}" is not defined in Dexie schema.`);
-  }
-  return db[tableName];
-}
+// local
 
-function storageSetLocal(table, id, value){
+function storageLocalSet(table, id, value){
     localStorage.setItem(table + "_" + id, JSON.stringify(value));
 }
-async function storageSet(table, id, value){
-    const tbl = storageTableGet(table);
-    await tbl.put({ id, value });
-}
-window.storageSet = storageSet
 
-function storageGetLocal(table, id){
+function storageLocalGet(table, id){
     let value = localStorage.getItem(table + "_" + id);
     if (value && value != undefined){
         try {
@@ -30,6 +18,27 @@ function storageGetLocal(table, id){
     }
     return value;
 }
+
+async function storageLocalRemove(table, id){
+    localStorage.removeItem(table + "_" + id);
+}
+
+
+// storage
+
+function storageTableGet(tableName) {
+    if (!db[tableName]) {
+        throw new Error(`Table "${tableName}" is not defined in Dexie schema.`);
+    }
+    return db[tableName];
+}
+
+async function storageSet(table, id, value){
+    const tbl = storageTableGet(table);
+    await tbl.put({ id, value });
+}
+window.storageSet = storageSet
+
 async function storageGet(table, id) {
     const tbl = storageTableGet(table);
     const entry = await tbl.get(id);
@@ -37,9 +46,6 @@ async function storageGet(table, id) {
 }
 window.storageGet = storageGet
 
-async function storageRemoveLocal(table, id){
-    localStorage.removeItem(table + "_" + id);
-}
 async function storageRemove(table, id) {
   const tbl = storageTableGet(table);
   await tbl.delete(id);
@@ -49,83 +55,58 @@ window.storageRemove = storageRemove
 
 // fields
 
-const fieldAsyncStorageSet = async (key, value) => {
-    const keys = await storageGet('vessel', 'keys') || [];
-
-    if (!keys.includes(key)) {
-        keys.push(key);
-    }
-    await storageSet('vessel', 'keys', keys);
-
-    await storageSet('vessel', `${key}`, value);
-};
-window.fieldAsyncStorageSet = fieldAsyncStorageSet;
-
 const fieldSet = async (key, value) => {
     vessel[key] = value;
-
-    try {
-        const result = await fieldAsyncStorageSet(key, value);
-    } catch (error) {
-        showError(error);
-    }
+    await db.layers.put({
+        layer: "layer",
+        id: key,
+        data: value
+    });
 };
-window.fieldSet = fieldSet
+window.fieldSet = fieldSet;
 
 const fieldGet = async (key) => {
     if (Object.keys(vessel).length === 0) {
-        const keys = await storageGet('vessel', 'keys') || [];
-        for (const storedKey of keys) {
-            let value = await storageGet("vessel", `${storedKey}`);
-            vessel[storedKey] = value;
-        }
+        fieldAllGet()
     }
     return vessel[key];
 };
 window.fieldGet = await fieldGet
 
-const fieldAllClear = async () => {
-    const keys = await storageGet('vessel', 'keys') || [];
 
-    keys.forEach((key) => {
-        storageRemove("vessel", `${key}`);
-    });
+// fieldAll
 
-    storageRemove('vessel', 'keys');
-
-    // storageСlear();
-    vessel = {};
-};
-window.fieldAllClear = fieldAllClear
-
-const fieldAllSet = async (newVessel) => {
+const fieldAllSet = async (newLayer) => {
     await fieldAllClear();
 
-    vessel = newVessel;
-
-    for (const [key, value] of Object.entries(newVessel)) {
-        await fieldAsyncStorageSet(key, value)
+    for (const [key, value] of Object.entries(newLayer)) {
+        await fieldSet(key, value)
     }
-
-    await inputFieldInit();
-    await modeButtonInit();
 };
 window.fieldAllSet = fieldAllSet
 
-const fieldAllUpdateFromStorage = async () => {
-    const keys = await storageGet('vessel', 'keys') || [];
-
-    for (const key of keys) {
-        vessel[key] = await storageGet("vessel", `${key}`);
+const fieldAllGet = async () => {
+    const records = await db.layers.where("layer").equals("layer").toArray()
+    for (const record of records) {
+        vessel[record.id] = record.data
     }
 };
-window.fieldAllUpdateFromStorage = fieldAllUpdateFromStorage
+window.fieldAllGet = fieldAllGet
 
+const fieldAllClear = async () => {
+    vessel = {};
+    await db.layers.where("layer").equals("layer").delete();
+};
+window.fieldAllClear = fieldAllClear
+
+
+//
 
 async function storageOnLoad() {
     db.version(1).stores({
-        cognito: "&id",
         vessel: "&id",
+        cognito: "&id",
+        layers: "[layer+id], layer, id",
     });
 }
 window.storageOnLoad = storageOnLoad

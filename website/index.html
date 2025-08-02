@@ -97,6 +97,29 @@
                 <!-- Vessel -->
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
+                        <h3>Layers</h3>
+                        <div class="table-wrapper">
+                            <table id="layers-table">
+                                <thead>
+                                    <!-- <tr>
+                                        <th>Layers</th>
+                                    </tr> -->
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div id="file-vessel">
+                        <h3>Session</h3>
+                        <button class="image-button function-button" data-function="vesselSave" title="Save session">Save&nbsp;<img src="./img/save.png"></button>
+
+                        <button id="vesselLoad" class="image-button" title="Load session">Load&nbsp;<img src="./img/load.png"></button>
+                        <input id="vesselLoadInput" type="file" accept=".yaml" style="display: none;" />
+
+                        <button class="image-button function-button" data-function="vesselClear" data-query="Do you want to clear the session data?" title="Clear session" >Clear&nbsp;<img src="./img/clear.png"></button>
+                        <br>
+
                         <h3>Examples</h3>
                         <div class="button-grid">
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Engine"><img src="./examples/engine.png"></button>
@@ -117,15 +140,7 @@
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="bottle" title="Bottle"><img src="./examples/bottle.png"></button>
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="tank" title="Tank"><img src="./examples/tank.png"></button>
                         </div>
-                    </div>
-                    
-                    <div id="file-vessel">
-                        <button class="image-button function-button" data-function="vesselSave" title="Save session">Save session&nbsp;<img src="./img/save.png"></button><br>
 
-                        <button id="vesselLoad" class="image-button" title="Load session">Load session&nbsp;<img src="./img/load.png"></button><br>
-                        <input id="vesselLoadInput" type="file" accept=".yaml" style="display: none;" />
-
-                        <button class="image-button function-button" data-function="vesselClear" data-query="Do you want to clear the session data?" title="Clear session" >Clear session&nbsp;<img src="./img/clear.png"></button>
                     </div>
                     <div id="help-vessel"></div>
                 </div>
@@ -231,7 +246,7 @@
 
                         <label for="conv">Select pattern:</label><br>
                         <div class="table-wrapper">
-                            <table id="data-table">
+                            <table id="patterns-table">
                                 <thead>
                                     <tr>
                                         <!-- <th>Turns</th> -->

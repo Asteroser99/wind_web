@@ -4,7 +4,7 @@ async function fibboRenderTable() {
     const patterns = await fieldGet("patterns");
     if(!patterns) return;
 
-    const tableBody = document.querySelector("#data-table tbody");
+    const tableBody = document.querySelector("#patterns-table tbody");
 
     while (tableBody.firstChild) {
         tableBody.removeChild(tableBody.firstChild);
@@ -28,7 +28,7 @@ async function fibboRenderTable() {
 window.fibboRenderTable = fibboRenderTable;
 
 async function fibboSelectRow(index) {
-    const tableBody = document.querySelector("#data-table tbody");
+    const tableBody = document.querySelector("#patterns-table tbody");
     const row = tableBody.querySelector(`tr[data-index='${index}']`);
     if (!row) return;
 
@@ -46,7 +46,7 @@ window.fibboSelectRow = fibboSelectRow;
 
 async function fibboGetSelectedValues() {
     const patterns = await fieldGet("patterns");
-    const selectedRow = document.querySelector("#data-table tbody .selected");
+    const selectedRow = document.querySelector("#patterns-table tbody .selected");
     if (!selectedRow) return { Turns: 0, Coils: 0 };
     
     const index = selectedRow.dataset.index;
