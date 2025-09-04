@@ -1,9 +1,7 @@
 // layers
 
 async function layersRenderTable() {
-    // const layers = await fieldGet("layers");
-    const layers = ["First", "Second"];
-    if(!layers) return;
+    const layers = await storageGet("layers") || []
 
     const tableBody = document.querySelector("#layers-table tbody");
 
@@ -16,51 +14,75 @@ async function layersRenderTable() {
             // <td>${item.Turns}</td>
         row.innerHTML = `
             <td>${item}</td>
+            <td>
+                <button class="btn-delete">-</button>
+                <button class="btn-add">+</button>
+            </td>
         `;
-        row.addEventListener("click", () => layersSelectRow(index));
-        row.dataset.index = index;
+        row.onclick = async () => {
+            clearScene();
+
+            await layersSelectRow(item);
+            await fieldAllGet();
+            await allDraw()
+        };
+        row.dataset.index = item;
         row.classList.add("clickable-row");
+
         tableBody.appendChild(row);
+
+        const btnAdd = row.querySelector(".btn-add");
+        btnAdd.onclick = async (event) => {
+            event.stopPropagation();
+
+            clearScene();
+
+            let curLayerId = await layerAdd(item);
+            await layersRenderTable()
+            await layersSelectRow(curLayerId)
+            await fieldAllGet();
+            await allDraw()
+        };
+
+        const btnDelete = row.querySelector(".btn-delete");
+        btnDelete.onclick = async (event) => {
+            event.stopPropagation();
+
+            const curLayer = await layerIdGet()
+            const itemLayer = await layerDelete(item);
+            layersRenderTable()
+            if(curLayer == item){
+
+                clearScene();
+                
+                await layersSelectRow(itemLayer)
+                await fieldAllGet();
+                await allDraw()
+            }
+        };
+
     });
 
-    await layersSelectRow(await fieldGet("layersIndex"))
+    await layersSelectRow(await layerIdGet())
 }
 window.layersRenderTable = layersRenderTable;
 
 async function layersSelectRow(index) {
     const tableBody = document.querySelector("#layers-table tbody");
-    const row = tableBody.querySelector(`tr[data-index='${index}']`);
-    if (!row) return;
-
-    await fieldSet("layersIndex", index);
 
     const selected = tableBody.querySelector(".selected");
     if (selected) {
         selected.classList.remove("selected");
     }
-    row.classList.add("selected");
 
-    drawPattern();
+    await layerIdSet(index);
+
+    const row = tableBody.querySelector(`tr[data-index='${index}']`);
+    if (row){
+        row.classList.add("selected");
+    }
 }
 window.layersSelectRow = layersSelectRow;
-
-async function layersGetSelectedValues() {
-    // const layers = await fieldGet("layers");
-    const layers = ["First", "Second"];
-    const selectedRow = document.querySelector("#layers-table tbody .selected");
-    if (!selectedRow) return { Turns: 0, Coils: 0 };
-    
-    const index = selectedRow.dataset.index;
-    if (index === undefined || !layers || !layers[index]) return { Turns: 0, Coils: 0 };
-
-    return {
-        Turns: layers[index].Turns,
-        Coils: layers[index].Coils
-    };
-}
-window.layersGetSelectedValues = layersGetSelectedValues;
-
-
 
 
 // vesselLoad
@@ -83,9 +105,7 @@ function vesselLoadOnClick(event) {
 };
 async function vesselLoadOnFileLoad(event) {
     await fieldAllSet(loadFromYaml(event.target.result));
-    await inputFieldInit();
-    await modeButtonInit();
-    drawAll()
+    await allDraw()
 }
 function loadFromYaml(yamlString){
     let parsedData = null;
@@ -108,7 +128,7 @@ async function lambdaCall(name, param) {
         path = 'http://127.0.0.1:5000/';   // local flask server
     }
 
-    const cognitoAccessToken = await storageGet('cognito', 'AccessToken');
+    const cognitoAccessToken = await storageGet('cognitoAccessToken');
     const headers = {
         headers: {
             auth: `Bearer ${cognitoAccessToken}`,
@@ -180,7 +200,9 @@ window.mandrelImportCSV = mandrelImportCSV;
 async function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
     let mandrel
     try {
-        if (prefix == "Raw") vesselClear();
+        if (prefix == "Raw")
+            await vesselClear();
+
         mandrel = mandrelFromCSV(text, colNum);
         await mandrelSet(prefix, mandrel)
     } catch (error) {
@@ -564,7 +586,7 @@ async function coilRender(suffix) {
 
     const n = coil.x.length
 
-    const mode = suffix == "Initial" ? "first" : await fieldGet("windingMode");
+    const mode = suffix == "Initial" ? "first" : await storageGet("windingMode");
     let Coils = 1
     if (mode == "first"){
         Coils = 1
@@ -608,7 +630,7 @@ async function tapeCalc(prefix) {
         lambdaCall("calc.tape", [coil, await fieldGet("band")])
             .then(async res => {
                 await fieldSet("tape" + prefix, res);
-                await coilDraws();
+                await tapeDraws();
                 loaded();
             })
             .catch(error => {
@@ -616,7 +638,7 @@ async function tapeCalc(prefix) {
             });
     } else {
         await fieldSet("tape" + prefix, undefined);
-        await coilDraws();
+        await tapeDraws();
     }
 }
 
@@ -626,7 +648,7 @@ function tapeRemove(suffix) {
     removeMesh(window["tape" + suffix + "Mesh"]);
 }
 
-async function coilDraw(suffix) {
+async function tapeDraw(suffix) {
     let render = await coilRender(suffix);
     if(render){
         window["coil" + suffix + "Line"] = addLine(render);
@@ -642,24 +664,21 @@ async function coilDraw(suffix) {
     }
 }
 
-async function coilDraws() {
-    const mode = await fieldGet("windingMode");
-
+async function tapeDraws() {
     tapeRemove("Initial");
     tapeRemove("Corrected");
     tapeRemove("Interpolated");
 
     if (await coilGet("Interpolated")){
-        await coilDraw("Interpolated");
+        await tapeDraw("Interpolated");
     } else if (await coilGet("Corrected")){
-        await coilDraw("Corrected");
+        await tapeDraw("Corrected");
     } else {
-        await coilDraw("Initial");
+        await tapeDraw("Initial");
     }
-
-    await animateInit();
+    // await animateInit();
 }
-window.coilDraws = coilDraws
+window.tapeDraws = tapeDraws
 
 async function tapeRender(suffix) {
     const coil = await coilGet(suffix);
@@ -668,7 +687,7 @@ async function tapeRender(suffix) {
     const tape = await fieldGet("tape" + suffix);
     if (!tape) return undefined;
 
-    const mode = suffix == "Initial" ? "first" : await fieldGet("windingMode");
+    const mode = suffix == "Initial" ? "first" : await storageGet("windingMode");
     const n = coil.x.length;
     
     const vertices = [];
@@ -734,8 +753,8 @@ async function Winding(param = undefined){
             await fieldSet("equidistantaInterpolated", res[1]);
             await fieldSet("rolleyInterpolated"      , res[2]);
 
-            await coilDraws();
-            animateInit();
+            await tapeDraws();
+            await animateInit();
 
             loaded();
         })
@@ -852,9 +871,21 @@ window.CNCExport = CNCExport
 
 // ALL
 
-async function drawAll() {
+async function allClear() {
+    await vesselClear();
+    clearScene();
+}
+
+async function allDraw() {
+    await layersRenderTable()
+
+    await inputFieldInit();
+    await modeButtonInit();
+    await SetPole();
+
     mandrelsDraw();
-    await coilDraws()
+
+    await tapeDraws()
     await animateInit();
 }
 
@@ -864,9 +895,16 @@ function convertToYaml(data){
     return jsyaml.dump(data)
 }
 
+
+async function vesselPrint(){
+    console.log("theVessel:", theVessel);
+    console.log("theLayer:", theLayer);
+}
+window.vesselPrint = vesselPrint;
+
 async function vesselSave(){
     const filename = await fieldGet("PartNumber") + "_" + await fieldGet("LayerNumber") + ".yaml";
-    await saveFile(convertToYaml, vessel, filename, "application/x-yaml");
+    await saveFile(convertToYaml, theLayer, filename, "application/x-yaml");
 }
 window.vesselSave = vesselSave;
 
@@ -899,21 +937,23 @@ async function loadFromYamlURL(url) {
     } catch (error) {
         showError(error);
     }
-    await fieldAllSet(loadFromYaml(await response.text()));
+
+    await fieldAllSet(
+        loadFromYaml(await response.text())
+    );
 }
-function vesselloadFromURL(name) {
+async function vesselloadFromURL(name) {
     loading();
-    vesselClear();
-    clearScene();
+
+    await layerAddIfNotExist()
+    await allClear()
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(async () => {
         loaded();
 
-        await inputFieldInit();
-        await modeButtonInit();
-        SetPole();
-        
-        drawAll();
+        await allDraw();
+
+        await layersRenderTable();
     })
 };
 window.vesselloadFromURL = vesselloadFromURL
@@ -922,30 +962,29 @@ window.vesselloadFromURL = vesselloadFromURL
 // Clear
 async function vesselClear() {
     await fieldAllClear();
-    await inputFieldInit();
     clearScene();
-    drawAll();
+
+    allDraw();
 }
 window.vesselClear = vesselClear
+
+async function vesselActualise() {
+    const curLayer = await layerIdGet()
+    if (!curLayer) {
+        toggleHelp(true);
+
+        await vesselloadFromURL("engine");
+
+        document.getElementById('toggle-button-mandrel').click();
+        document.getElementById('toggle-button-equidistanta').click();
+    } else {
+        await allDraw();
+    }
+}
+window.vesselActualise = vesselActualise
 
 async function vesselOnLoad() {
     window.tapeThickness = 0.05
     window.tapeThicknessFirst = window.tapeThickness * 5
-
-    await fieldAllGet();
 }
 window.vesselOnLoad = vesselOnLoad
-
-async function vesselLoadExample() {
-    await layersRenderTable()
-    if (!vessel.mandrelRaw) {
-        toggleHelp(true);
-        vesselloadFromURL("engine");
-        document.getElementById('toggle-button-mandrel').click();
-        document.getElementById('toggle-button-equidistanta').click();
-    } else {
-        drawAll();
-    }
-    SetPole();
-}
-window.vesselLoadExample = vesselLoadExample

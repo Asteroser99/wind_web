@@ -108,17 +108,14 @@ async function animateInit(){
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
+    await floorUpdate();
+
     window.animateReady = coil != undefined && tape != undefined && eqd != undefined && roll != undefined
-
     window.animateOn = window.animateReady;
-
-    await frameInit()
-    await frameUpdate();
-
-    await animateVisibilities();
 
     if (!window.animateReady) return;
 
+    await frameInit()
 
     window.animateCoil   = coil;
     window.animateTape   = tape;
@@ -126,18 +123,27 @@ async function animateInit(){
     window.animateRolley = roll;
 
 
+    // if (false) 
     { // tails
-        const { Turns, Coils } = await fibboGetSelectedValues();
-        window.angleStep = 2 * Math.PI * Turns / Coils;
+        // const { Turns, Coils } = await fibboGetSelectedValues();
+        // window.angleStep = 2 * Math.PI * Turns / Coils;
+        window.angleStep = coil.fi[coil.fi.length-1]
 
         removeMesh(window.tapeLineTail);
         window.tapeLineTail          = window.tapeInterpolatedLine         .clone();
         window.tapeLineTail.geometry = window.tapeInterpolatedLine.geometry.clone();
+        window.tapeLineTail.material = window.tapeInterpolatedLine.material.clone();
+        // window.tapeLineTail.material.color.set(0xffff00);
+        // window.tapeLineTail.geometry = window.tapeLineTail.geometry.toNonIndexed();
+        // window.tapeLineTail.material = dashedMaterial(window.tapeInterpolatedLine.material.color);
+        // window.tapeLineTail.computeLineDistances();
         scene.scene.add(window.tapeLineTail);
 
         removeMesh(window.tapeMeshTail);
         window.tapeMeshTail          = window.tapeInterpolatedMesh         .clone();
         window.tapeMeshTail.geometry = window.tapeInterpolatedMesh.geometry.clone();
+        window.tapeMeshTail.material = window.tapeInterpolatedMesh.material.clone();
+        // window.tapeMeshTail.material.color.set(0x00ffff);
         scene.scene.add(window.tapeMeshTail);
     }
 
@@ -178,13 +184,6 @@ async function animateInit(){
         window.freeMesh = addMesh([vertices, indices], freeColor);
     };
 
-    // if (false) { // carretLine
-    //     removeMesh(window.carretLine);
-    //     const vertices = Array(4 * 3).fill(0);
-    //     const indices = [0, 1,  2, 3];
-    //     window.carretLine = addLine([vertices, indices], 0x00ff00);
-    // };
-
     { // rolleyMesh
         removeMesh(window.rolleyMesh);
   
@@ -203,7 +202,7 @@ async function animateInit(){
 
     await animateVisibilities();
 
-    rolleyAnimate();
+    // rolleyAnimate();
 }
 window.animateInit = animateInit;
 
@@ -213,11 +212,6 @@ function rolleyAnimate(){
 
     const eqd = window.animateEqd
     const rolleyVert = getT(i)[0];
-
-    // if (window.tapeCorrectedMesh) { // tape
-        // const pos = window.tapeCorrectedMesh.geometry.attributes.position;
-        // console.log(pos.array)
-    // }
 
     if (window.freeLine) { // freeLine
         const pos = window.freeLine.geometry.attributes.position;
@@ -241,19 +235,6 @@ function rolleyAnimate(){
     const Xi = eqd.x[i]
     const Yi = 0;
     const Zi = eqd.r[i]
-
-    // if (window.carretLine) { // carretLine
-    //     const Fr = scale.y.max * 2;
-    //     const vert = [];
-    //     vert.push(Xi,  Yi,  Zi);
-    //     vert.push(Xi,  Yi,  Zi + Fr);
-    //     vert.push(Xi,  Yi,  Fr);
-    //     vert.push(Xi, -Fr,  Fr);
-    //
-    //     const pos = window.carretLine.geometry.attributes.position;
-    //     pos.array.set(vert);
-    //     pos.needsUpdate = true;
-    // }
 
     if (window.carretMesh) { // carretMesh
         window.carretMesh.position.x = Xi * scale.factor;
@@ -305,7 +286,7 @@ function tapeVisibility(prefix){
 }
 
 async function animateVisibilities(){
-    window.animateOn = await fieldGet("windingMode") == "first";
+    window.animateOn = await storageGet("windingMode") == "first";
 
     const on = window.animateOn && window.animateReady
 
@@ -345,27 +326,28 @@ function animate(timestamp) {
     ) {
         window.animateUpdateTime = timestamp;
 
-        window.animateIndex = parseInt(animateSlider.value, 10);
+        let i = parseInt(animateSlider.value, 10);
         if (window.animateAuto) {
-            window.animateIndex += 3
-            if (window.animateIndex >= window.animateCoil.x.length) {
-                window.animateIndex = 0
-            }
-            animateSlider.value = window.animateIndex;
+            let n = window.animateCoil.x.length
+            i += 3
+            if (i >= n) i = i - n
+            animateSlider.value = i;
         }
+        window.animateIndex = i;
 
-        const x  = window.animateEqd.x [window.animateIndex]
-        const r  = window.animateEqd.r [window.animateIndex]
-        const fi = window.animateEqd.fi[window.animateIndex]
-        const dl = window.animateEqd.al[window.animateIndex]
+        const x  = window.animateEqd.x [i]
+        const r  = window.animateEqd.r [i]
+        const fi = window.animateEqd.fi[i]
+        const dl = window.animateEqd.al[i]
   
         // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
         const animateText = ""
-        + `N ${window.animateIndex} | `
+        + `N ${i} | `
         + `x ${x .toFixed(1)} | `
         + `r ${r .toFixed(1)} | `
         + `φ ${fi.toFixed(5)} | `
         + `δ ${(dl * 180. / Math.PI).toFixed(1)}°`
+        + `   ^ ${(window.angleStep).toFixed(5)}°` // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ;
         document.querySelector(".program-p").textContent = animateText;
     
@@ -379,28 +361,28 @@ function animate(timestamp) {
         if (window.animateTapeLineIndices) {
             const mesh = window.tapeInterpolatedLine;
             mesh.geometry.setIndex([
-                ...window.animateTapeLineIndices.slice(   window.animateIndex * 2 * 2)
+                ...window.animateTapeLineIndices.slice(   i * 2 * 2)
             ]);
         }
         if (window.tapeLineTail){
-            window.tapeLineTail.rotation.x = fi + window.angleStep;
+            window.tapeLineTail.rotation.x = fi - window.angleStep;
             const mesh = window.tapeLineTail;
             mesh.geometry.setIndex([
-                ...window.animateTapeLineIndices.slice(0, window.animateIndex * 2 * 2),
+                ...window.animateTapeLineIndices.slice(0, i * 2 * 2),
             ]);
         }
         
         if (window.animateTapeMeshIndices) {
             const mesh = window.tapeInterpolatedMesh;
             mesh.geometry.setIndex([
-                ...window.animateTapeMeshIndices.slice(0, window.animateIndex * 2 * 3)
+                ...window.animateTapeMeshIndices.slice(0, i * 2 * 3)
             ]);
         }
         if (window.tapeMeshTail){
-            window.tapeMeshTail.rotation.x = fi - window.angleStep;
+             window.tapeMeshTail.rotation.x = fi + window.angleStep;
             const mesh = window.tapeMeshTail;
             mesh.geometry.setIndex([
-                ...window.animateTapeMeshIndices.slice(   window.animateIndex * 2 * 3),
+                ...window.animateTapeMeshIndices.slice(   i * 2 * 3),
             ]);
         }
 
@@ -424,28 +406,31 @@ window.animate = animate
 
 async function modeButtonInit(){
     const buttons = document.querySelectorAll(".mode-button");
-    buttons.forEach(button => {
-        button.addEventListener("click", async () => {
+    // buttons.forEach(button => {
+    for (const button of buttons) {
+        button.onclick = async () => {
             buttons.forEach(btn => btn.classList.remove("active"));
             button.classList.add("active");
             const mode = button.getAttribute("data-mode");
-            await fieldSet("windingMode", mode);
-            await coilDraws();
+            await storageSet("windingMode", mode);
+            await tapeDraws();
             await animateVisibilities();
-        });
+        };
 
-        if(button.classList.contains('active'))
-            button.click();
-    });
+        if(button.classList.contains('active')) {
+            const mode = button.getAttribute("data-mode");
+            await storageSet("windingMode", mode);
+        }
+    };
 }
 window.modeButtonInit = modeButtonInit
 
 async function animateOnLoad(){
     const animateButton = document.getElementById("animateButton");
-    animateButton.addEventListener("click", () => {
+    animateButton.onclick = () => {
         window.animateAuto = !window.animateAuto;
         animateButton.classList.toggle("active", window.animateAuto);
-    });
+    };
 
     document.addEventListener("keydown", function(event) {
         if (event.code === "Space") {

@@ -152,21 +152,6 @@ button {
     background-color: #9acbd0;
 }
 
-
-#actions-vessel table {
-    background-color: transparent;
-    background: none;
-    padding: 0px;
-    border-collapse: collapse;
-}
-  
-#actions-vessel td {
-    background: none;
-    background-color: transparent;
-    padding: 0px;
-    border: none;
-}
-  
 #actions-vessel .image-button {
     background: none;
     background-color: transparent;

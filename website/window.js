@@ -62,7 +62,7 @@ window.inputValue = inputValue
 
 export async function openTab(tabId) {
     if (!tabId) tabId = "vessel";
-    await fieldSet("page", tabId);
+    await storageSet("page", tabId);
 
     let hideIt = false;
     const activeTab  = document.querySelector('.tab-content.active' );
@@ -202,7 +202,7 @@ function funcButtonInit(){
                 document.getElementById('questionYes'  ).style.display =  needsAnswer ? 'block' : 'none';
                 document.getElementById('questionNo'   ).style.display =  needsAnswer ? 'block' : 'none';
                 document.getElementById('questionOk'   ).style.display = !needsAnswer ? 'block' : 'none';
-                console.log(document.getElementById('questionOk').style.display)
+                // console.log(document.getElementById('questionOk').style.display)
 
                 funcButtonInit();
             } else {
@@ -234,7 +234,9 @@ function closeModal() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
-function toggleHelp(toggle, param){
+function toggleHelp(toggle, interactive){
+    if (!interactive) return;
+
     const helpOverlay = document.getElementById("help-container");
     helpOverlay.style.display = !toggle ? "none" : "flex";
 
@@ -252,27 +254,28 @@ function toggleHelp(toggle, param){
 }
 window.toggleHelp = toggleHelp
 
-async function toggleEquidistanta(toggled){
+async function toggleEquidistanta(toggled, interactive){
     window.equidistantaShow = toggled
-    await animateVisibilities();
+
+    if (interactive) await animateVisibilities();
 }
 window.toggleEquidistanta = toggleEquidistanta
 
-async function toggleMandrel(toggled){
+async function toggleMandrel(toggled, interactive){
     window.mandrelShow = toggled;
-    await animateVisibilities();
+    if (interactive) await animateVisibilities();
 }
 window.toggleMandrel = toggleMandrel
 
-async function toggleLine(toggled){
+async function toggleLine(toggled, interactive){
     window.lineShow = toggled;
-    await animateVisibilities();
+    if (interactive) await animateVisibilities();
 }
 window.toggleLine = toggleLine
 
-async function toggleTape(toggled){
+async function toggleTape(toggled, interactive){
     window.tapeShow = toggled;
-    await animateVisibilities();
+    if (interactive) await animateVisibilities();
 }
 window.toggleTape = toggleTape
 
@@ -340,7 +343,6 @@ window.inputFieldSet = inputFieldSet;
 function InitGoToWork(){
     const button = document.getElementById("begin-to-work-button");
     button.onclick = (event) => {
-    // button.addEventListener('click', (event) => {
         handleToggleButtonClick(event.currentTarget);
     };
     button.classList.add('active');
@@ -360,9 +362,9 @@ function handleToggleButtonClick(button) {
     }
 
     const func  = button.dataset.function;
-    const param = button.dataset.parameter;
+    // const param = button.dataset.parameter;
     if (typeof window[func] === 'function') {
-        window[func](active, param);
+        window[func](active, true);
     }
 }
 
@@ -375,7 +377,7 @@ function toggleButtonInit(){
 
         const active = button.classList.contains('active')
         const func = button.dataset.function;
-        window[func](active);
+        window[func](active, false);
     });
 }
 
@@ -404,25 +406,22 @@ async function windowOnLoad(){
     loadContent("winding"  , "help-winding");
     loadContent("thickness", "help-thickness");
 
-    await inputFieldInit();
     funcButtonInit();
     toggleButtonInit();
 }
 
 window.onload = async function () {
-    window.vessel = {};
-
     await storageOnLoad();
     await windowOnLoad();
     await threeOnLoad();
-    await patternsOnLoad();
     await vesselOnLoad();
     await cognitoOnLoad();
-    await animateOnLoad();
-    
-    await openTab(await fieldGet("page"))
 
-    await vesselLoadExample()
+    await openTab(await storageGet("page"))
+    await vesselActualise()
+
+    await patternsOnLoad();
+    await animateOnLoad();
     
     loaded();
 };

@@ -17,7 +17,7 @@ async function fibboRenderTable() {
             <td>${item.Coils}</td>
             <td>${item.Correction.toFixed(3)}</td>
         `;
-        row.addEventListener("click", () => fibboSelectRow(index));
+        row.onclick = () => fibboSelectRow(index);
         row.dataset.index = index;
         row.classList.add("clickable-row");
         tableBody.appendChild(row);

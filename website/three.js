@@ -345,8 +345,18 @@ function scaleSet(x = 0, y = 0, z = 0){
   // console.log("center", center)
 }
 
+function dashedMaterial(color){
+        return new THREE.LineDashedMaterial({
+            color: color,
+            linewidth: 1,
+            scale: 1,
+            dashSize: 3,   // длина штриха
+            gapSize: 1,    // длина пробела
+        });
+}
+window.dashedMaterial = dashedMaterial
 
-function addLine([vertices, indices], color = 0xff0000, transparent = false) {
+function addLine([vertices, indices], color = 0xff0000, transparent = false, dashed = false) {
   if (vertices.length == 0) return;
 
   const geometry = new THREE.BufferGeometry();
@@ -358,7 +368,17 @@ function addLine([vertices, indices], color = 0xff0000, transparent = false) {
     materialproperties.transparent = true;
     materialproperties.opacity = 0.9;
   }
-  const material = new THREE.LineBasicMaterial(materialproperties);
+
+  let material;
+  if (!dashed) {
+    material = new THREE.LineBasicMaterial(materialproperties);
+  } else {
+    material = new THREE.LineDashedMaterial(materialproperties);
+    material.linewidth = 1;
+    material.scale = 1;
+    material.dashSize = 3;
+    material.gapSize = 1;
+  }
 
   const lines = new THREE.LineSegments(geometry, material);
 
@@ -384,6 +404,31 @@ async function frameInit(){
     ];
     removeMesh(window.frameMesh);
     window.frameMesh = addLine([vertices, indices], 0xffffff);
+
+
+    const Rm = scale.y.max;
+    const SR = await fieldGet("safetyR");
+    const Xn = scale.x.min - (Rm + SR);
+    const Xm = scale.x.max + (Rm + SR);
+    const Yd = + (Rm * 1.5 + SR);
+    const Zd = - (Rm * 2);
+
+    const posVertices = [
+      Xn, 0., 0.,
+      Xn, Zd, 0.,
+      Xn, Zd, Yd,
+      Xm, Zd, Yd,
+      Xm, Zd, 0.,
+      Xm, 0., 0.,
+    ];
+
+    if (window.frameMesh) {
+      const pos = window.frameMesh.geometry.attributes.position;
+      pos.array.set(posVertices);
+      pos.needsUpdate = true;
+
+      resizeMesh(frameMesh)
+    }
   }
 
   { // carretMesh
@@ -447,38 +492,13 @@ async function frameInit(){
 }
 window.frameInit = frameInit
 
-async function frameUpdate(){
-  const Rm = scale.y.max;
-  const SR = await fieldGet("safetyR");
-  const Xn = scale.x.min - (Rm + SR);
-  const Xm = scale.x.max + (Rm + SR);
-  const Yd = + (Rm * 1.5 + SR);
-  const Zd = - (Rm * 2);
-
-  const vertices = [
-    Xn, 0., 0.,
-    Xn, Zd, 0.,
-    Xn, Zd, Yd,
-    Xm, Zd, Yd,
-    Xm, Zd, 0.,
-    Xm, 0., 0.,
-  ];
-
-  if (window.frameMesh) {
-    const pos = window.frameMesh.geometry.attributes.position;
-    pos.array.set(vertices);
-    pos.needsUpdate = true;
-
-    resizeMesh(frameMesh)
-  }
-
+async function floorUpdate(){
   { // floorMesh
     floorMesh.position.y = -2 * scale.y.max * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
   }
-
 }
-window.frameUpdate = frameUpdate
+window.floorUpdate = floorUpdate
 
 function addMeshLine([vertices, indices], color = 0xff0000) {
   if (vertices.length == 0) return;

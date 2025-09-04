@@ -1,13 +1,14 @@
+window.theVessel = {};
+window.theLayer = {};
 const db = new Dexie("WinderCAM");
 
+// local - obsolete
 
-// local
-
-function storageLocalSet(table, id, value){
+function storageLocalSet_Obsolete(table, id, value){
     localStorage.setItem(table + "_" + id, JSON.stringify(value));
 }
 
-function storageLocalGet(table, id){
+function storageLocalGet_Obsolete(table, id){
     let value = localStorage.getItem(table + "_" + id);
     if (value && value != undefined){
         try {
@@ -19,59 +20,47 @@ function storageLocalGet(table, id){
     return value;
 }
 
-async function storageLocalRemove(table, id){
+async function storageLocalRemove_Obsolete(table, id){
     localStorage.removeItem(table + "_" + id);
+}
+
+
+// storageAll
+
+async function storageAllGet() {
+    const entries = await db.vessel.toArray();
+    for (const entry of entries) {
+        theVessel[entry.id] = entry.value;
+    }
 }
 
 
 // storage
 
-function storageTableGet(tableName) {
-    if (!db[tableName]) {
-        throw new Error(`Table "${tableName}" is not defined in Dexie schema.`);
-    }
-    return db[tableName];
-}
+async function storageSet(id, value){
+    // console.log("storageSet", id, value)
+    theVessel[id] = value;
 
-async function storageSet(table, id, value){
-    const tbl = storageTableGet(table);
-    await tbl.put({ id, value });
+    await db.vessel.put({ id, value });
 }
 window.storageSet = storageSet
 
-async function storageGet(table, id) {
-    const tbl = storageTableGet(table);
-    const entry = await tbl.get(id);
-    return entry?.value;
+async function storageGet(id) {
+    // const entry = await db.vessel.get(id);
+    // return entry?.value;
+
+    if (Object.keys(theVessel).length === 0) {
+        storageAllGet()
+    }
+
+    return theVessel[id];
 }
 window.storageGet = storageGet
 
-async function storageRemove(table, id) {
-  const tbl = storageTableGet(table);
-  await tbl.delete(id);
+async function storageRemove(id) {
+    await db.vessel.delete(id);
 }
 window.storageRemove = storageRemove
-
-
-// fields
-
-const fieldSet = async (key, value) => {
-    vessel[key] = value;
-    await db.layers.put({
-        layer: "layer",
-        id: key,
-        data: value
-    });
-};
-window.fieldSet = fieldSet;
-
-const fieldGet = async (key) => {
-    if (Object.keys(vessel).length === 0) {
-        fieldAllGet()
-    }
-    return vessel[key];
-};
-window.fieldGet = await fieldGet
 
 
 // fieldAll
@@ -86,18 +75,140 @@ const fieldAllSet = async (newLayer) => {
 window.fieldAllSet = fieldAllSet
 
 const fieldAllGet = async () => {
-    const records = await db.layers.where("layer").equals("layer").toArray()
+    const curLayerId = await layerIdGet()
+    if (!curLayerId) {
+        console.log("fieldAllGet: no current layer")
+        return
+    }
+
+    const records = await db.layers.where("layer").equals(curLayerId).toArray()
+
+    theLayer = {};
     for (const record of records) {
-        vessel[record.id] = record.data
+        theLayer[record.id] = record.data
     }
 };
 window.fieldAllGet = fieldAllGet
 
-const fieldAllClear = async () => {
-    vessel = {};
-    await db.layers.where("layer").equals("layer").delete();
+const fieldAllClear = async (layerToClear = null) => {
+    const curLayer = await layerIdGet()
+
+    if (!layerToClear) {
+        layerToClear = curLayer
+        if (!layerToClear) {
+            return
+        }
+    }
+
+    if (layerToClear == curLayer) {
+        theLayer = {};
+    }
+
+    await db.layers.where("layer").equals(layerToClear).delete();
 };
 window.fieldAllClear = fieldAllClear
+
+
+// fields
+
+const fieldSet = async (key, value) => {
+    let curLayerId = await layerIdGet()
+
+    // console.log("fieldSet", curLayerId, key, value)
+
+    if (!curLayerId) {
+        console.log("fieldSet: no current layer")
+        return
+    }
+
+    theLayer[key] = value;
+
+    await db.layers.put({
+        layer: curLayerId,
+        id: key,
+        data: value,
+    });
+};
+window.fieldSet = fieldSet;
+
+const fieldGet = async (key) => {
+    if (Object.keys(theLayer).length === 0) {
+        fieldAllGet()
+    }
+    return theLayer[key];
+};
+window.fieldGet = fieldGet
+
+
+// layers
+
+async function layerAdd(index = null){
+    // console.log("layerAdd", index)
+
+    let layerMax = await storageGet("layerMax") ?? -1
+    layerMax = layerMax + 1
+    await storageSet("layerMax", layerMax)
+
+    const curLayerId = "layer" + layerMax
+
+    const layers = await storageGet("layers") ?? []
+    layers.push(curLayerId)
+    await storageSet("layers", layers)
+
+    return curLayerId
+}
+window.layerAdd = layerAdd;
+
+async function layerDelete(layerToDelete){
+    // console.log("layerDelete", layerToDelete)
+
+    const layers = await storageGet("layers") ?? []
+    let curLayer = await layerIdGet()
+
+    let index = layers.indexOf(layerToDelete);
+    if (index == -1) return curLayer
+
+    await fieldAllClear(layerToDelete)
+
+    layers.splice(index, 1)
+    await storageSet("layers", layers)
+    
+    if (layerToDelete == curLayer) {
+        if (layers.length - 1 > index) {
+            index = index - 1
+        }
+        if (index >= 0) {
+            curLayer = layers[index]
+        } else {
+            curLayer = undefined
+        }
+        await layerIdSet(curLayer)
+        return curLayer
+    }
+}
+window.layerDelete = layerDelete;
+
+async function layerIdSet(layerIdValue){
+    // console.log("layerIdSet", layerIdValue)
+    await storageSet("layerId", layerIdValue)
+}
+window.layerIdSet = layerIdSet;
+
+async function layerIdGet(){
+    const layerIdValue = await storageGet("layerId")
+    // console.log("layerIdGet", layerIdValue)
+    return layerIdValue
+}
+window.layerIdGet = layerIdGet;
+
+async function layerAddIfNotExist(){
+    let curLayerId = await layerIdGet()
+    if (!curLayerId) {
+        curLayerId = await layerAdd()
+        await layerIdSet(curLayerId);
+    }
+}
+window.layerAddIfNotExist = layerAddIfNotExist;
 
 
 //
@@ -105,7 +216,6 @@ window.fieldAllClear = fieldAllClear
 async function storageOnLoad() {
     db.version(1).stores({
         vessel: "&id",
-        cognito: "&id",
         layers: "[layer+id], layer, id",
     });
 }
