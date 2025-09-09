@@ -280,65 +280,101 @@ async function toggleTape(toggled, interactive){
 window.toggleTape = toggleTape
 
 
-// Init
+// inputField
+
+async function inputFieldSet(owner, id, value){
+    if (owner == "vessel") {
+        await storageSet(id, value);
+    } else if (owner == "layer") {
+        await fieldSet(id, value);
+    }
+}
+window.inputFieldSet = inputFieldSet
+
+async function inputFieldGet(owner, id){
+    if (owner == "vessel") {
+        return await storageGet(id);
+    } else if (owner == "layer") {
+        return await fieldGet(id);
+    }
+}
 
 async function inputFieldInit(){
-    // document.querySelectorAll(".inputField").forEach(input => {
+
+    function inputGetValue(input){
+        let val = input.value;
+        if (input.type === "number") {
+            val = parseFloat(val);
+        } else if (input.type === "checkbox") {
+            val = input.checked;
+        } else {
+            val = input.value;
+        }
+        return val;
+    }
+
     const inputs = document.querySelectorAll(".inputField");
     for (const input of inputs) {
         const id = input.id;
     
-        function inputValue1(input){
-            let val = input.value;
-            if (input.type === "number") {
-                val = parseFloat(val);
-            } else if (input.type === "checkbox") {
-                val = input.checked;
-            } else {
-                val = input.value;
-            }
-            return val;
-        }
-
-        input.addEventListener("keydown", (event) => {
+        input.onkeydown = (event) => {
             if (event.key === " ") {
                 event.stopPropagation();
             }
-        });
+        };
         
+        const owner = input.dataset.owner;
         const listener = input.type === "checkbox" ? "click" : "input";
-        input.addEventListener(listener, async () => {
-            const value = inputValue1(input);
-            // console.log("field set", id, await fieldGet(id), "->", value);
-            await fieldSet(id, value);
-        });
+        if (listener === "input")
+            input.oninput  = inputOnChange;
+        else 
+            input.onchange = inputOnChange;
+        ;
+        // input.addEventListener(listener, async () => {
+        //     const value = inputGetValue(input);
+        //     // console.log("field set", id, await fieldGet(id), "->", value);
+        //     await inputFieldSet(owner, id, value);
+        // });
     
-        const storedValue = await fieldGet(id);
+        async function inputOnChange(event){
+            const value = inputGetValue(input);
+            // console.log("field set", id, await fieldGet(id), "->", value);
+            await inputFieldSet(owner, id, value);
+            if (id == "LayerName") await layersRenderTable();
+        }
+
+        const storedValue = await inputFieldGet(owner, id);
     
         if (storedValue !== undefined && storedValue !== null) {
-            // console.log("val to form", id, inputValue1(input), "->", storedValue);
+            // console.log("val to form", id, inputValue(input), "->", storedValue);
             if (input.type === "checkbox") {
                 input.checked = storedValue;
             } else {
                 input.value = storedValue;
             }
         } else {
-            const initialValue = inputValue1(input);
+            const initialValue = inputGetValue(input);
             // console.log("form to val", id, storedValue, initialValue);
-            await fieldSet(id, initialValue);
+            await inputFieldSet(owner, id, initialValue);
         }
     };
+
+    // const input = document.querySelector("#LayerName");
+    // input.oninput = async (event) => {
+    //     await inputOnChange(event);
+    //     await layersRenderTable();
+    // };
 }
 window.inputFieldInit = inputFieldInit
 
-async function inputFieldSet(id, value) {
+async function inputFieldValue(id, value) {
     const input = document.getElementById(id);
     if (input) {
         input.value = value;
         await fieldSet(id, value);
     }
 }
-window.inputFieldSet = inputFieldSet;
+window.inputFieldValue = inputFieldValue;
 
 function InitGoToWork(){
     const button = document.getElementById("begin-to-work-button");

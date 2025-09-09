@@ -34,6 +34,18 @@ async function storageAllGet() {
     }
 }
 
+async function storageAllGetField(field) {
+    const records = await db.layers.where("id").equals(field).toArray();
+
+    const result = {};
+    for (const r of records) {
+        result[r.layer] = r.data;
+    }
+
+    return result;
+}
+window.storageAllGetField = storageAllGetField
+
 
 // storage
 
@@ -133,7 +145,7 @@ window.fieldSet = fieldSet;
 
 const fieldGet = async (key) => {
     if (Object.keys(theLayer).length === 0) {
-        fieldAllGet()
+        await fieldAllGet()
     }
     return theLayer[key];
 };
@@ -142,7 +154,7 @@ window.fieldGet = fieldGet
 
 // layers
 
-async function layerAdd(index = null){
+async function layerAdd(){
     // console.log("layerAdd", index)
 
     let layerMax = await storageGet("layerMax") ?? -1

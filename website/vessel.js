@@ -1,5 +1,21 @@
 // layers
 
+async function layerAddOnClick(){
+    clearScene();
+
+    let curLayerId = await layerAdd();
+    await layerIdSet(curLayerId)
+    await fieldAllGet()
+    await inputFieldInit()
+    // await inputFieldSet("layer", "LayerName", "Layer Name") // ???
+
+    await layersRenderTable()
+    await layersSelectRow(curLayerId)
+    await allDraw()
+};
+window.layerAddOnClick = layerAddOnClick;
+
+
 async function layersRenderTable() {
     const layers = await storageGet("layers") || []
 
@@ -9,14 +25,22 @@ async function layersRenderTable() {
         tableBody.removeChild(tableBody.firstChild);
     }    
 
+    let names = await storageAllGetField("LayerName")
+
     layers.forEach((item, index) => {
         const row = document.createElement("tr");
-            // <td>${item.Turns}</td>
+        
+        let name = names[item]
+
         row.innerHTML = `
-            <td>${item}</td>
-            <td>
-                <button class="btn-delete">-</button>
-                <button class="btn-add">+</button>
+            <td style="display:none">${item}</td>
+            <td>${name}</td>
+             <td>
+                <div style="display:inline-block; vertical-align:middle; text-align:center; line-height:0">
+                    <button class="btn-up image-button very-small-half" title="Move up"><img src="./img/up.png"></button><br>
+                    <button class="btn-down image-button very-small-half" title="Move down"><img src="./img/down.png"></button>
+                </div>
+                <button class="btn-delete image-button very-small" title="Remove layer"><img src="./img/minus.png"></button>
             </td>
         `;
         row.onclick = async () => {
@@ -31,30 +55,59 @@ async function layersRenderTable() {
 
         tableBody.appendChild(row);
 
-        const btnAdd = row.querySelector(".btn-add");
-        btnAdd.onclick = async (event) => {
+        // const btnAdd = row.querySelector(".btn-add");
+        // btnAdd.onclick = async (event) => {
+        //     event.stopPropagation();
+
+        //     clearScene();
+
+        //     let curLayerId = await layerAdd(item);
+        //     await layersRenderTable()
+        //     await layersSelectRow(curLayerId)
+        //     await fieldAllGet();
+        //     await allDraw()
+        // };
+
+        let btn
+        btn = row.querySelector(".btn-up");
+        btn.onclick = async (event) => {
             event.stopPropagation();
 
-            clearScene();
+            const layers = await storageGet("layers")
 
-            let curLayerId = await layerAdd(item);
+            const i = layers.indexOf(item);
+            if (i > 0)
+                [layers[i - 1], layers[i]] = [layers[i], layers[i - 1]];
+            await storageSet("layers", layers)
+    
             await layersRenderTable()
-            await layersSelectRow(curLayerId)
-            await fieldAllGet();
-            await allDraw()
         };
 
-        const btnDelete = row.querySelector(".btn-delete");
-        btnDelete.onclick = async (event) => {
+        btn = row.querySelector(".btn-down");
+        btn.onclick = async (event) => {
+            event.stopPropagation();
+
+            const layers = await storageGet("layers")
+
+            const i = layers.indexOf(item);
+            if (i >= 0 && i < layers.length - 1)
+                [layers[i], layers[i + 1]] = [layers[i + 1], layers[i]];
+            await storageSet("layers", layers)
+
+            await layersRenderTable()
+        };
+
+        btn = row.querySelector(".btn-delete");
+        btn.onclick = async (event) => {
             event.stopPropagation();
 
             const curLayer = await layerIdGet()
             const itemLayer = await layerDelete(item);
-            layersRenderTable()
+            await layersRenderTable()
             if(curLayer == item){
 
                 clearScene();
-                
+
                 await layersSelectRow(itemLayer)
                 await fieldAllGet();
                 await allDraw()
@@ -385,7 +438,7 @@ async function SetPole() {
     if (!mandrel) return;
     const {x, r} = mandrel
     if (r.length > 0)
-        await inputFieldSet('poleR', r[0]);
+        await inputFieldValue('poleR', r[0]);
 }
 
 async function mandrelSet(name, xOrMandrel, r = null){
@@ -676,7 +729,6 @@ async function tapeDraws() {
     } else {
         await tapeDraw("Initial");
     }
-    // await animateInit();
 }
 window.tapeDraws = tapeDraws
 
@@ -877,16 +929,18 @@ async function allClear() {
 }
 
 async function allDraw() {
+    scaleSet()
+
     await layersRenderTable()
 
-    await inputFieldInit();
-    await modeButtonInit();
-    await SetPole();
+    await inputFieldInit()
+    await modeButtonInit()
+    await SetPole()
 
-    mandrelsDraw();
+    mandrelsDraw()
 
     await tapeDraws()
-    await animateInit();
+    await animateInit()
 }
 
 
@@ -969,8 +1023,8 @@ async function vesselClear() {
 window.vesselClear = vesselClear
 
 async function vesselActualise() {
-    const curLayer = await layerIdGet()
-    if (!curLayer) {
+    const layers = await storageGet("layers")
+    if (!layers) {
         toggleHelp(true);
 
         await vesselloadFromURL("engine");

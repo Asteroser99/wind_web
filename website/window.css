@@ -152,7 +152,7 @@ button {
     background-color: #9acbd0;
 }
 
-#actions-vessel .image-button {
+/* #actions-vessel .image-button {
     background: none;
     background-color: transparent;
     padding: 5px;
@@ -169,7 +169,7 @@ button {
     display: block;
     width: 100%;
     height: auto;
-}
+} */
 
 
 .main-container {
@@ -727,7 +727,7 @@ input {
     filter: grayscale(100%);
 }
 
-.center-button.verysmall {
+.center-button.token {
     width: 100px;
     height: 30px;
     margin: 0px auto;  

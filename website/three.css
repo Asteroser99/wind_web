@@ -57,12 +57,28 @@ button, label, p.p-button {
   transform: scale(1);
 }
 
+.image-button.very-small-half img {
+  width:  15px;
+  height: 10px;
+  padding: 0px 0px;
+}
+.image-button.very-small-half{
+  padding: 0px 0px;
+}
+
+.image-button.very-small img {
+  width:  15px;
+  height: 15px;
+  padding: 0px 0px;
+}
+.image-button.very-small{
+  padding: 0px 0px;
+}
 
 .image-button.small img {
   width:  25px;
   height: 25px;
 }
-
 .image-button.small {
   /* width:  25px;
   height: 25px; */

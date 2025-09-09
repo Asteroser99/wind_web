@@ -167,7 +167,7 @@ async function cognitoStatus() {
     document.getElementById('cognitoAuthTime').textContent = cognitoTime(await storageGet('cognitoAuthTime')).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     document.getElementById('cognitoExpires' ).textContent = cognitoTime(await storageGet('cognitoExpires' )).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    document.getElementById('cognitoGet'     ).innerHTML = '<button class="center-button verysmall function-button" data-query="' + "This is your current access token:<br><small>" + await storageGet('cognitoAccessToken') + '</small>" title="Token"><img src="./img/key.png">&nbsp;show</button>';
+    document.getElementById('cognitoGet'     ).innerHTML = '<button class="center-button token function-button" data-query="' + "This is your current access token:<br><small>" + await storageGet('cognitoAccessToken') + '</small>" title="Token"><img src="./img/key.png">&nbsp;show</button>';
     funcButtonInit();
 
   } else {

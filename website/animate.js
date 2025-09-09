@@ -108,14 +108,20 @@ async function animateInit(){
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
-    await floorUpdate();
+    // scaleSet();
+    await floorInit();
+    await frameInit();
 
     window.animateReady = coil != undefined && tape != undefined && eqd != undefined && roll != undefined
     window.animateOn = window.animateReady;
 
-    if (!window.animateReady) return;
+    let coilInitial = await coilGet("Initial");
+    if (coilInitial) window.frameLine .visible = true;
 
-    await frameInit()
+    document.getElementById("programBar").style.display = "none";
+    document.getElementById("playerBar" ).style.display = "none";
+
+    if (!window.animateReady) return;
 
     window.animateCoil   = coil;
     window.animateTape   = tape;
@@ -198,6 +204,7 @@ async function animateInit(){
         const mesh = addMesh(render, 0xFFFFFF);
         
         window.rolleyMesh = mesh;
+        window.rolleyMesh.visible = false;
     }
 
     await animateVisibilities();
@@ -342,12 +349,11 @@ function animate(timestamp) {
   
         // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
         const animateText = ""
-        + `N ${i} | `
-        + `x ${x .toFixed(1)} | `
-        + `r ${r .toFixed(1)} | `
-        + `φ ${fi.toFixed(5)} | `
-        + `δ ${(dl * 180. / Math.PI).toFixed(1)}°`
-        + `   ^ ${(window.angleStep).toFixed(5)}°` // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            + `N ${i} | `
+            + `x ${x .toFixed(1)} | `
+            + `r ${r .toFixed(1)} | `
+            + `φ ${fi.toFixed(5)} | `
+            + `δ ${(dl * 180. / Math.PI).toFixed(1)}°`
         ;
         document.querySelector(".program-p").textContent = animateText;
     

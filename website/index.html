@@ -97,6 +97,14 @@
                 <!-- Vessel -->
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
+                        <h3>Vessel</h3>
+                        <label for="PartNumber">Part number:</label><br>
+                        <input type="text" id="PartNumber" class="inputField" data-owner="vessel"
+                            value="Part number"
+                            title="Enter part number"
+                            style="text-align: left;"
+                        ><br>
+
                         <h3>Layers</h3>
                         <div class="table-wrapper">
                             <table id="layers-table">
@@ -107,6 +115,9 @@
                                 </thead>
                                 <tbody></tbody>
                             </table>
+                        </div>
+                        <div style="text-align:right">
+                            <button class="image-button very-small function-button" data-function="layerAddOnClick" title="Add layer">Add &nbsp;<img src="./img/plus.png"></button><br>
                         </div>
                     </div>
                     
@@ -125,22 +136,22 @@
                         <h3>Examples</h3>
                         <div class="button-grid">
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Engine"><img src="./examples/engine.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh" title="Mesh"><img src="./examples/mesh.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh"      title="Mesh"><img src="./examples/mesh.png"></button>
                             
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shortTank" title="Short tank"><img src="./examples/shortTank.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="longTank" title="Long tank"><img src="./examples/longTank.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="longTank"  title="Long tank"><img src="./examples/longTank.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mast" title="Mast"><img src="./examples/mast.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shell" title="Shell"><img src="./examples/shell.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mast"      title="Mast"><img src="./examples/mast.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shell"     title="Shell"><img src="./examples/shell.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="convex" title="Convex"><img src="./examples/convex.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="integral" title="Integral"><img src="./examples/integral.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="convex"    title="Convex"><img src="./examples/convex.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="integral"  title="Integral"><img src="./examples/integral.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="pot" title="Honey pot"><img src="./examples/pot.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="sphere" title="Sphere"><img src="./examples/sphere.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="pot"       title="Honey pot"><img src="./examples/pot.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="sphere"    title="Sphere"><img src="./examples/sphere.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="bottle" title="Bottle"><img src="./examples/bottle.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="tank" title="Tank"><img src="./examples/tank.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="bottle"    title="Bottle"><img src="./examples/bottle.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="tank"      title="Tank"><img src="./examples/tank.png"></button>
                         </div>
 
                     </div>
@@ -151,15 +162,15 @@
                 <div id="tab-mandrel" class="tab-content">
                     <div id="actions-mandrel">
                         <h3>Layer</h3>
-                        <label for="PartNumber">Part number:</label><br>
-                        <input type="text" id="PartNumber" class="inputField"
-                            value="Name"
+                        <label for="LayerName">Layer name:</label><br>
+                        <input type="text" id="LayerName" class="inputField" data-owner="layer"
+                            value="Layer name"
                             title="Enter layer name"
                             style="text-align: left;"
                         ><br>
 
                         <label for="LayerNumber">Layer number:</label><br>
-                        <input type="number" id="LayerNumber" class="inputField"
+                        <input type="number" id="LayerNumber" class="inputField" data-owner="layer"
                             min="1" max="999" step="1" 
                             value="1" pattern="\d{1,0}(\.\d{1,0})?" 
                             title="Enter layer number"
@@ -206,7 +217,7 @@
                 <div id="tab-coil" class="tab-content">
                     <div id="actions-coil">
                         <label for="poleR">Pole &Ropf;:</label><br>
-                        <input type="number" id="poleR" class="inputField"
+                        <input type="number" id="poleR" class="inputField" data-owner="layer"
                             min="0" max="999" step="0.001" 
                             value="10.000" pattern="\d{1,3}(\.\d{1,3})?" 
                             title="Enter pole radius"
@@ -214,7 +225,7 @@
                         ><br>
 
                         <label for="band">Band width:</label><br>
-                        <input type="number" id="band" class="inputField" 
+                        <input type="number" id="band" class="inputField" data-owner="layer"
                             min="0" max="999" step="1.0" 
                             value="10.0" pattern="\d{1,3}(\.\d{1,3})?" 
                             title="Enter band width" 
@@ -237,14 +248,14 @@
 
                     <div id="actions-patterns" class="floatingControl">
                         <label for="conv">Convenience:</label><br>
-                        <input type="number" id="conv" class="inputField" 
+                        <input type="number" id="conv" class="inputField" data-owner="layer"
                             min="0" max="999" step="1.0" 
                             value="4.0" pattern="\d{1,3}(\.\d{1,3})?" 
                             title="Enter number of patterns" 
                             style="text-align: right;" 
                         ><br>
                         
-                        <div class="hPanel"><p class="p-button">Mesh structure</p><input class="inputField" type="checkbox" id="netStructure" title="Mesh structure" value=false></div><br>
+                        <div class="hPanel"><p class="p-button">Mesh structure</p><input class="inputField" data-owner="layer" type="checkbox" id="netStructure" title="Mesh structure" value=false></div><br>
 
                         <label for="conv">Select pattern:</label><br>
                         <div class="table-wrapper">
@@ -269,7 +280,7 @@
                 <div id="tab-winding" class="tab-content">
                     <div id="actions-winding">
                         <!-- <label for="testMode">Test mode:</label>
-                        <input type="number" id="testMode" class="inputField"
+                        <input type="number" id="testMode" class="inputField" data-owner="layer"
                             min="0" max="9" step="1"
                             value="0" pattern="\d{1,0}"
                             title="Enter test mode"
@@ -278,7 +289,7 @@
                         <br> -->
 
                         <label for="safetyR">Safety &Ropf;:</label><br>
-                        <input type="number" id="safetyR" class="inputField" 
+                        <input type="number" id="safetyR" class="inputField" data-owner="layer"
                             min="0" max="999" step="0.1" 
                             value="50.0" pattern="\d{1,1}(\.\d{1,1})?"
                             title="Enter safety radius"
@@ -286,7 +297,7 @@
                         ><br>
 
                         <label for="lineCount">G-code length:</label><br>
-                        <input type="number" id="lineCount" class="inputField" 
+                        <input type="number" id="lineCount" class="inputField" data-owner="layer"
                             min="0" max="9999" step="1"
                             value="1500" pattern="\d{1,0}"
                             title="Enter G-code line count"
@@ -321,7 +332,7 @@
                                 <div id="thickness-csvColumn">
                                     <div id="div-csvColumn">
                                         <label for="csvColumn">CSV column:</label>
-                                        <input type="number" value="1" min="1" step="1" id="csvColumn" class="inputField" style="text-align: right; width: 30px" title="Column number, if there more than one columns of data in .csv file">
+                                        <input type="number" value="1" min="1" step="1" id="csvColumn" class="inputField" data-owner="layer" style="text-align: right; width: 30px" title="Column number, if there more than one columns of data in .csv file">
                                         <br>
 
                                         <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />

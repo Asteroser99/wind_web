@@ -5,8 +5,6 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 window.scene = { scene: null, renderer: null, camera: null, controls: null, canvas: null}
 window.scale = { x: {}, y: {}, z: {}, factor: 1 };
 
-let meshes = {}
-
 function createGradientTexture() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -48,7 +46,7 @@ window.addEventListener('resize', () => {
   resizeScene();
 });
 
-function threeInit() {
+function sceneOnLoad() {
   scene.canvas = document.getElementById('scene-canvas')
 
   scene.scene = new THREE.Scene();
@@ -116,8 +114,6 @@ function threeInit() {
 
   resizeScene();
 
-  floorInit();
-
   scaleSet();
 }
 
@@ -127,7 +123,7 @@ function resizeMesh(mesh) {
 
 // models
 
-function floorInit() {
+function floorOnLoad() {
 
   // floor
   const vertexShader = `
@@ -155,7 +151,7 @@ function floorInit() {
 
       float gridAlpha = gridLines * alpha; // main fading for grid
 
-      vec3 baseColor = vec3(72. / 256., 166. / 256., 167. / 256.);
+      vec3 baseColor = vec3( 72. / 256., 166. / 256., 167. / 256.);
       vec3 gridColor = vec3(154. / 256., 203. / 256., 208. / 256.);
 
       // mixing colors
@@ -344,6 +340,7 @@ function scaleSet(x = 0, y = 0, z = 0){
   // console.log("size", size)
   // console.log("center", center)
 }
+window.scaleSet = scaleSet
 
 function dashedMaterial(color){
         return new THREE.LineDashedMaterial({
@@ -397,14 +394,13 @@ async function frameInit(){
   const Fd = Fr / 50;
   const SR = await fieldGet("safetyR");
 
-  { // frameMesh
+  { // frameLine
     const vertices = Array(6 * 3).fill(0);
     const indices = [
       0, 1,  1, 2,  2, 3,  3, 4,  4, 5,  5, 0,
     ];
-    removeMesh(window.frameMesh);
-    window.frameMesh = addLine([vertices, indices], 0xffffff);
-
+    removeMesh(window.frameLine);
+    window.frameLine = addLine([vertices, indices], 0xffffff);
 
     const Rm = scale.y.max;
     const SR = await fieldGet("safetyR");
@@ -422,13 +418,15 @@ async function frameInit(){
       Xm, 0., 0.,
     ];
 
-    if (window.frameMesh) {
-      const pos = window.frameMesh.geometry.attributes.position;
+    if (window.frameLine) {
+      const pos = window.frameLine.geometry.attributes.position;
       pos.array.set(posVertices);
       pos.needsUpdate = true;
 
-      resizeMesh(frameMesh)
+      resizeMesh(frameLine)
     }
+
+    window.frameLine.visible = false;
   }
 
   { // carretMesh
@@ -459,6 +457,7 @@ async function frameInit(){
       removeMesh(window.carretMesh);
       window.carretMesh = addMesh([vert, indices], 0x00ffff, 0.3);
       window.carretMesh.position.z = Zi * scale.factor
+      window.carretMesh.visible = false;
   };
 
   { // standMesh
@@ -488,17 +487,18 @@ async function frameInit(){
 
     removeMesh(window.standMesh);
     window.standMesh = addMesh([vert, indices], 0x00ffff, 0.3);
+    window.standMesh.visible = false;
   }
 }
 window.frameInit = frameInit
 
-async function floorUpdate(){
+async function floorInit(){
   { // floorMesh
     floorMesh.position.y = -2 * scale.y.max * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
   }
 }
-window.floorUpdate = floorUpdate
+window.floorInit = floorInit
 
 function addMeshLine([vertices, indices], color = 0xff0000) {
   if (vertices.length == 0) return;
@@ -590,7 +590,7 @@ function clearScene() {
   scene.scene.traverse((object) => {
     if (
         (object.type == "Mesh" || object.type == "LineSegments")
-     && (object != window.floorMesh && object != window.frameMesh)
+     && (object != window.floorMesh && object != window.frameLine)
     ) {
       toRemove.push(object);
     }
@@ -602,7 +602,9 @@ function clearScene() {
 window.clearScene = clearScene
 
 async function threeOnLoad() {
-    threeInit();
+    sceneOnLoad();
+    floorOnLoad();
+    
     loaded();
 }
 window.threeOnLoad = threeOnLoad
