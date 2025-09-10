@@ -255,30 +255,75 @@ function toggleHelp(toggle, interactive){
 window.toggleHelp = toggleHelp
 
 async function toggleEquidistanta(toggled, interactive){
-    window.equidistantaShow = toggled
+    await fieldSet("equidistantaShow", toggled);
 
-    if (interactive) await animateVisibilities();
+    if (interactive) {
+        await animateVisibilities();
+    }
 }
 window.toggleEquidistanta = toggleEquidistanta
 
 async function toggleMandrel(toggled, interactive){
-    window.mandrelShow = toggled;
-    if (interactive) await animateVisibilities();
+    await fieldSet("mandrelShow", toggled);
+
+    if (interactive) {
+        await animateVisibilities();
+    }
 }
 window.toggleMandrel = toggleMandrel
 
 async function toggleLine(toggled, interactive){
-    window.lineShow = toggled;
-    if (interactive) await animateVisibilities();
+    await fieldSet("lineShow", toggled);
+
+    if (interactive) {
+        await animateVisibilities();
+    }
 }
 window.toggleLine = toggleLine
 
 async function toggleTape(toggled, interactive){
-    window.tapeShow = toggled;
-    if (interactive) await animateVisibilities();
+    await fieldSet("tapeShow", toggled);
+
+    if (interactive) {
+        await animateVisibilities();
+    }
 }
 window.toggleTape = toggleTape
 
+
+async function modeButtonInit(){
+    const buttons = document.querySelectorAll(".mode-button");
+    // buttons.forEach(button => {
+    for (const button of buttons) {
+        button.onclick = async () => {
+            buttons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+            const mode = button.getAttribute("data-mode");
+            await storageSet("windingMode", mode);
+            await tapeDraws();
+            await animateVisibilities();
+        };
+
+        if(button.classList.contains('active')) {
+            const mode = button.getAttribute("data-mode");
+            await storageSet("windingMode", mode);
+        }
+    };
+}
+window.modeButtonInit = modeButtonInit
+
+async function showInit(){
+    for (const btnName of ["Mandrel", "Line", "Tape", "Equidistanta"]){
+        const button = document.querySelector('.toggle-button[data-function="toggle' + btnName + '"]');
+        const active = await fieldGet(btnName.toLowerCase() + "Show");
+        if (active) {
+            button.classList.add('active');
+        } else {
+            button.classList.remove('active');
+        }
+    }
+}
+window.showInit = showInit
 
 // inputField
 

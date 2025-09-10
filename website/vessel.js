@@ -935,6 +935,7 @@ async function allDraw() {
 
     await inputFieldInit()
     await modeButtonInit()
+    await showInit()
     await SetPole()
 
     mandrelsDraw()

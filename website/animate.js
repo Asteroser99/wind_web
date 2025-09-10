@@ -273,22 +273,26 @@ function tapeAnimate(prefix, fi){
     }
 }
 
-function tapeVisibility(prefix){
+async function tapeVisibility(prefix){
     let mesh
+
+    const lineShow = await fieldGet("lineShow")
 
     mesh = window["coil" + prefix + "Line"]
     if (mesh){
-        mesh.visible = window.lineShow;
+        mesh.visible = lineShow;
     }
+
+    const tapeShow = await fieldGet("tapeShow")
 
     mesh = window["tape" + prefix + "Mesh"]
     if (mesh){
-        mesh.visible = window.tapeShow;
+        mesh.visible = tapeShow;
     }
 
     mesh = window["tape" + prefix + "Line"]
     if (mesh){
-        mesh.visible = window.tapeShow;
+        mesh.visible = tapeShow;
     }
 }
 
@@ -306,21 +310,22 @@ async function animateVisibilities(){
 
     const mesh = window.mandrelRawMesh;
     if (mesh){
-        mesh.material.transparent = !window.mandrelShow;
-        mesh.material.opacity     = !window.mandrelShow ? 0.1 : 1.;
+        const mandrelShow = await fieldGet("mandrelShow")
+        mesh.material.transparent = !mandrelShow;
+        mesh.material.opacity     = !mandrelShow ? 0.1 : 1.;
     }
 
-    if (window.freeLine      ) window.freeLine      .visible = on && window.lineShow;
+    if (window.freeLine      ) window.freeLine      .visible = on && await fieldGet("lineShow");
     if (window.freeMesh      ) window.freeMesh      .visible = on && window.tapeShow;
 
-    tapeVisibility("Initial")
-    tapeVisibility("Corrected")
-    tapeVisibility("Interpolated")
+    await tapeVisibility("Initial")
+    await tapeVisibility("Corrected")
+    await tapeVisibility("Interpolated")
 
     if (window.tapeLineTail  ) window.tapeLineTail  .visible = on && window.tapeShow;
     if (window.tapeMeshTail  ) window.tapeMeshTail  .visible = on && window.tapeShow;
 
-    if (window.equidLine) window.equidLine.visible = on && window.equidistantaShow;
+    if (window.equidLine) window.equidLine.visible = on && await fieldGet("equidistantaShow");
     
 }
 window.animateVisibilities = animateVisibilities
@@ -409,27 +414,6 @@ function animate(timestamp) {
     scene.renderer.render(scene.scene, scene.camera);
 }
 window.animate = animate
-
-async function modeButtonInit(){
-    const buttons = document.querySelectorAll(".mode-button");
-    // buttons.forEach(button => {
-    for (const button of buttons) {
-        button.onclick = async () => {
-            buttons.forEach(btn => btn.classList.remove("active"));
-            button.classList.add("active");
-            const mode = button.getAttribute("data-mode");
-            await storageSet("windingMode", mode);
-            await tapeDraws();
-            await animateVisibilities();
-        };
-
-        if(button.classList.contains('active')) {
-            const mode = button.getAttribute("data-mode");
-            await storageSet("windingMode", mode);
-        }
-    };
-}
-window.modeButtonInit = modeButtonInit
 
 async function animateOnLoad(){
     const animateButton = document.getElementById("animateButton");
