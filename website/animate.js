@@ -102,9 +102,9 @@ function generateIndices(rows) {
 
 async function animateInit(){
     let coil = await coilGet("Interpolated");
-    let tape = await fieldGet("tapeInterpolated");
-    let eqd  = await fieldGet("equidistantaInterpolated");
-    let roll = await fieldGet("rolleyInterpolated");
+    let tape = await layerPropGet("tapeInterpolated");
+    let eqd  = await layerPropGet("equidistantaInterpolated");
+    let roll = await layerPropGet("rolleyInterpolated");
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
@@ -193,7 +193,7 @@ async function animateInit(){
     { // rolleyMesh
         removeMesh(window.rolleyMesh);
   
-        const band = await fieldGet('band') / 2
+        const band = await layerPropGet('band') / 2
         const rolleyMandrel = {
             x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
             r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
@@ -206,8 +206,6 @@ async function animateInit(){
         window.rolleyMesh = mesh;
         window.rolleyMesh.visible = false;
     }
-
-    await animateVisibilities();
 
     // rolleyAnimate();
 }
@@ -273,17 +271,17 @@ function tapeAnimate(prefix, fi){
     }
 }
 
-async function tapeVisibility(prefix){
+async function tapeVisibility(layerId, prefix){
     let mesh
 
-    const lineShow = await fieldGet("lineShow")
+    const lineShow = layerId && await layerPropGet("lineShow")
 
     mesh = window["coil" + prefix + "Line"]
     if (mesh){
         mesh.visible = lineShow;
     }
 
-    const tapeShow = await fieldGet("tapeShow")
+    const tapeShow = layerId && await layerPropGet("tapeShow")
 
     mesh = window["tape" + prefix + "Mesh"]
     if (mesh){
@@ -296,39 +294,40 @@ async function tapeVisibility(prefix){
     }
 }
 
-async function animateVisibilities(){
-    window.animateOn = await storageGet("windingMode") == "first";
+async function meshesShow(){
+    const layerId = await layerIdGet()
 
-    const on = window.animateOn && window.animateReady
+    window.animateOn = layerId ? await layerPropGet("windingMode") == "first" : false;
+    const on = window.animateReady && window.animateOn
 
     document.getElementById("programBar").style.display = on ? "flex" : "none";
     document.getElementById("playerBar" ).style.display = on ? "flex" : "none";
 
-    if (window.standMesh     ) window.standMesh .visible = on;
-    if (window.carretMesh    ) window.carretMesh.visible = on;
-    if (window.rolleyMesh    ) window.rolleyMesh.visible = on;
+    if (window.standMesh ) window.standMesh .visible = on;
+    if (window.carretMesh) window.carretMesh.visible = on;
+    if (window.rolleyMesh) window.rolleyMesh.visible = on;
 
     const mesh = window.mandrelRawMesh;
     if (mesh){
-        const mandrelShow = await fieldGet("mandrelShow")
+        const mandrelShow = layerId ? await layerPropGet("mandrelShow") : false;
         mesh.material.transparent = !mandrelShow;
         mesh.material.opacity     = !mandrelShow ? 0.1 : 1.;
     }
 
-    if (window.freeLine      ) window.freeLine      .visible = on && await fieldGet("lineShow");
-    if (window.freeMesh      ) window.freeMesh      .visible = on && window.tapeShow;
+    if (window.freeLine) window.freeLine      .visible = on && await layerPropGet("lineShow");
+    if (window.freeMesh) window.freeMesh      .visible = on && window.tapeShow;
 
-    await tapeVisibility("Initial")
-    await tapeVisibility("Corrected")
-    await tapeVisibility("Interpolated")
+    await tapeVisibility(layerId, "Initial")
+    await tapeVisibility(layerId, "Corrected")
+    await tapeVisibility(layerId, "Interpolated")
 
     if (window.tapeLineTail  ) window.tapeLineTail  .visible = on && window.tapeShow;
     if (window.tapeMeshTail  ) window.tapeMeshTail  .visible = on && window.tapeShow;
 
-    if (window.equidLine) window.equidLine.visible = on && await fieldGet("equidistantaShow");
+    if (window.equidLine) window.equidLine.visible = on && await layerPropGet("equidistantaShow");
     
 }
-window.animateVisibilities = animateVisibilities
+window.meshesShow = meshesShow
 
 function animate(timestamp) {
     requestAnimationFrame(animate);
@@ -432,9 +431,7 @@ async function animateOnLoad(){
 
     window.animateAuto = true;
 
-    await modeButtonInit();
-
     animate();
-    await animateVisibilities();
+    await meshesShow();
 }
 window.animateOnLoad = animateOnLoad

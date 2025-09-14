@@ -392,7 +392,7 @@ window.addLine = addLine
 async function frameInit(){
   const Fr = scale.y.max;
   const Fd = Fr / 50;
-  const SR = await fieldGet("safetyR");
+  const SR = await layerPropGet("safetyR");
 
   { // frameLine
     const vertices = Array(6 * 3).fill(0);
@@ -403,7 +403,7 @@ async function frameInit(){
     window.frameLine = addLine([vertices, indices], 0xffffff);
 
     const Rm = scale.y.max;
-    const SR = await fieldGet("safetyR");
+    const SR = await layerPropGet("safetyR");
     const Xn = scale.x.min - (Rm + SR);
     const Xm = scale.x.max + (Rm + SR);
     const Yd = + (Rm * 1.5 + SR);
@@ -604,7 +604,5 @@ window.clearScene = clearScene
 async function threeOnLoad() {
     sceneOnLoad();
     floorOnLoad();
-    
-    loaded();
 }
 window.threeOnLoad = threeOnLoad

@@ -1,23 +1,35 @@
+function yamlToData(yamlString){
+    let data = null;
+    try {
+        data = jsyaml.load(yamlString);
+    } catch (error) {
+        showError(error);
+    }
+    return data;
+};
+
+function dataToYaml(data){
+    return jsyaml.dump(data)
+}
+
 // layers
 
 async function layerAddOnClick(){
-    clearScene();
+    let layerId = await layerAdd();
 
-    let curLayerId = await layerAdd();
-    await layerIdSet(curLayerId)
-    await fieldAllGet()
-    await inputFieldInit()
-    // await inputFieldSet("layer", "LayerName", "Layer Name") // ???
+    await layerIdSet(layerId)
+    await layerPropAllGet()
 
-    await layersRenderTable()
-    await layersSelectRow(curLayerId)
-    await allDraw()
+    const layers = await vesselPropGet("layers")
+    await layerPropSet("LayerName", "layer " + layers.length)
+
+    await allShow()
 };
 window.layerAddOnClick = layerAddOnClick;
 
 
 async function layersRenderTable() {
-    const layers = await storageGet("layers") || []
+    const layers = await vesselPropGet("layers") || []
 
     const tableBody = document.querySelector("#layers-table tbody");
 
@@ -25,7 +37,7 @@ async function layersRenderTable() {
         tableBody.removeChild(tableBody.firstChild);
     }    
 
-    let names = await storageAllGetField("LayerName")
+    let names = await vesselPropAllGetProp("LayerName")
 
     layers.forEach((item, index) => {
         const row = document.createElement("tr");
@@ -44,41 +56,31 @@ async function layersRenderTable() {
             </td>
         `;
         row.onclick = async () => {
-            clearScene();
+            loading();
 
-            await layersSelectRow(item);
-            await fieldAllGet();
-            await allDraw()
+            await layerIdSet(item);
+            await layerPropAllGet();
+
+            await allShow()
+
+            loaded();
         };
         row.dataset.index = item;
         row.classList.add("clickable-row");
 
         tableBody.appendChild(row);
 
-        // const btnAdd = row.querySelector(".btn-add");
-        // btnAdd.onclick = async (event) => {
-        //     event.stopPropagation();
-
-        //     clearScene();
-
-        //     let curLayerId = await layerAdd(item);
-        //     await layersRenderTable()
-        //     await layersSelectRow(curLayerId)
-        //     await fieldAllGet();
-        //     await allDraw()
-        // };
-
         let btn
         btn = row.querySelector(".btn-up");
         btn.onclick = async (event) => {
             event.stopPropagation();
 
-            const layers = await storageGet("layers")
+            const layers = await vesselPropGet("layers")
 
             const i = layers.indexOf(item);
             if (i > 0)
                 [layers[i - 1], layers[i]] = [layers[i], layers[i - 1]];
-            await storageSet("layers", layers)
+            await vesselPropSet("layers", layers)
     
             await layersRenderTable()
         };
@@ -87,12 +89,12 @@ async function layersRenderTable() {
         btn.onclick = async (event) => {
             event.stopPropagation();
 
-            const layers = await storageGet("layers")
+            const layers = await vesselPropGet("layers")
 
             const i = layers.indexOf(item);
             if (i >= 0 && i < layers.length - 1)
                 [layers[i], layers[i + 1]] = [layers[i + 1], layers[i]];
-            await storageSet("layers", layers)
+            await vesselPropSet("layers", layers)
 
             await layersRenderTable()
         };
@@ -102,15 +104,13 @@ async function layersRenderTable() {
             event.stopPropagation();
 
             const curLayer = await layerIdGet()
-            const itemLayer = await layerDelete(item);
-            await layersRenderTable()
+            const layerToSelect = await layerDelete(item);
             if(curLayer == item){
-
-                clearScene();
-
-                await layersSelectRow(itemLayer)
-                await fieldAllGet();
-                await allDraw()
+                await layerIdSet(layerToSelect)
+                await layerPropAllGet();
+                await allShow()
+            } else {
+                await layersRenderTable()
             }
         };
 
@@ -120,7 +120,7 @@ async function layersRenderTable() {
 }
 window.layersRenderTable = layersRenderTable;
 
-async function layersSelectRow(index) {
+async function layersSelectRow(layerId) {
     const tableBody = document.querySelector("#layers-table tbody");
 
     const selected = tableBody.querySelector(".selected");
@@ -128,9 +128,7 @@ async function layersSelectRow(index) {
         selected.classList.remove("selected");
     }
 
-    await layerIdSet(index);
-
-    const row = tableBody.querySelector(`tr[data-index='${index}']`);
+    const row = tableBody.querySelector(`tr[data-index='${layerId}']`);
     if (row){
         row.classList.add("selected");
     }
@@ -138,37 +136,102 @@ async function layersSelectRow(index) {
 window.layersSelectRow = layersSelectRow;
 
 
+/// vessel
+
+// vesselSave
+async function vesselSave(){
+    loading()
+    const filename = await vesselPropGet("PartNumber") + ".yaml";
+    // const vessel = theVessel.clone()
+    const vessel = structuredClone(theVessel);
+    const layers = {};
+    if(vessel.layers)
+        for (const layerId of vessel.layers) {
+            const layer = await layerPropAllRead(layerId)
+            layers[layerId] = layer;
+        }
+    vessel.layers = layers
+    await saveFile(dataToYaml, vessel, filename, "application/x-yaml");
+}
+window.vesselSave = vesselSave;
+
 // vesselLoad
+function vesselLoad(){
+    fileOpen(".yaml", vesselLoadOnFileOpen, 0)
+}
+window.vesselLoad = vesselLoad;
 
-const vesselLoadInput = document.getElementById('vesselLoadInput');
-document.getElementById('vesselLoad').addEventListener(
-    'click', () => { vesselLoadInput.click(); }
-);
-vesselLoadInput.addEventListener(
-    'change', function (event) { vesselLoadOnClick(event) }
-);
-function vesselLoadOnClick(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = vesselLoadOnFileLoad;
-
-    reader.readAsText(file);
+function vesselLoadOnFileOpen(file, par) {
+    fileRead(file, vesselLoadOnFileRead, par)
 };
-async function vesselLoadOnFileLoad(event) {
-    await fieldAllSet(loadFromYaml(event.target.result));
-    await allDraw()
-}
-function loadFromYaml(yamlString){
-    let parsedData = null;
-    try {
-        parsedData = jsyaml.load(yamlString);
-    } catch (error) {
-        showError(error);
+window.vesselLoadOnFileOpen = vesselLoadOnFileOpen;
+
+async function vesselLoadOnFileRead(text, par) {
+    await layersAllClear();
+
+    const vessel = yamlToData(text)
+    const layers = []
+    for (const [layerId, layer] of Object.entries(vessel.layers)) {
+        layers.push(layerId);
+        await layerPropAllSet(layer, layerId);
     }
-    return parsedData;
+    vessel.layers = layers
+    await vesselPropAllSet(vessel)
+
+    await allShow()
+
+    loaded();
+};
+window.vesselLoadOnFileRead = vesselLoadOnFileRead;
+
+// vesselClear
+async function vesselClear() {
+    if (theVessel.layers)
+        for (const layerId of theVessel.layers) {
+            await layerPropAllClear(layerId);
+        }
+
+    await vesselPropAllClear();
+
+    await allShow();
 }
+window.vesselClear = vesselClear
+
+
+/// layer
+
+// layerSave
+async function layerSave(){
+    loading();
+    const filename = await vesselPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + ".yaml";
+    await saveFile(dataToYaml, theLayer, filename, "application/x-yaml");
+}
+window.layerSave = layerSave;
+
+// layerLoad
+function layerLoad(event) {
+    fileOpen(".yaml", layerLoadOnFileOpen)
+}
+window.layerLoad = layerLoad;
+
+function layerLoadOnFileOpen(file, par) {
+    fileRead(file, layerLoadOnFileLoad)
+};
+window.layerLoadOnFileOpen = layerLoadOnFileOpen;
+
+async function layerLoadOnFileLoad(text, par) {
+    await layerPropAllSet(yamlToData(text));
+    await allShow()
+    loaded()
+};
+window.layerLoadOnFileLoad = layerLoadOnFileLoad;
+
+// layerClear
+async function layerClear() {
+    await layerPropAllClear();
+    await allShow();
+}
+window.layerClear = layerClear
 
 
 // lambdaCall
@@ -181,7 +244,7 @@ async function lambdaCall(name, param) {
         path = 'http://127.0.0.1:5000/';   // local flask server
     }
 
-    const cognitoAccessToken = await storageGet('cognitoAccessToken');
+    const cognitoAccessToken = await vesselPropGet('cognitoAccessToken');
     const headers = {
         headers: {
             auth: `Bearer ${cognitoAccessToken}`,
@@ -209,52 +272,25 @@ window.lambdaCall = lambdaCall;
 
 // ImportCSV
 
-mandrelImportCSVInput.addEventListener(
-    'change', function (event) {
-        const file = event.target.files[0];
-        if (!file){
-            loaded();
-            return 
-        }
-    
-        const reader = new FileReader();
-        reader.onload = mandrelImportCSVOnFileLoad;
-        reader.readAsText(file);
-    }
-);
-
-
 function mandrelImportCSV(prefix){
-    const fileInput = document.getElementById('fileInput');
-    fileInput.onchange = function (event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        mandrelImportCSVOnInputClick(file, prefix)
-    };
-    
-    fileInput.value = "";
-    fileInput.type = "file";
-    fileInput.accept = ".csv";
-    fileInput.click();
-}
-
-function mandrelImportCSVOnInputClick(file, prefix){
-    const reader = new FileReader();
-    reader.onload = async function(event) {
-        const colNumEl = document.getElementById('csvColumn');
-        if(colNumEl.value == "") colNumEl.value = 1
-        await mandrelImportCSVOnFileLoad(prefix, event.target.result, colNumEl.value - 1);
-    };
-    reader.readAsText(file);
+    fileOpen(".csv", mandrelImportCSVOnFileOpen, prefix)
 }
 window.mandrelImportCSV = mandrelImportCSV;
 
-async function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
+function mandrelImportCSVOnFileOpen(file, prefix){
+    fileRead(file, mandrelImportCSVOnFileRead, prefix)
+}
+window.mandrelImportCSVOnFileOpen = mandrelImportCSVOnFileOpen;
+
+async function mandrelImportCSVOnFileRead(text, prefix) {
+    let colNum = document.getElementById('csvColumn').value
+    if(colNum == "") colNum = 1
+    colNum = colNum - 1
+
     let mandrel
     try {
         if (prefix == "Raw")
-            await vesselClear();
+            await layerClear();
 
         mandrel = mandrelFromCSV(text, colNum);
         await mandrelSet(prefix, mandrel)
@@ -263,7 +299,7 @@ async function mandrelImportCSVOnFileLoad(prefix, text, colNum) {
     }
     loaded();
 };
-window.mandrelImportCSVOnFileLoad = mandrelImportCSVOnFileLoad;
+window.mandrelImportCSVOnFileRead = mandrelImportCSVOnFileRead;
 
 function mandrelFromCSV(csvText, colNum = 0) {
     const lines = csvText.trim().split("\n");
@@ -329,17 +365,21 @@ async function saveFile(fun, par, suggestedName, type = "text/plain") {
         }
 
     } catch (error) {
-        showError(error);
+        if (error.name !== 'AbortError') {
+            showError(error);
+        }
     }
+
+    loaded()
 }
 
 async function saveCsvWithDialog(name) {
-    const mandrel = await fieldGet("mandrel" + name);
+    const mandrel = await layerPropGet("mandrel" + name);
     if (!mandrel) {
         showError("No mandrel data to save");
         return;
     }
-    const filename = await fieldGet("PartNumber") + "_" + await fieldGet("LayerNumber") + "_" + name + ".csv";
+    const filename = await layerPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + "_" + name + ".csv";
     await saveFile(convertArrayToCsv, mandrel, filename, "text/csv");
 }
 window.saveCsvWithDialog = saveCsvWithDialog;
@@ -360,7 +400,7 @@ function convertArrayToCsv(data) {
 // mandrel
 
 async function mandrelGet(name){
-    return await fieldGet("mandrel" + name);
+    return await layerPropGet("mandrel" + name);
 }
 window.mandrelGet = mandrelGet
 
@@ -433,19 +473,19 @@ async function mandrelTreeUpdate(name) {
 }
 window.mandrelTreeUpdate = mandrelTreeUpdate;
   
-async function SetPole() {
+async function setPole() {
     const mandrel = await mandrelGet("Raw")
     if (!mandrel) return;
     const {x, r} = mandrel
     if (r.length > 0)
-        await inputFieldValue('poleR', r[0]);
+        await inputSet('poleR', r[0]);
 }
 
 async function mandrelSet(name, xOrMandrel, r = null){
     let mandrel = xOrMandrel;
     if (r) mandrel = { x: xOrMandrel, r: r };
-    await fieldSet("mandrel" + name, mandrel);
-    if (name == "Raw") SetPole();
+    await layerPropSet("mandrel" + name, mandrel);
+    if (name == "Raw") setPole();
     mandrelDraw(name);
 }
 
@@ -473,7 +513,7 @@ async function mandrelShiftX(){
     const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
-    x = x.map(value => value + inputValue("shift"));
+    x = x.map(value => value + inputGet("shift"));
     await mandrelSet("Raw", x, r);
 }
 window.mandrelShiftX = mandrelShiftX;
@@ -482,7 +522,7 @@ async function mandrelShiftR(){
     const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
-    r = r.map(value => value + inputValue("shift"));
+    r = r.map(value => value + inputGet("shift"));
     await mandrelSet("Raw", x, r);
 }
 window.mandrelShiftR = mandrelShiftR;
@@ -491,7 +531,7 @@ async function mandrelMultiplyX(){
     const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
-    x = x.map(value => value * inputValue("koeff"));
+    x = x.map(value => value * inputGet("koeff"));
     await mandrelSet("Raw", x, r);
 }
 window.mandrelMultiplyX = mandrelMultiplyX;
@@ -500,7 +540,7 @@ async function mandrelMultiplyR(){
     const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
     let { x, r } = mandrel;
-    r = r.map(value => value * inputValue("koeff"));
+    r = r.map(value => value * inputGet("koeff"));
     await mandrelSet("Raw", x, r);
 }
 window.mandrelMultiplyR = mandrelMultiplyR;
@@ -559,14 +599,14 @@ document.getElementById('thicknessGet').addEventListener(
         loading();
 
         const coilCorrected = await coilGet("Corrected")
-        const coilMeridian = await fieldGet("coilMeridian");
+        const coilMeridian = await layerPropGet("coilMeridian");
 
         if (!coilCorrected || !coilMeridian) {
             showError("No data");
             return;
         }
 
-        return lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, await fieldGet('band')])
+        return lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, await layerPropGet('band')])
             .then(async (res) => {
                 await mandrelSet("Wound", res);
                 loaded();
@@ -615,11 +655,11 @@ async function coilCalc() {
     if (!mandrel) return null;
 
     try {
-        return lambdaCall("vitok.vitok", [mandrel, await fieldGet("poleR"), await fieldGet("band")])
+        return lambdaCall("vitok.vitok", [mandrel, await layerPropGet("poleR"), await layerPropGet("band")])
             .then(async (res) => {
                 const [coil, meridian] = res
                 coilSet("Initial", coil);
-                await fieldSet("coilMeridian", meridian);
+                await layerPropSet("coilMeridian", meridian);
 
                 loaded();
 
@@ -639,12 +679,12 @@ async function coilRender(suffix) {
 
     const n = coil.x.length
 
-    const mode = suffix == "Initial" ? "first" : await storageGet("windingMode");
+    const mode = suffix == "Initial" ? "first" : await layerPropGet("windingMode");
     let Coils = 1
     if (mode == "first"){
         Coils = 1
     } else if (mode == "round") {
-        Coils = await fieldGet("conv") + 1
+        Coils = await layerPropGet("conv") + 1
     } else if (mode == "all") {
         const fibboGetSelected = await fibboGetSelectedValues();
         Coils = fibboGetSelected["Coils"]
@@ -680,9 +720,9 @@ async function tapeCalc(prefix) {
     const coil = await coilGet(prefix)
     if (coil) {
         loading();
-        lambdaCall("calc.tape", [coil, await fieldGet("band")])
+        lambdaCall("calc.tape", [coil, await layerPropGet("band")])
             .then(async res => {
-                await fieldSet("tape" + prefix, res);
+                await layerPropSet("tape" + prefix, res);
                 await tapeDraws();
                 loaded();
             })
@@ -690,7 +730,7 @@ async function tapeCalc(prefix) {
                 showError(error);
             });
     } else {
-        await fieldSet("tape" + prefix, undefined);
+        await layerPropSet("tape" + prefix, undefined);
         await tapeDraws();
     }
 }
@@ -736,10 +776,10 @@ async function tapeRender(suffix) {
     const coil = await coilGet(suffix);
     if (!coil) return undefined
 
-    const tape = await fieldGet("tape" + suffix);
+    const tape = await layerPropGet("tape" + suffix);
     if (!tape) return undefined;
 
-    const mode = suffix == "Initial" ? "first" : await storageGet("windingMode");
+    const mode = suffix == "Initial" ? "first" : await layerPropGet("windingMode");
     const n = coil.x.length;
     
     const vertices = [];
@@ -750,7 +790,7 @@ async function tapeRender(suffix) {
     if (mode == "first"){
         Coils = 1
     } else if (mode == "round") {
-        Coils = await fieldGet("conv") + 1
+        Coils = await layerPropGet("conv") + 1
     } else if (mode == "all") {
         const fibboGetSelected = await fibboGetSelectedValues();
         Coils = fibboGetSelected["Coils"]
@@ -799,14 +839,15 @@ async function Winding(param = undefined){
         return
     }
 
-    lambdaCall("calc.winding", [coilCorrected, await fieldGet('safetyR'), await fieldGet('lineCount'), await fieldGet('band')])
+    lambdaCall("calc.winding", [coilCorrected, await layerPropGet('safetyR'), await layerPropGet('lineCount'), await layerPropGet('band')])
         .then(async res => {
             coilSet ("Interpolated"            , res[0]);
-            await fieldSet("equidistantaInterpolated", res[1]);
-            await fieldSet("rolleyInterpolated"      , res[2]);
+            await layerPropSet("equidistantaInterpolated", res[1]);
+            await layerPropSet("rolleyInterpolated"      , res[2]);
 
             await tapeDraws();
             await animateInit();
+            await meshesShow();
 
             loaded();
         })
@@ -829,9 +870,9 @@ document.getElementById('netStructure').addEventListener(
 
 async function patternsCalc() {
     loading();
-    lambdaCall("fibbo", [await coilGet("Initial"), await fieldGet("band"), await fieldGet("conv"), await fieldGet("netStructure")])
+    lambdaCall("fibbo", [await coilGet("Initial"), await layerPropGet("band"), await layerPropGet("conv"), await layerPropGet("netStructure")])
         .then(async (patterns) => {
-            await fieldSet("patterns", patterns);
+            await layerPropSet("patterns", patterns);
             await fibboRenderTable();
 
             const minIndex = patterns.reduce((minIdx, entry, idx, arr) => 
@@ -850,7 +891,7 @@ async function patternsCalc() {
 // Correct coils
 
 async function coilSet(suffix, coil) {
-    await fieldSet("coil" + suffix, coil)
+    await layerPropSet("coil" + suffix, coil)
 
     if (suffix == "Initial") {
         await coilSet("Corrected", undefined);
@@ -862,12 +903,12 @@ async function coilSet(suffix, coil) {
 }
 
 async function coilGet(suffix) {
-    let coil = await fieldGet("coil" + suffix);
+    let coil = await layerPropGet("coil" + suffix);
 
     if (!coil) return undefined;
     
     if (suffix == "Corrected") {
-        const coilInitial = await fieldGet("coilInitial");
+        const coilInitial = await layerPropGet("coilInitial");
         coil = {
             x : coilInitial["x" ],
             r : coilInitial["r" ],
@@ -906,7 +947,7 @@ async function CNCGet(itpEqd) {
 
 async function CNCExport() {
     loading();
-    const itpEqd = await fieldGet("equidistantaInterpolated");
+    const itpEqd = await layerPropGet("equidistantaInterpolated");
     if (!itpEqd) {
         showError("No interpolated equidistanta yet");
         loaded();
@@ -914,7 +955,7 @@ async function CNCExport() {
     }
 
     const txt = await lambdaCall("CNC", [itpEqd]);
-    const filename = await fieldGet("PartNumber") + "_" + await fieldGet("LayerNumber") + "_CNC.txt";
+    const filename = await layerPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + "_CNC.txt";
     await saveFile(CNCGet, itpEqd, filename, "text/plain");
     loaded();
 }
@@ -924,60 +965,57 @@ window.CNCExport = CNCExport
 // ALL
 
 async function allClear() {
-    await vesselClear();
+    await layerClear();
     clearScene();
 }
 
-async function allDraw() {
+async function allShow() {
+    clearScene();
+
+    const layerId = await layerIdGet()
+
+    await inputUpdate(layerId)
+    await layersRenderTable()
+    await appearShow()
+    await modeShow(layerId)
+
     scaleSet()
 
-    await layersRenderTable()
+    if(layerId){
+        await setPole()
 
-    await inputFieldInit()
-    await modeButtonInit()
-    await showInit()
-    await SetPole()
+        mandrelsDraw()
+        await tapeDraws()
+        await meshesShow();
+        await patternDraw();
 
-    mandrelsDraw()
-
-    await tapeDraws()
-    await animateInit()
+        await animateInit()
+    }
 }
 
 
-// vesselSave
-function convertToYaml(data){
-    return jsyaml.dump(data)
-}
-
-
+// vesselPrint
 async function vesselPrint(){
     console.log("theVessel:", theVessel);
     console.log("theLayer:", theLayer);
 }
 window.vesselPrint = vesselPrint;
 
-async function vesselSave(){
-    const filename = await fieldGet("PartNumber") + "_" + await fieldGet("LayerNumber") + ".yaml";
-    await saveFile(convertToYaml, theLayer, filename, "application/x-yaml");
+
+// coilLoad - unused
+function coilLoad(prefix){
+    fileOpen(".yaml", coilLoadOnFileOpen, prefix)
 }
-window.vesselSave = vesselSave;
+window.coilLoad = coilLoad;
 
-
-// vesselLoad
-
-function coilLoadOnClick(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = coilLoadOnFileLoad;
-
-    reader.readAsText(file);
+function coilLoadOnFileOpen(file, prefix) {
+    fileRead(file, coilLoadOnFileRead, prefix)
 };
-async function coilLoadOnFileLoad(event) {
-    await fieldSet("coilInitial", loadFromYaml(event.target.result));
-    await tapeCalc("Corrected");
+window.coilLoadOnFileOpen = coilLoadOnFileOpen;
+
+async function coilLoadOnFileRead(text, prefix) {
+    await layerPropSet("coil" + prefix, yamlToData(text));
+    await tapeCalc(prefix);
 }
 
 
@@ -993,8 +1031,8 @@ async function loadFromYamlURL(url) {
         showError(error);
     }
 
-    await fieldAllSet(
-        loadFromYaml(await response.text())
+    await layerPropAllSet(
+        yamlToData(await response.text())
     );
 }
 async function vesselloadFromURL(name) {
@@ -1004,36 +1042,24 @@ async function vesselloadFromURL(name) {
     await allClear()
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(async () => {
+        await allShow();
         loaded();
-
-        await allDraw();
-
-        await layersRenderTable();
     })
 };
 window.vesselloadFromURL = vesselloadFromURL
 
 
-// Clear
-async function vesselClear() {
-    await fieldAllClear();
-    clearScene();
-
-    allDraw();
-}
-window.vesselClear = vesselClear
-
 async function vesselActualise() {
-    const layers = await storageGet("layers")
+    const layers = await vesselPropGet("layers")
     if (!layers) {
         toggleHelp(true);
 
         await vesselloadFromURL("engine");
 
-        document.getElementById('toggle-button-mandrel').click();
-        document.getElementById('toggle-button-equidistanta').click();
+        document.getElementById('appear-button-mandrel').click();
+        document.getElementById('appear-button-equidistanta').click();
     } else {
-        await allDraw();
+        await allShow();
     }
 }
 window.vesselActualise = vesselActualise

@@ -1,7 +1,8 @@
 // Table
 
 async function fibboRenderTable() {
-    const patterns = await fieldGet("patterns");
+    const layerId = await layerIdGet()
+    const patterns = layerId ? await layerPropGet("patterns") : null;
     if(!patterns) return;
 
     const tableBody = document.querySelector("#patterns-table tbody");
@@ -10,20 +11,22 @@ async function fibboRenderTable() {
         tableBody.removeChild(tableBody.firstChild);
     }    
 
-    patterns.forEach((item, index) => {
-        const row = document.createElement("tr");
-            // <td>${item.Turns}</td>
-        row.innerHTML = `
-            <td>${item.Coils}</td>
-            <td>${item.Correction.toFixed(3)}</td>
-        `;
-        row.onclick = () => fibboSelectRow(index);
-        row.dataset.index = index;
-        row.classList.add("clickable-row");
-        tableBody.appendChild(row);
-    });
+    if (patterns){
+        patterns.forEach((item, index) => {
+            const row = document.createElement("tr");
+                // <td>${item.Turns}</td>
+            row.innerHTML = `
+                <td>${item.Coils}</td>
+                <td>${item.Correction.toFixed(3)}</td>
+            `;
+            row.onclick = () => fibboSelectRow(index);
+            row.dataset.index = index;
+            row.classList.add("clickable-row");
+            tableBody.appendChild(row);
+        })
 
-    await fibboSelectRow(await fieldGet("fibboIndex"))
+        await fibboSelectRow(await layerPropGet("fibboIndex"))
+    };
 }
 window.fibboRenderTable = fibboRenderTable;
 
@@ -32,7 +35,7 @@ async function fibboSelectRow(index) {
     const row = tableBody.querySelector(`tr[data-index='${index}']`);
     if (!row) return;
 
-    await fieldSet("fibboIndex", index);
+    await layerPropSet("fibboIndex", index);
 
     const selected = tableBody.querySelector(".selected");
     if (selected) {
@@ -40,12 +43,12 @@ async function fibboSelectRow(index) {
     }
     row.classList.add("selected");
 
-    drawPattern();
+    await patternDraw();
 }
 window.fibboSelectRow = fibboSelectRow;
 
 async function fibboGetSelectedValues() {
-    const patterns = await fieldGet("patterns");
+    const patterns = await layerPropGet("patterns");
     const selectedRow = document.querySelector("#patterns-table tbody .selected");
     if (!selectedRow) return { Turns: 0, Coils: 0 };
     
@@ -67,12 +70,10 @@ function resizePattern() {
     window.pRadius = Math.min(pCanvas.width, pCanvas.height) / 2;
 
     pContext.translate(pCanvas.width / 2, pCanvas.height / 2);
-
-    drawPattern();
 }
 window.resizePattern = resizePattern;
 
-async function drawPattern() {
+async function patternDraw() {
     let gradient = pContext.createLinearGradient(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width / 2, pCanvas.height / 2);
     gradient.addColorStop(0, `hsl(139, 70%, 90%)`);
     gradient.addColorStop(1, `hsl(208, 70%, 90%)`);
@@ -81,7 +82,7 @@ async function drawPattern() {
     pContext.fillRect(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
 
     const { Turns, Coils } = await fibboGetSelectedValues();
-    const conv = await fieldGet("conv")
+    const conv = await layerPropGet("conv")
     const angleStep = Math.PI * 2 / Coils * Turns
     
     const cx = 0
@@ -203,13 +204,17 @@ async function drawPattern() {
     }
 
 }
-window.drawPattern = drawPattern
+window.patternDraw = patternDraw
 
 async function patternsOnLoad() {
     window.pCanvas = document.getElementById("patterns-canvas");
     window.pContext = window.pCanvas.getContext("2d");
 
-    window.addEventListener("resize", resizePattern);
+    window.addEventListener('resize', () => {
+        resizePattern();
+        patternDraw();
+    });
+
     resizePattern();
 
     await fibboRenderTable();

@@ -1,3 +1,5 @@
+let loadingButton
+
 function changeImage(id, filename) {
     const imgElement = document.getElementById(id);
     if (imgElement && imgElement.tagName === "IMG") {
@@ -7,11 +9,13 @@ function changeImage(id, filename) {
 window.changeImage = changeImage
 
 function loading(){
+    loadingButton.classList.add('loading');
     changeImage("logo", "logo.gif")
 }
 window.loading = loading
   
 function loaded(){
+    loadingButton.classList.remove('loading');
     changeImage("logo", "logo.png")
 }
 window.loaded = loaded
@@ -42,27 +46,10 @@ function moveButtons(prefix, tabId) {
     }
 }
 
-function inputValue(id, val = null, isInt = false){
-    const el = document.getElementById(id);
-
-    if (val != null){
-        el.value = val;
-    }
-
-    if(isInt)
-        val = parseInt(el.value)
-    else
-        val = parseFloat(el.value)
-    
-    return val;
-}
-window.inputValue = inputValue
-
-
 
 export async function openTab(tabId) {
     if (!tabId) tabId = "vessel";
-    await storageSet("page", tabId);
+    await vesselPropSet("page", tabId);
 
     let hideIt = false;
     const activeTab  = document.querySelector('.tab-content.active' );
@@ -121,7 +108,10 @@ export async function openTab(tabId) {
         thumbnail.appendChild(document.getElementById("scene-canvas"));
     }
 
-    if (contentId == "patterns-canvas-div") resizePattern();
+    if (contentId == "patterns-canvas-div") {
+        resizePattern();
+        await patternDraw();
+    }
 
     resizeScene();
 }
@@ -187,7 +177,7 @@ window.showError = showError;
 
 // funcButton
 
-function funcButtonInit(){
+function funcOnLoad(){
     document.querySelectorAll('.function-button').forEach(button => {
         button.onclick = (event) => {
             window.funcButtonFunction  = event.currentTarget.dataset.function;
@@ -204,14 +194,14 @@ function funcButtonInit(){
                 document.getElementById('questionOk'   ).style.display = !needsAnswer ? 'block' : 'none';
                 // console.log(document.getElementById('questionOk').style.display)
 
-                funcButtonInit();
+                funcOnLoad();
             } else {
                 executeFunction();
             }
         };
     });
 }
-window.funcButtonInit = funcButtonInit;
+window.funcOnLoad = funcOnLoad;
 
 document.getElementById('questionYes'  ).addEventListener( 'click', () => { closeModal(); executeFunction(); });
 document.getElementById('questionNo'   ).addEventListener( 'click', () => { closeModal(); });
@@ -255,67 +245,91 @@ function toggleHelp(toggle, interactive){
 window.toggleHelp = toggleHelp
 
 async function toggleEquidistanta(toggled, interactive){
-    await fieldSet("equidistantaShow", toggled);
+    if (!interactive) return
+
+    await layerPropSet("equidistantaShow", toggled);
 
     if (interactive) {
-        await animateVisibilities();
+        await meshesShow();
     }
 }
 window.toggleEquidistanta = toggleEquidistanta
 
 async function toggleMandrel(toggled, interactive){
-    await fieldSet("mandrelShow", toggled);
+    if (!interactive) return
+
+    await layerPropSet("mandrelShow", toggled);
 
     if (interactive) {
-        await animateVisibilities();
+        await meshesShow();
     }
 }
 window.toggleMandrel = toggleMandrel
 
 async function toggleLine(toggled, interactive){
-    await fieldSet("lineShow", toggled);
+    if (!interactive) return
+
+    await layerPropSet("lineShow", toggled);
 
     if (interactive) {
-        await animateVisibilities();
+        await meshesShow();
     }
 }
 window.toggleLine = toggleLine
 
 async function toggleTape(toggled, interactive){
-    await fieldSet("tapeShow", toggled);
+    if (!interactive) return
+
+    await layerPropSet("tapeShow", toggled);
 
     if (interactive) {
-        await animateVisibilities();
+        await meshesShow();
     }
 }
 window.toggleTape = toggleTape
 
 
-async function modeButtonInit(){
+function modeOnLoad(){
     const buttons = document.querySelectorAll(".mode-button");
-    // buttons.forEach(button => {
     for (const button of buttons) {
         button.onclick = async () => {
             buttons.forEach(btn => btn.classList.remove("active"));
             button.classList.add("active");
             const mode = button.getAttribute("data-mode");
-            await storageSet("windingMode", mode);
+            await layerPropSet("windingMode", mode);
             await tapeDraws();
-            await animateVisibilities();
+            await meshesShow();
         };
 
-        if(button.classList.contains('active')) {
-            const mode = button.getAttribute("data-mode");
-            await storageSet("windingMode", mode);
-        }
+        // if(button.classList.contains('active')) {
+        //     const mode = button.getAttribute("data-mode");
+        //     await layerPropSet("windingMode", mode);
+        // }
     };
 }
-window.modeButtonInit = modeButtonInit
 
-async function showInit(){
-    for (const btnName of ["Mandrel", "Line", "Tape", "Equidistanta"]){
-        const button = document.querySelector('.toggle-button[data-function="toggle' + btnName + '"]');
-        const active = await fieldGet(btnName.toLowerCase() + "Show");
+async function modeShow(layerId){
+    const mode = layerId ? await layerPropGet("windingMode") : null
+
+    const buttons = document.querySelectorAll(".mode-button");
+    for (const button of buttons) {
+        const buttonMode = button.getAttribute("data-mode");
+        if (buttonMode == mode) {
+            button.classList.add("active");
+        } else {
+            button.classList.remove("active");
+        }
+    }
+}
+window.modeShow = modeShow
+
+
+async function appearShow(){
+    const layerId = await layerIdGet()
+
+    for (const btnName of ["mandrel", "line", "tape", "equidistanta"]){
+        const button = document.getElementById('appear-button-' + btnName);
+        const active = (!!layerId) && await layerPropGet(btnName.toLowerCase() + "Show");
         if (active) {
             button.classList.add('active');
         } else {
@@ -323,44 +337,82 @@ async function showInit(){
         }
     }
 }
-window.showInit = showInit
+window.appearShow = appearShow
+
 
 // inputField
 
-async function inputFieldSet(owner, id, value){
+async function inputAnySet(owner, layerId, id, value){
     if (owner == "vessel") {
-        await storageSet(id, value);
+        await vesselPropSet(id, value);
     } else if (owner == "layer") {
-        await fieldSet(id, value);
-    }
-}
-window.inputFieldSet = inputFieldSet
-
-async function inputFieldGet(owner, id){
-    if (owner == "vessel") {
-        return await storageGet(id);
-    } else if (owner == "layer") {
-        return await fieldGet(id);
+        if (!layerId) return
+        await layerPropSet(id, value);
     }
 }
 
-async function inputFieldInit(){
+async function inputAnyGet(owner, layerId, id){
+    if (owner == "vessel") {
+        return await vesselPropGet(id);
+    } else if (owner == "layer") {
+        if (!layerId) return null
+        return await layerPropGet(id);
+    }
+}
 
-    function inputGetValue(input){
-        let val = input.value;
-        if (input.type === "number") {
-            val = parseFloat(val);
-        } else if (input.type === "checkbox") {
-            val = input.checked;
-        } else {
-            val = input.value;
-        }
-        return val;
+async function inputSet(id, value) {
+    const input = document.getElementById(id);
+    if (input) {
+        input.value = value;
+        await layerPropSet(id, value);
+    }
+}
+window.inputSet = inputSet;
+
+function inputGetDefault(input){
+    let val;
+    if (input.type === "number") {
+        val = parseFloat(input.defaultValue);
+    } else if (input.type === "checkbox") {
+        val = input.defaultChecked;
+    } else {
+        val = input.defaultValue;
+    }
+    return val;
+}
+
+function inputGet(id, val = null, isInt = false){
+    const el = document.getElementById(id);
+
+    if (val != null){
+        el.value = val;
     }
 
+    if(isInt)
+        val = parseInt(el.value)
+    else
+        val = parseFloat(el.value)
+    
+    return val;
+}
+window.inputGetDefault = inputGetDefault
+
+async function inputOnChange(event){
+    const layerId = await layerIdGet()
+    const input = event.currentTarget
+    const value = inputGet(input);
+    const owner = input.dataset.owner;
+    // console.log("field set", id, await layerPropGet(id), "->", value);
+    await inputAnySet(owner, layerId, input.id, value);
+
+    if (input.id == "LayerName")
+        await layersRenderTable();
+}
+
+function inputOnLoad(){
     const inputs = document.querySelectorAll(".inputField");
     for (const input of inputs) {
-        const id = input.id;
+        // const id = input.id;
     
         input.onkeydown = (event) => {
             if (event.key === " ") {
@@ -368,39 +420,36 @@ async function inputFieldInit(){
             }
         };
         
-        const owner = input.dataset.owner;
         const listener = input.type === "checkbox" ? "click" : "input";
         if (listener === "input")
             input.oninput  = inputOnChange;
         else 
             input.onchange = inputOnChange;
         ;
-        // input.addEventListener(listener, async () => {
-        //     const value = inputGetValue(input);
-        //     // console.log("field set", id, await fieldGet(id), "->", value);
-        //     await inputFieldSet(owner, id, value);
-        // });
-    
-        async function inputOnChange(event){
-            const value = inputGetValue(input);
-            // console.log("field set", id, await fieldGet(id), "->", value);
-            await inputFieldSet(owner, id, value);
-            if (id == "LayerName") await layersRenderTable();
+    }
+}
+
+async function inputUpdate(layerId){
+    const inputs = document.querySelectorAll(".inputField");
+    for (const input of inputs) {
+        const id = input.id;
+
+        const owner = input.dataset.owner;
+        let storedValue = await inputAnyGet(owner, layerId, id);
+
+        if (storedValue == undefined || storedValue == null) {
+            storedValue = inputGetDefault(input);
+            if(layerId){
+                // console.log("def to val", id, storedValue, initialValue);
+                await inputAnySet(owner, layerId, id, storedValue);
+            }
         }
 
-        const storedValue = await inputFieldGet(owner, id);
-    
-        if (storedValue !== undefined && storedValue !== null) {
-            // console.log("val to form", id, inputValue(input), "->", storedValue);
-            if (input.type === "checkbox") {
-                input.checked = storedValue;
-            } else {
-                input.value = storedValue;
-            }
+        // console.log("val to form", id, inputGet(input), "->", storedValue);
+        if (input.type === "checkbox") {
+            input.checked = storedValue;
         } else {
-            const initialValue = inputGetValue(input);
-            // console.log("form to val", id, storedValue, initialValue);
-            await inputFieldSet(owner, id, initialValue);
+            input.value = storedValue;
         }
     };
 
@@ -410,28 +459,20 @@ async function inputFieldInit(){
     //     await layersRenderTable();
     // };
 }
-window.inputFieldInit = inputFieldInit
+window.inputUpdate = inputUpdate
 
-async function inputFieldValue(id, value) {
-    const input = document.getElementById(id);
-    if (input) {
-        input.value = value;
-        await fieldSet(id, value);
-    }
-}
-window.inputFieldValue = inputFieldValue;
 
-function InitGoToWork(){
+function initGoToWork(){
     const button = document.getElementById("begin-to-work-button");
     button.onclick = (event) => {
-        handleToggleButtonClick(event.currentTarget);
+        toggleOnClick(event.currentTarget);
     };
     button.classList.add('active');
 
-    funcButtonInit();
+    funcOnLoad();
 }
 
-function handleToggleButtonClick(button) {
+function toggleOnClick(button) {
     let active = button.classList.contains('active');
 
     active = !active;
@@ -449,11 +490,11 @@ function handleToggleButtonClick(button) {
     }
 }
 
-function toggleButtonInit(){
+function toggleOnLoad(){
     document.querySelectorAll('.toggle-button').forEach(button => {
         button.onclick = (event) => {
         // button.addEventListener('click', (event) => {
-            handleToggleButtonClick(event.currentTarget);
+            toggleOnClick(event.currentTarget);
         };
 
         const active = button.classList.contains('active')
@@ -476,32 +517,70 @@ function loadContent(path, id, runAfter = undefined){
 window.loadContent = loadContent
 
 
+// File open, read
+
+function fileOpen(ext, fun, par = null){
+    const fileInput = document.getElementById('fileInput');
+   
+    fileInput.value = "";
+    fileInput.type = "file";
+    fileInput.accept = ext;
+
+    fileInput.onchange = function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        loading();
+
+        fun(file, par)
+    };
+    fileInput.click();
+}
+window.fileOpen = fileOpen;
+
+function fileRead(file, fun, par = null){
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        fun(event.target.result, par)
+    };
+    
+    reader.readAsText(file);
+}
+window.fileRead = fileRead;
+
+
 // OnLoad
 
 async function windowOnLoad(){
     loadContent("impressum", "impressum-text");
-    loadContent("vessel"   , "help-vessel", InitGoToWork);
+    loadContent("vessel"   , "help-vessel", initGoToWork);
     loadContent("mandrel"  , "help-mandrel");
     loadContent("coil"     , "help-coil");
     loadContent("patterns" , "help-patterns");
     loadContent("winding"  , "help-winding");
     loadContent("thickness", "help-thickness");
 
-    funcButtonInit();
-    toggleButtonInit();
+    inputOnLoad()
+    funcOnLoad();
+    toggleOnLoad();
+    modeOnLoad();
 }
 
 window.onload = async function () {
+    loadingButton = document.getElementById('button-vessel');
+    loading()
+
     await storageOnLoad();
     await windowOnLoad();
     await threeOnLoad();
     await vesselOnLoad();
+    await patternsOnLoad();
     await cognitoOnLoad();
 
-    await openTab(await storageGet("page"))
+    await openTab(await vesselPropGet("page"))
     await vesselActualise()
 
-    await patternsOnLoad();
     await animateOnLoad();
     
     loaded();

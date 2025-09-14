@@ -25,16 +25,31 @@ async function storageLocalRemove_Obsolete(table, id){
 }
 
 
-// storageAll
+// vessellAll
 
-async function storageAllGet() {
+const vesselPropAllClear = async (vessel) => {
+    theVessel = {};
+    await db.vessel.clear();
+}
+window.vesselPropAllClear = vesselPropAllClear
+
+const vesselPropAllSet = async (vessel) => {
+    await vesselPropAllClear();
+
+    for (const [key, value] of Object.entries(vessel)) {
+        await vesselPropSet(key, value)
+    }
+};
+window.vesselPropAllSet = vesselPropAllSet
+
+async function vesselPropAllGet() {
     const entries = await db.vessel.toArray();
     for (const entry of entries) {
         theVessel[entry.id] = entry.value;
     }
 }
 
-async function storageAllGetField(field) {
+async function vesselPropAllGetProp(field) {
     const records = await db.layers.where("id").equals(field).toArray();
 
     const result = {};
@@ -44,72 +59,86 @@ async function storageAllGetField(field) {
 
     return result;
 }
-window.storageAllGetField = storageAllGetField
+window.vesselPropAllGetProp = vesselPropAllGetProp
 
 
-// storage
+// vessel
 
-async function storageSet(id, value){
-    // console.log("storageSet", id, value)
+async function vesselPropSet(id, value){
+    // console.log("vesselPropSet", id, value)
     theVessel[id] = value;
 
     await db.vessel.put({ id, value });
 }
-window.storageSet = storageSet
+window.vesselPropSet = vesselPropSet
 
-async function storageGet(id) {
+async function vesselPropGet(id) {
     // const entry = await db.vessel.get(id);
     // return entry?.value;
 
     if (Object.keys(theVessel).length === 0) {
-        storageAllGet()
+        vesselPropAllGet()
     }
 
     return theVessel[id];
 }
-window.storageGet = storageGet
+window.vesselPropGet = vesselPropGet
 
-async function storageRemove(id) {
+async function vesselPropRemove(id) {
     await db.vessel.delete(id);
 }
-window.storageRemove = storageRemove
+window.vesselPropRemove = vesselPropRemove
 
 
-// fieldAll
+// layerPropAll
 
-const fieldAllSet = async (newLayer) => {
-    await fieldAllClear();
+const layersAllClear = async (vessel) => {
+    theLayer = {};
+    await db.layers.clear();
+}
+window.layersAllClear = layersAllClear
 
-    for (const [key, value] of Object.entries(newLayer)) {
-        await fieldSet(key, value)
+const layerPropAllSet = async (layer, layerID = null) => {
+    await layerPropAllClear(layerID);
+
+    for (const [key, value] of Object.entries(layer)) {
+        await layerPropSet(key, value, layerID)
     }
 };
-window.fieldAllSet = fieldAllSet
+window.layerPropAllSet = layerPropAllSet
 
-const fieldAllGet = async () => {
-    const curLayerId = await layerIdGet()
-    if (!curLayerId) {
-        console.log("fieldAllGet: no current layer")
+const layerPropAllRead = async (layerId) => {
+    const records = await db.layers.where("layer").equals(layerId).toArray()
+
+    const layer = {};
+    for (const record of records) {
+        layer[record.id] = record.data
+    }
+
+    return layer
+}
+window.layerPropAllRead = layerPropAllRead
+
+const layerPropAllGet = async () => {
+    const layerId = await layerIdGet()
+    if (!layerId) {
+        console.log("layerPropAllGet: no current layer")
         return
     }
 
-    const records = await db.layers.where("layer").equals(curLayerId).toArray()
-
-    theLayer = {};
-    for (const record of records) {
-        theLayer[record.id] = record.data
-    }
+    theLayer = await layerPropAllRead(layerId)
 };
-window.fieldAllGet = fieldAllGet
+window.layerPropAllGet = layerPropAllGet
 
-const fieldAllClear = async (layerToClear = null) => {
+const layerPropAllClear = async (layerToClear = null) => {
     const curLayer = await layerIdGet()
 
     if (!layerToClear) {
-        layerToClear = curLayer
-        if (!layerToClear) {
+        if (!curLayer) {
+            console.log("layerPropAllClear: no current layer")
             return
         }
+        layerToClear = curLayer
     }
 
     if (layerToClear == curLayer) {
@@ -118,38 +147,41 @@ const fieldAllClear = async (layerToClear = null) => {
 
     await db.layers.where("layer").equals(layerToClear).delete();
 };
-window.fieldAllClear = fieldAllClear
+window.layerPropAllClear = layerPropAllClear
 
 
-// fields
+// layer property
 
-const fieldSet = async (key, value) => {
+const layerPropSet = async (key, value, layerId = null) => {
+    // console.log("layerPropSet", layerId, key, value)
     let curLayerId = await layerIdGet()
 
-    // console.log("fieldSet", curLayerId, key, value)
-
-    if (!curLayerId) {
-        console.log("fieldSet: no current layer")
-        return
+    if (!layerId) {
+        if (!curLayerId) {
+            console.log("layerPropSet: no current layer")
+            return
+        }
+        layerId = curLayerId
     }
 
-    theLayer[key] = value;
-
     await db.layers.put({
-        layer: curLayerId,
+        layer: layerId,
         id: key,
         data: value,
     });
-};
-window.fieldSet = fieldSet;
 
-const fieldGet = async (key) => {
+    if(layerId == curLayerId)
+        theLayer[key] = value;
+};
+window.layerPropSet = layerPropSet;
+
+const layerPropGet = async (key) => {
     if (Object.keys(theLayer).length === 0) {
-        await fieldAllGet()
+        await layerPropAllGet()
     }
     return theLayer[key];
 };
-window.fieldGet = fieldGet
+window.layerPropGet = layerPropGet
 
 
 // layers
@@ -157,36 +189,36 @@ window.fieldGet = fieldGet
 async function layerAdd(){
     // console.log("layerAdd", index)
 
-    let layerMax = await storageGet("layerMax") ?? -1
+    let layerMax = await vesselPropGet("layerMax") ?? -1
     layerMax = layerMax + 1
-    await storageSet("layerMax", layerMax)
+    await vesselPropSet("layerMax", layerMax)
 
-    const curLayerId = "layer" + layerMax
+    const layerId = "layer" + layerMax
 
-    const layers = await storageGet("layers") ?? []
-    layers.push(curLayerId)
-    await storageSet("layers", layers)
+    const layers = await vesselPropGet("layers") ?? []
+    layers.push(layerId)
+    await vesselPropSet("layers", layers)
 
-    return curLayerId
+    return layerId
 }
 window.layerAdd = layerAdd;
 
 async function layerDelete(layerToDelete){
     // console.log("layerDelete", layerToDelete)
 
-    const layers = await storageGet("layers") ?? []
+    const layers = await vesselPropGet("layers") ?? []
     let curLayer = await layerIdGet()
 
     let index = layers.indexOf(layerToDelete);
     if (index == -1) return curLayer
 
-    await fieldAllClear(layerToDelete)
+    await layerPropAllClear(layerToDelete)
 
     layers.splice(index, 1)
-    await storageSet("layers", layers)
+    await vesselPropSet("layers", layers)
     
     if (layerToDelete == curLayer) {
-        if (layers.length - 1 > index) {
+        if (index > layers.length - 1) {
             index = index - 1
         }
         if (index >= 0) {
@@ -194,7 +226,6 @@ async function layerDelete(layerToDelete){
         } else {
             curLayer = undefined
         }
-        await layerIdSet(curLayer)
         return curLayer
     }
 }
@@ -202,22 +233,22 @@ window.layerDelete = layerDelete;
 
 async function layerIdSet(layerIdValue){
     // console.log("layerIdSet", layerIdValue)
-    await storageSet("layerId", layerIdValue)
+    await vesselPropSet("layerId", layerIdValue)
 }
 window.layerIdSet = layerIdSet;
 
 async function layerIdGet(){
-    const layerIdValue = await storageGet("layerId")
+    const layerIdValue = await vesselPropGet("layerId")
     // console.log("layerIdGet", layerIdValue)
     return layerIdValue
 }
 window.layerIdGet = layerIdGet;
 
 async function layerAddIfNotExist(){
-    let curLayerId = await layerIdGet()
-    if (!curLayerId) {
-        curLayerId = await layerAdd()
-        await layerIdSet(curLayerId);
+    let layerId = await layerIdGet()
+    if (!layerId) {
+        layerId = await layerAdd()
+        await layerIdSet(layerId);
     }
 }
 window.layerAddIfNotExist = layerAddIfNotExist;

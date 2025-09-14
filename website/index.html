@@ -123,19 +123,24 @@
                     
                     <div id="file-vessel">
                         <h3>Session</h3>
-                        <button class="image-button function-button" data-function="vesselPrint" title="Print session">Print&nbsp;<img src="./img/save.png"></button>
+                        <button class="image-button function-button" data-function="vesselSave" title="Save session to file">Save&nbsp;<img src="./img/save.png"></button>
 
-                        <button class="image-button function-button" data-function="vesselSave" title="Save session">Save&nbsp;<img src="./img/save.png"></button>
+                        <button class="image-button function-button" data-function="vesselLoad" data-query="Do you want to load a session from a file? Your current session will be lost!" data-function="vesselLoad" title="Load session">Load&nbsp;<img src="./img/load.png"></button>
 
-                        <button id="vesselLoad" class="image-button" title="Load session">Load&nbsp;<img src="./img/load.png"></button>
-                        <input id="vesselLoadInput" type="file" accept=".yaml" style="display: none;" />
+                        <button class="image-button function-button" data-function="vesselClear" data-query="Do you want to clear the session?" title="Clear session" >Clear&nbsp;<img src="./img/clear.png"></button>
+                        <br>
 
-                        <button class="image-button function-button" data-function="vesselClear" data-query="Do you want to clear the session data?" title="Clear session" >Clear&nbsp;<img src="./img/clear.png"></button>
+                        <h3>Layer</h3>
+                        <button class="image-button function-button" data-function="layerSave" title="Save layer to file">Save&nbsp;<img src="./img/save.png"></button>
+
+                        <button class="image-button function-button" data-function="layerLoad" data-query="Do you want to load a layer from a file? Your current layer will be lost!" title="Load layer">Load&nbsp;<img src="./img/load.png"></button>
+
+                        <button class="image-button function-button" data-function="layerClear" data-query="Do you want to clear the layer?" title="Clear layer" >Clear&nbsp;<img src="./img/clear.png"></button>
                         <br>
 
                         <h3>Examples</h3>
                         <div class="button-grid">
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine" title="Engine"><img src="./examples/engine.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine"    title="Engine"><img src="./examples/engine.png"></button>
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh"      title="Mesh"><img src="./examples/mesh.png"></button>
                             
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shortTank" title="Short tank"><img src="./examples/shortTank.png"></button>
@@ -335,7 +340,7 @@
                                         <input type="number" value="1" min="1" step="1" id="csvColumn" class="inputField" data-owner="layer" style="text-align: right; width: 30px" title="Column number, if there more than one columns of data in .csv file">
                                         <br>
 
-                                        <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" />
+                                        <!-- <input id="mandrelImportCSVInput" type="file" accept=".csv" style="display: none;" /> -->
                                     </div>
                                 </div>
 
@@ -396,10 +401,10 @@
                             <button class="mode-button" data-mode="all">Full winding</button>
                         </div>
                         <div>
-                            <button id="toggle-button-mandrel" class="toggle-button active" data-function="toggleMandrel">Mandrel</button>
-                            <button class="toggle-button" data-function="toggleLine">Line</button>
-                            <button class="toggle-button active" data-function="toggleTape">Tape</button>
-                            <button id="toggle-button-equidistanta" class="toggle-button" data-function="toggleEquidistanta">Equidistanta</button>
+                            <button id="appear-button-mandrel"      class="toggle-button active" data-function="toggleMandrel">Mandrel</button>
+                            <button id="appear-button-line"         class="toggle-button"        data-function="toggleLine">Line</button>
+                            <button id="appear-button-tape"         class="toggle-button active" data-function="toggleTape">Tape</button>
+                            <button id="appear-button-equidistanta" class="toggle-button"        data-function="toggleEquidistanta">Equidistanta</button>
                         </div>
                     </div>
                 </div>
