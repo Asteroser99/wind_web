@@ -108,7 +108,7 @@ const layerPropAllSet = async (layer, layerID = null) => {
 window.layerPropAllSet = layerPropAllSet
 
 const layerPropAllRead = async (layerId) => {
-    const records = await db.layers.where("layer").equals(layerId).toArray()
+    const records = layerId ? await db.layers.where("layer").equals(layerId).toArray() : []
 
     const layer = {};
     for (const record of records) {
@@ -121,11 +121,6 @@ window.layerPropAllRead = layerPropAllRead
 
 const layerPropAllGet = async () => {
     const layerId = await layerIdGet()
-    if (!layerId) {
-        console.log("layerPropAllGet: no current layer")
-        return
-    }
-
     theLayer = await layerPropAllRead(layerId)
 };
 window.layerPropAllGet = layerPropAllGet

@@ -22,6 +22,7 @@ async function layerAddOnClick(){
 
     const layers = await vesselPropGet("layers")
     await layerPropSet("LayerName", "layer " + layers.length)
+    await layerPropSet("LayerNumber", layers.length)
 
     await allShow()
 };
@@ -290,7 +291,7 @@ async function mandrelImportCSVOnFileRead(text, prefix) {
     let mandrel
     try {
         if (prefix == "Raw")
-            await layerClear();
+            await layerPropAllClear();
 
         mandrel = mandrelFromCSV(text, colNum);
         await mandrelSet(prefix, mandrel)
@@ -964,11 +965,6 @@ window.CNCExport = CNCExport
 
 // ALL
 
-async function allClear() {
-    await layerClear();
-    clearScene();
-}
-
 async function allShow() {
     clearScene();
 
@@ -1039,7 +1035,8 @@ async function vesselloadFromURL(name) {
     loading();
 
     await layerAddIfNotExist()
-    await allClear()
+    await layerPropAllClear();
+    clearScene();
 
     loadFromYamlURL('./examples/' + name + '.yaml').then(async () => {
         await allShow();

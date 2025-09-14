@@ -369,40 +369,28 @@ async function inputSet(id, value) {
 }
 window.inputSet = inputSet;
 
-function inputGetDefault(input){
+function inputGet(id, def = false){
+    let input = document.getElementById(id);
+
     let val;
-    if (input.type === "number") {
-        val = parseFloat(input.defaultValue);
-    } else if (input.type === "checkbox") {
-        val = input.defaultChecked;
-    } else {
-        val = input.defaultValue;
-    }
-    return val;
-}
-
-function inputGet(id, val = null, isInt = false){
-    const el = document.getElementById(id);
-
-    if (val != null){
-        el.value = val;
-    }
-
-    if(isInt)
-        val = parseInt(el.value)
+    if (input.type === "checkbox")
+        val = def ? input.defaultChecked : input.checked
     else
-        val = parseFloat(el.value)
+        val = def ? input.defaultValue   : input.value
+
+    if (input.type === "number")
+        val = parseFloat(val);
     
     return val;
 }
-window.inputGetDefault = inputGetDefault
+window.inputGet = inputGet
 
 async function inputOnChange(event){
     const layerId = await layerIdGet()
     const input = event.currentTarget
-    const value = inputGet(input);
+    const value = inputGet(input.id);
     const owner = input.dataset.owner;
-    // console.log("field set", id, await layerPropGet(id), "->", value);
+
     await inputAnySet(owner, layerId, input.id, value);
 
     if (input.id == "LayerName")
@@ -412,8 +400,6 @@ async function inputOnChange(event){
 function inputOnLoad(){
     const inputs = document.querySelectorAll(".inputField");
     for (const input of inputs) {
-        // const id = input.id;
-    
         input.onkeydown = (event) => {
             if (event.key === " ") {
                 event.stopPropagation();
@@ -438,26 +424,20 @@ async function inputUpdate(layerId){
         let storedValue = await inputAnyGet(owner, layerId, id);
 
         if (storedValue == undefined || storedValue == null) {
-            storedValue = inputGetDefault(input);
+            storedValue = inputGet(input.id, true);
             if(layerId){
                 // console.log("def to val", id, storedValue, initialValue);
                 await inputAnySet(owner, layerId, id, storedValue);
             }
         }
 
-        // console.log("val to form", id, inputGet(input), "->", storedValue);
+        // console.log("val to form", id, inputGet(id), "->", storedValue);
         if (input.type === "checkbox") {
             input.checked = storedValue;
         } else {
             input.value = storedValue;
         }
     };
-
-    // const input = document.querySelector("#LayerName");
-    // input.oninput = async (event) => {
-    //     await inputOnChange(event);
-    //     await layersRenderTable();
-    // };
 }
 window.inputUpdate = inputUpdate
 
