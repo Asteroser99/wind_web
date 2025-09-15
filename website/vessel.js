@@ -167,7 +167,7 @@ function vesselLoadOnFileOpen(file, par) {
 };
 window.vesselLoadOnFileOpen = vesselLoadOnFileOpen;
 
-async function vesselLoadOnFileRead(text, par) {
+async function vesselLoadOnFileRead(text, par = null) {
     await layersAllClear();
 
     const vessel = yamlToData(text)
@@ -1016,7 +1016,14 @@ async function coilLoadOnFileRead(text, prefix) {
 
 
 // Examples
-async function loadFromYamlURL(url) {
+async function vesselloadFromURL(name) {
+    loading();
+
+    await layerAddIfNotExist()
+    await layerPropAllClear();
+    clearScene();
+
+    const url = './examples/' + name + '.yaml'
     let response = null;
     try {
         response = await fetch(url);
@@ -1027,21 +1034,15 @@ async function loadFromYamlURL(url) {
         showError(error);
     }
 
-    await layerPropAllSet(
-        yamlToData(await response.text())
-    );
-}
-async function vesselloadFromURL(name) {
-    loading();
+    // await layerPropAllSet(
+    //     yamlToData(await response.text())
+    // );
 
-    await layerAddIfNotExist()
-    await layerPropAllClear();
-    clearScene();
+    // await allShow();
+    // loaded();
 
-    loadFromYamlURL('./examples/' + name + '.yaml').then(async () => {
-        await allShow();
-        loaded();
-    })
+    await vesselLoadOnFileRead(await response.text())
+
 };
 window.vesselloadFromURL = vesselloadFromURL
 
