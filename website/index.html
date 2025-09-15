@@ -140,23 +140,23 @@
 
                         <h3>Examples</h3>
                         <div class="button-grid">
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine"    title="Engine"><img src="./examples/engine.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh"      title="Mesh"><img src="./examples/mesh.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine"    data-query="Would you like to load the example?" title="Engine"><img src="./examples/engine.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh"      data-query="Would you like to load the example?" title="Mesh"><img src="./examples/mesh.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shortTank" title="Short tank"><img src="./examples/shortTank.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="longTank"  title="Long tank"><img src="./examples/longTank.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shortTank" data-query="Would you like to load the example?" title="Short tank"><img src="./examples/shortTank.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="longTank"  data-query="Would you like to load the example?" title="Long tank"><img src="./examples/longTank.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mast"      title="Mast"><img src="./examples/mast.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shell"     title="Shell"><img src="./examples/shell.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mast"      data-query="Would you like to load the example?" title="Mast"><img src="./examples/mast.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="shell"     data-query="Would you like to load the example?" title="Shell"><img src="./examples/shell.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="convex"    title="Convex"><img src="./examples/convex.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="integral"  title="Integral"><img src="./examples/integral.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="convex"    data-query="Would you like to load the example?" title="Convex"><img src="./examples/convex.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="integral"  data-query="Would you like to load the example?" title="Integral"><img src="./examples/integral.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="pot"       title="Honey pot"><img src="./examples/pot.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="sphere"    title="Sphere"><img src="./examples/sphere.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="pot"       data-query="Would you like to load the example?" title="Honey pot"><img src="./examples/pot.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="sphere"    data-query="Would you like to load the example?" title="Sphere"><img src="./examples/sphere.png"></button>
                             
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="bottle"    title="Bottle"><img src="./examples/bottle.png"></button>
-                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="tank"      title="Tank"><img src="./examples/tank.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="bottle"    data-query="Would you like to load the example?" title="Bottle"><img src="./examples/bottle.png"></button>
+                            <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="tank"      data-query="Would you like to load the example?" title="Tank"><img src="./examples/tank.png"></button>
                         </div>
 
                     </div>
@@ -252,8 +252,8 @@
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
 
                     <div id="actions-patterns" class="floatingControl">
-                        <label for="conv">Convenience:</label><br>
-                        <input type="number" id="conv" class="inputField" data-owner="layer"
+                        <label for="convenience">Convenience:</label><br>
+                        <input type="number" id="convenience" class="inputField" data-owner="layer"
                             min="0" max="999" step="1.0" 
                             value="4.0" pattern="\d{1,3}(\.\d{1,3})?" 
                             title="Enter number of patterns" 
@@ -262,7 +262,7 @@
                         
                         <div class="hPanel"><p class="p-button">Mesh structure</p><input class="inputField" data-owner="layer" type="checkbox" id="netStructure" title="Mesh structure" value=false></div><br>
 
-                        <label for="conv">Select pattern:</label><br>
+                        <label for="convenience">Select pattern:</label><br>
                         <div class="table-wrapper">
                             <table id="patterns-table">
                                 <thead>
@@ -325,8 +325,9 @@
                 <!-- Thickness -->
                 <div id="tab-thickness" class="tab-content">
                     <div id="actions-thickness">
-                        <button id="thicknessGet"  class="image-button" title="Get thickness"><img src="./img/calc.png">&nbsp;Get thickness</button><br>
-                        <button id="mandrelSmooth" class="image-button" title="Smooth raw mandrel"><img src="./img/calc.png">&nbsp;Smooth</button><br>
+                        <button class="image-button function-button" data-function="thicknessGet"  title="Get thickness">       <img src="./img/calc.png">&nbsp;Get thickness</button><br>
+                        <button class="image-button function-button" data-function="mandrelSmooth" title="Smooth wound mandrel"><img src="./img/calc.png">&nbsp;Smooth</button><br>
+                        <button class="image-button function-button" data-function="toNextLevel"   title="Create level">        <img src="./img/plus.png">&nbsp;To next level</button><br>
                     </div>
 
                     <div id="file-thickness">
@@ -398,7 +399,7 @@
                         <div>
                             <button class="mode-button active" data-mode="first">First coil</button>
                             <button class="mode-button" data-mode="round">First touch</button>
-                            <button class="mode-button" data-mode="all">Full winding</button>
+                            <button class="mode-button" data-mode="full">Full winding</button>
                         </div>
                         <div>
                             <button id="appear-button-mandrel"      class="toggle-button active" data-function="toggleMandrel">Mandrel</button>

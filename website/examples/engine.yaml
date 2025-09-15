@@ -6822,7 +6822,7 @@ layers:
     LayerName: engine
     LayerNumber: 1
     band: 7
-    conv: 4
+    convenience: 4
     netStructure: false
     safetyR: 10
     lineCount: 500
@@ -25146,7 +25146,7 @@ layers:
         - 2.1281364490044092
         - 2.0941449033506827
       al: []
-    patterns:
+    fibbo:
       - Correction: -9.030425834145605
         Turns: 225
         Coils: 53

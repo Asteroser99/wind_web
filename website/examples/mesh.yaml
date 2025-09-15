@@ -5,7 +5,7 @@ layers:
   layer0:
     poleR: 120
     band: 12
-    conv: 17
+    convenience: 17
     safetyR: 40
     lineCount: 500
     LayerName: mesh
@@ -71,7 +71,7 @@ layers:
         - 119.645094
         - 111.5
     page: vessel
-    windingMode: all
+    windingMode: full
     coilInitial:
       x:
         - -504.0377413805093
@@ -40513,7 +40513,7 @@ layers:
         - -1.6094433173805025
         - -1.6172340230484816
       al: []
-    patterns:
+    fibbo:
       - Correction: -8.796317432886834
         Turns: 210
         Coils: 102

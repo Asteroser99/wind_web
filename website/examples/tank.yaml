@@ -5,7 +5,7 @@ layers:
   layer0:
     poleR: 12
     band: 10
-    conv: 3
+    convenience: 3
     netStructure: false
     safetyR: 30
     lineCount: 500
@@ -46,7 +46,7 @@ layers:
         - 29.9
         - 5
     page: vessel
-    windingMode: all
+    windingMode: full
     coilInitial:
       x:
         - -348.57032602720375
@@ -27150,7 +27150,7 @@ layers:
         - -1.8089298117853942
         - -1.8499941438675511
       al: []
-    patterns:
+    fibbo:
       - Correction: 3.4648303626461514
         Turns: 75
         Coils: 56

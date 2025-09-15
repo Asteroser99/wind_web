@@ -7,7 +7,7 @@ layers:
     LayerNumber: 1
     poleR: 1
     band: 3
-    conv: 13
+    convenience: 13
     netStructure: false
     safetyR: 50
     lineCount: 1500
@@ -48630,7 +48630,7 @@ layers:
         - 4.700935203678971
         - 2.439582677913434
         - 0
-    patterns:
+    fibbo:
       - Correction: -2.794727632399988
         Turns: 251
         Coils: 32

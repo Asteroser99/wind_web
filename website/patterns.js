@@ -2,7 +2,7 @@
 
 async function fibboRenderTable() {
     const layerId = await layerIdGet()
-    const patterns = layerId ? await layerPropGet("patterns") : null;
+    const patterns = layerId ? await layerPropGet("fibbo") : null;
     if(!patterns) return;
 
     const tableBody = document.querySelector("#patterns-table tbody");
@@ -48,7 +48,7 @@ async function fibboSelectRow(index) {
 window.fibboSelectRow = fibboSelectRow;
 
 async function fibboGetSelectedValues() {
-    const patterns = await layerPropGet("patterns");
+    const patterns = await layerPropGet("fibbo");
     const selectedRow = document.querySelector("#patterns-table tbody .selected");
     if (!selectedRow) return { Turns: 0, Coils: 0 };
     
@@ -82,7 +82,7 @@ async function patternDraw() {
     pContext.fillRect(-pCanvas.width / 2, -pCanvas.height / 2, pCanvas.width, pCanvas.height);
 
     const { Turns, Coils } = await fibboGetSelectedValues();
-    const conv = await layerPropGet("conv")
+    const convenience = await layerPropGet("convenience")
     const angleStep = Math.PI * 2 / Coils * Turns
     
     const cx = 0
@@ -131,7 +131,7 @@ async function patternDraw() {
 
     for (let i = 0; i < points.length - 1; i++) {
         let point = points[i];
-        const first = i < conv + 1
+        const first = i < convenience + 1
 
         // triangle
         let dx = point.x - cx;
@@ -216,7 +216,5 @@ async function patternsOnLoad() {
     });
 
     resizePattern();
-
-    await fibboRenderTable();
 }
 window.patternsOnLoad = patternsOnLoad

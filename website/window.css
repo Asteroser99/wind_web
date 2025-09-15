@@ -391,7 +391,9 @@ canvas {
 }
 .modal-buttons {
     margin-top: 10px;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
 }
 .modal-overlay {
     display: none;
@@ -406,9 +408,9 @@ canvas {
     z-index: 90;
 }
 #modal-text {
-  max-width: 85vw;
-  word-break: break-all;
-  white-space: normal;
+    max-width: 85vw;
+    word-break: break-all;
+    white-space: normal;
 }
 
 

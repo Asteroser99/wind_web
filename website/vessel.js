@@ -15,15 +15,7 @@ function dataToYaml(data){
 // layers
 
 async function layerAddOnClick(){
-    let layerId = await layerAdd();
-
-    await layerIdSet(layerId)
-    await layerPropAllGet()
-
-    const layers = await vesselPropGet("layers")
-    await layerPropSet("LayerName", "layer " + layers.length)
-    await layerPropSet("LayerNumber", layers.length)
-
+    await layerAddNew()
     await allShow()
 };
 window.layerAddOnClick = layerAddOnClick;
@@ -168,9 +160,15 @@ function vesselLoadOnFileOpen(file, par) {
 window.vesselLoadOnFileOpen = vesselLoadOnFileOpen;
 
 async function vesselLoadOnFileRead(text, par = null) {
-    await layersAllClear();
-
     const vessel = yamlToData(text)
+    if(!vessel.PartNumber){
+        showError("The file does not appear to be a session file.")
+        loaded();
+        return;
+    }
+
+
+    await layersAllClear();
     const layers = []
     for (const [layerId, layer] of Object.entries(vessel.layers)) {
         layers.push(layerId);
@@ -204,7 +202,7 @@ window.vesselClear = vesselClear
 // layerSave
 async function layerSave(){
     loading();
-    const filename = await vesselPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + ".yaml";
+    const filename = await vesselPropGet("PartNumber") + " layer " + await layerPropGet("LayerNumber") + " " + await layerPropGet("LayerName") + ".yaml";
     await saveFile(dataToYaml, theLayer, filename, "application/x-yaml");
 }
 window.layerSave = layerSave;
@@ -595,52 +593,77 @@ window.mandrelMirror = mandrelMirror;
 
 // Thickness
 
-document.getElementById('thicknessGet').addEventListener(
-    'click', async () => {
-        loading();
+async function thicknessGet() {
+    loading();
 
-        const coilCorrected = await coilGet("Corrected")
-        const coilMeridian = await layerPropGet("coilMeridian");
+    const coilCorrected = await coilGet("Corrected")
+    const coilMeridian = await layerPropGet("coilMeridian");
 
-        if (!coilCorrected || !coilMeridian) {
-            showError("No data");
-            return;
-        }
-
-        return lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, await layerPropGet('band')])
-            .then(async (res) => {
-                await mandrelSet("Wound", res);
-                loaded();
-            })
-            .catch(error => {
-                showError(error);
-            });
+    if (!coilCorrected || !coilMeridian) {
+        showError("No data");
+        return;
     }
-);
+
+    lambdaCall("thickness.thickness", [coilCorrected, coilMeridian, await layerPropGet('band')])
+        .then(async (res) => {
+            await mandrelSet("Wound", res);
+            loaded();
+        })
+        .catch(error => {
+            showError(error);
+            loaded();
+        });
+}
+window.thicknessGet = thicknessGet
 
 
 // Smooth
 
-document.getElementById('mandrelSmooth').addEventListener(
-    'click', async () => {
-        loading();
+async function mandrelSmooth() {
+    loading();
 
-        const mandrel = await mandrelGet("Wound");
+    const mandrel = await mandrelGet("Wound");
+    if (!mandrel) {
+        showError("No wound mandrel");
+        return;
+    }
+
+    lambdaCall("smooth_full", [mandrel])
+        .then(async (res) => {
+            await mandrelSet("Smoothed", res);
+            loaded();
+        })
+        .catch(error => {
+            showError(error);
+            loaded();
+        });
+}
+window.mandrelSmooth = mandrelSmooth
+
+
+// toNextLevel
+
+async function toNextLevel() {
+    loading();
+
+    let mandrel = await mandrelGet("Smoothed");
+    if (!mandrel) {
+        mandrel = await mandrelGet("Wound");
         if (!mandrel) {
-            showError("No wound mandrel");
+            showError("No smoothed or wound mandrel");
             return;
         }
-
-        return lambdaCall("smooth_full", [mandrel])
-            .then(async (res) => {
-                await mandrelSet("Smoothed", res);
-                loaded();
-            })
-            .catch(error => {
-                showError(error);
-            });
     }
-);
+
+    await layerAddNew()
+
+    await mandrelSet("Raw", mandrel)
+
+    await allShow()
+
+    loaded();
+}
+window.toNextLevel = toNextLevel
 
 
 // Coil
@@ -659,7 +682,7 @@ async function coilCalc() {
         return lambdaCall("vitok.vitok", [mandrel, await layerPropGet("poleR"), await layerPropGet("band")])
             .then(async (res) => {
                 const [coil, meridian] = res
-                coilSet("Initial", coil);
+                await coilSet("Initial", coil);
                 await layerPropSet("coilMeridian", meridian);
 
                 loaded();
@@ -685,8 +708,8 @@ async function coilRender(suffix) {
     if (mode == "first"){
         Coils = 1
     } else if (mode == "round") {
-        Coils = await layerPropGet("conv") + 1
-    } else if (mode == "all") {
+        Coils = await layerPropGet("convenience") + 1
+    } else if (mode == "full") {
         const fibboGetSelected = await fibboGetSelectedValues();
         Coils = fibboGetSelected["Coils"]
     }
@@ -791,8 +814,8 @@ async function tapeRender(suffix) {
     if (mode == "first"){
         Coils = 1
     } else if (mode == "round") {
-        Coils = await layerPropGet("conv") + 1
-    } else if (mode == "all") {
+        Coils = await layerPropGet("convenience") + 1
+    } else if (mode == "full") {
         const fibboGetSelected = await fibboGetSelectedValues();
         Coils = fibboGetSelected["Coils"]
     }
@@ -842,7 +865,7 @@ async function Winding(param = undefined){
 
     lambdaCall("calc.winding", [coilCorrected, await layerPropGet('safetyR'), await layerPropGet('lineCount'), await layerPropGet('band')])
         .then(async res => {
-            coilSet ("Interpolated"            , res[0]);
+            await coilSet     ("Interpolated"            , res[0]);
             await layerPropSet("equidistantaInterpolated", res[1]);
             await layerPropSet("rolleyInterpolated"      , res[2]);
 
@@ -861,7 +884,7 @@ window.Winding = Winding
 
 // Patterns
 
-document.getElementById('conv').addEventListener(
+document.getElementById('convenience').addEventListener(
     'change', function (event) { patternsCalc() }
 );
 
@@ -871,9 +894,9 @@ document.getElementById('netStructure').addEventListener(
 
 async function patternsCalc() {
     loading();
-    lambdaCall("fibbo", [await coilGet("Initial"), await layerPropGet("band"), await layerPropGet("conv"), await layerPropGet("netStructure")])
+    lambdaCall("fibbo", [await coilGet("Initial"), await layerPropGet("band"), await layerPropGet("convenience"), await layerPropGet("netStructure")])
         .then(async (patterns) => {
-            await layerPropSet("patterns", patterns);
+            await layerPropSet("fibbo", patterns);
             await fibboRenderTable();
 
             const minIndex = patterns.reduce((minIdx, entry, idx, arr) => 
@@ -930,8 +953,8 @@ document.getElementById('coilCorrect').addEventListener('click', async () => {
     const { Turns, Coils } = await fibboGetSelectedValues();
 
     lambdaCall("conte", [coil, Turns, Coils])
-        .then(res => {
-            coilSet("Corrected", {
+        .then(async res => {
+            await coilSet("Corrected", {
                 fi: res[0],
                 al: res[1],
             });
@@ -972,6 +995,7 @@ async function allShow() {
 
     await inputUpdate(layerId)
     await layersRenderTable()
+    await fibboRenderTable()
     await appearShow()
     await modeShow(layerId)
 
@@ -979,14 +1003,13 @@ async function allShow() {
 
     if(layerId){
         await setPole()
-
         mandrelsDraw()
         await tapeDraws()
-        await meshesShow();
-        await patternDraw();
-
-        await animateInit()
+        await patternDraw()
     }
+
+    await animateInit()
+    await meshesShow()
 }
 
 
@@ -1050,12 +1073,12 @@ window.vesselloadFromURL = vesselloadFromURL
 async function vesselActualise() {
     const layers = await vesselPropGet("layers")
     if (!layers) {
-        toggleHelp(true);
+        toggleHelp(true, true);
 
         await vesselloadFromURL("engine");
 
-        document.getElementById('appear-button-mandrel').click();
-        document.getElementById('appear-button-equidistanta').click();
+        // document.getElementById('appear-button-mandrel').click();
+        // document.getElementById('appear-button-equidistanta').click();
     } else {
         await allShow();
     }

@@ -101,12 +101,17 @@ function generateIndices(rows) {
 }
 
 async function animateInit(){
+    let eqdColor  = 0x9ACBD0
+    let freeColor = 0xffff00
+
     let coil = await coilGet("Interpolated");
     let tape = await layerPropGet("tapeInterpolated");
     let eqd  = await layerPropGet("equidistantaInterpolated");
     let roll = await layerPropGet("rolleyInterpolated");
-    let eqdColor  = 0x9ACBD0
-    let freeColor = 0xffff00
+    window.animateCoil   = coil;
+    window.animateTape   = tape;
+    window.animateEqd    = eqd ;
+    window.animateRolley = roll;
 
     // scaleSet();
     await floorInit();
@@ -121,18 +126,11 @@ async function animateInit(){
     document.getElementById("programBar").style.display = "none";
     document.getElementById("playerBar" ).style.display = "none";
 
+
     if (!window.animateReady) return;
 
-    window.animateCoil   = coil;
-    window.animateTape   = tape;
-    window.animateEqd    = eqd ;
-    window.animateRolley = roll;
 
-
-    // if (false) 
     { // tails
-        // const { Turns, Coils } = await fibboGetSelectedValues();
-        // window.angleStep = 2 * Math.PI * Turns / Coils;
         window.angleStep = coil.fi[coil.fi.length-1]
 
         removeMesh(window.tapeLineTail);
@@ -211,6 +209,40 @@ async function animateInit(){
 }
 window.animateInit = animateInit;
 
+async function meshesShow(){
+    const layerId = await layerIdGet()
+    if(!layerId) return;
+
+    window.animateOn = await layerPropGet("windingMode") == "first"
+    const on = window.animateReady && window.animateOn
+
+    document.getElementById("programBar").style.display = on ? "flex" : "none";
+    document.getElementById("playerBar" ).style.display = on ? "flex" : "none";
+
+    if (window.standMesh ) window.standMesh .visible = on;
+    if (window.carretMesh) window.carretMesh.visible = on;
+    if (window.rolleyMesh) window.rolleyMesh.visible = on;
+
+    const mesh = window.mandrelRawMesh;
+    if (mesh){
+        const mandrelShow = await layerPropGet("mandrelShow")
+        mesh.material.transparent = !mandrelShow;
+        mesh.material.opacity     = !mandrelShow ? 0.1 : 1.;
+    }
+
+    if (window.freeLine) window.freeLine      .visible = on && await layerPropGet("lineShow");
+    if (window.freeMesh) window.freeMesh      .visible = on && await layerPropGet("tapeShow");
+
+    await tapeVisibility("Initial")
+    await tapeVisibility("Corrected")
+    await tapeVisibility("Interpolated")
+
+    if (window.tapeLineTail) window.tapeLineTail.visible = on && await layerPropGet("tapeShow");
+    if (window.tapeMeshTail) window.tapeMeshTail.visible = on && await layerPropGet("tapeShow");
+    if (window.equidLine   ) window.equidLine   .visible = on && await layerPropGet("equidistantaShow");
+}
+window.meshesShow = meshesShow
+
 function rolleyAnimate(){
     const i = window.animateIndex;
     if (!window.scale) return;
@@ -271,17 +303,17 @@ function tapeAnimate(prefix, fi){
     }
 }
 
-async function tapeVisibility(layerId, prefix){
+async function tapeVisibility(prefix){
     let mesh
 
-    const lineShow = layerId && await layerPropGet("lineShow")
+    const lineShow = !!await layerPropGet("lineShow")
 
     mesh = window["coil" + prefix + "Line"]
     if (mesh){
         mesh.visible = lineShow;
     }
 
-    const tapeShow = layerId && await layerPropGet("tapeShow")
+    const tapeShow = !!await layerPropGet("tapeShow")
 
     mesh = window["tape" + prefix + "Mesh"]
     if (mesh){
@@ -293,41 +325,6 @@ async function tapeVisibility(layerId, prefix){
         mesh.visible = tapeShow;
     }
 }
-
-async function meshesShow(){
-    const layerId = await layerIdGet()
-
-    window.animateOn = layerId ? await layerPropGet("windingMode") == "first" : false;
-    const on = window.animateReady && window.animateOn
-
-    document.getElementById("programBar").style.display = on ? "flex" : "none";
-    document.getElementById("playerBar" ).style.display = on ? "flex" : "none";
-
-    if (window.standMesh ) window.standMesh .visible = on;
-    if (window.carretMesh) window.carretMesh.visible = on;
-    if (window.rolleyMesh) window.rolleyMesh.visible = on;
-
-    const mesh = window.mandrelRawMesh;
-    if (mesh){
-        const mandrelShow = layerId ? await layerPropGet("mandrelShow") : false;
-        mesh.material.transparent = !mandrelShow;
-        mesh.material.opacity     = !mandrelShow ? 0.1 : 1.;
-    }
-
-    if (window.freeLine) window.freeLine      .visible = on && await layerPropGet("lineShow");
-    if (window.freeMesh) window.freeMesh      .visible = on && window.tapeShow;
-
-    await tapeVisibility(layerId, "Initial")
-    await tapeVisibility(layerId, "Corrected")
-    await tapeVisibility(layerId, "Interpolated")
-
-    if (window.tapeLineTail  ) window.tapeLineTail  .visible = on && window.tapeShow;
-    if (window.tapeMeshTail  ) window.tapeMeshTail  .visible = on && window.tapeShow;
-
-    if (window.equidLine) window.equidLine.visible = on && await layerPropGet("equidistantaShow");
-    
-}
-window.meshesShow = meshesShow
 
 function animate(timestamp) {
     requestAnimationFrame(animate);
@@ -432,6 +429,5 @@ async function animateOnLoad(){
     window.animateAuto = true;
 
     animate();
-    await meshesShow();
 }
 window.animateOnLoad = animateOnLoad

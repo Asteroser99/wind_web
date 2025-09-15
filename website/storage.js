@@ -198,6 +198,22 @@ async function layerAdd(){
 }
 window.layerAdd = layerAdd;
 
+async function layerAddNew(){
+    let layerId = await layerAdd();
+
+    await layerIdSet(layerId)
+    await layerPropAllGet()
+
+    const layers = await vesselPropGet("layers")
+    await layerPropSet("LayerName", "layer " + layers.length)
+    await layerPropSet("LayerNumber", layers.length)
+
+    await layerPropSet("windingMode", "first")
+    await layerPropSet("mandrelShow", true)
+    await layerPropSet("tapeShow", true)
+}
+window.layerAddNew = layerAddNew;
+
 async function layerDelete(layerToDelete){
     // console.log("layerDelete", layerToDelete)
 
