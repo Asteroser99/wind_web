@@ -6821,6 +6821,8 @@ layers:
     page: vessel
     LayerName: engine
     LayerNumber: 1
+    tapeShow: true
+    equidistantaShow: true
     band: 7
     convenience: 4
     netStructure: false

@@ -12,6 +12,57 @@ function dataToYaml(data){
     return jsyaml.dump(data)
 }
 
+
+// geometry
+
+function getBetaI(x, r, i){
+  let j = i;
+
+  if (i == 0           ) j = i + 1;
+  if (i == x.length - 1) j = i - 1;
+
+  let beta = Math.atan((r[j] - r[j-1]) / (x[j] - x[j-1]));
+
+  if (Math.abs(beta) < 0.001) beta = 0.0;
+
+  return beta;
+}
+
+function pointXYZ(coil, i, fiShift = 0, th = 0., center = undefined){
+  let sbth = 0., cbth = 0.;
+
+  if (th != 0.) {
+      const bi = getBetaI(center["x"], center["r"], i);
+      sbth = th * Math.sin(bi);
+      cbth = th * Math.cos(bi);
+  };
+
+  let x  = coil.x [i];
+  let r  = coil.r [i];
+  let fi = coil.fi[i];
+
+  fi += fiShift;
+
+  let cXi = (x - sbth);
+  let cYi = (r + cbth) * Math.sin(fi); // + yShift
+  let cZi = (r + cbth) * Math.cos(fi);
+
+  return [cXi, cYi, cZi];
+}
+window.pointXYZ = pointXYZ;
+
+function mirrorXYZ(pTR, mirror){
+  const cXi = mirror[0] * 2 - pTR[0];
+  const cYi = mirror[1] * 2 - pTR[1];
+  const cZi = mirror[2] * 2 - pTR[2];
+  return [cXi, cYi, cZi];
+}
+window.mirrorXYZ = mirrorXYZ
+
+
+
+
+
 // layers
 
 async function layerAddOnClick(){
@@ -444,31 +495,27 @@ function generatrixRender(mandrel, resolution) {
 window.generatrixRender = generatrixRender
 
 async function mandrelTreeUpdate(name) {
-    removeMesh(window["mandrel" + name + "Mesh"]);
-  
     const mandrel = await mandrelGet(name);
-
-    if (mandrel){
-        const render = generatrixRender(mandrel, 90)
+    if (!mandrel) return
     
-        let color;
-        let transpatent;
-        let setScale = false;
-        if        (name == "Raw"){
-            color = 0x2973B2;
-            transpatent = 1.;
-            setScale = true;
-        } else if (name == "Wound"){
-            color = 0x48A6A7;
-            transpatent = 0.5;
-        } else if (name == "Smoothed"){
-            color = 0x000000;
-            transpatent = 0.3;
-        }
-            
-        window["mandrel" + name + "Mesh"] = addMesh(render, color, transpatent, setScale);
+    const render = generatrixRender(mandrel, 90)
+
+    let color;
+    let transpatent;
+    let setScale = false;
+    if        (name == "Raw"){
+        color = 0x2973B2;
+        transpatent = 1.;
+        setScale = true;
+    } else if (name == "Wound"){
+        color = 0x48A6A7;
+        transpatent = 0.5;
+    } else if (name == "Smoothed"){
+        color = 0x000000;
+        transpatent = 0.3;
     }
-  
+        
+    meshSet("mandrel" + name + "Mesh", meshCreate(render, color, transpatent, setScale));
 }
 window.mandrelTreeUpdate = mandrelTreeUpdate;
   
@@ -744,7 +791,7 @@ async function tapeCalc(prefix) {
     const coil = await coilGet(prefix)
     if (coil) {
         loading();
-        lambdaCall("calc.tape", [coil, await layerPropGet("band")])
+        await lambdaCall("calc.tape", [coil, await layerPropGet("band")])
             .then(async res => {
                 await layerPropSet("tape" + prefix, res);
                 await tapeDraws();
@@ -760,24 +807,25 @@ async function tapeCalc(prefix) {
 }
 
 function tapeRemove(suffix) {
-    removeMesh(window["coil" + suffix + "Line"]);
-    removeMesh(window["tape" + suffix + "Line"]);
-    removeMesh(window["tape" + suffix + "Mesh"]);
+    meshRemove("coil" + suffix + "Line");
+    meshRemove("tape" + suffix + "Line");
+    meshRemove("tape" + suffix + "Mesh");
 }
 
 async function tapeDraw(suffix) {
     let render = await coilRender(suffix);
     if(render){
-        window["coil" + suffix + "Line"] = addLine(render);
+        meshes["coil" + suffix + "Line"] = meshCreateLine(render);
     }
 
     render = await tapeRender(suffix);
+    // console.log(suffix, render[0].length, render[1].length, render[2].length)
     if (render){
         const colorLine = 0xd38629
-        window["tape" + suffix + "Line"] = addLine([render[0], render[1]], colorLine);
+        meshes["tape" + suffix + "Line"] = meshCreateLine([render[0], render[1]], colorLine);
     
         const colorMesh = suffix == "Initial" ? 0xff5500 : (suffix == "Corrected" ? 0xfea02a : 0xffff00)
-        window["tape" + suffix + "Mesh"] = addMesh([render[0], render[2]], colorMesh);
+        meshes["tape" + suffix + "Mesh"] = meshCreate([render[0], render[2]], colorMesh);
     }
 }
 
@@ -785,6 +833,9 @@ async function tapeDraws() {
     tapeRemove("Initial");
     tapeRemove("Corrected");
     tapeRemove("Interpolated");
+
+    window.animateTapeMeshIndices = null;
+    window.animateTapeLineIndices = null;
 
     if (await coilGet("Interpolated")){
         await tapeDraw("Interpolated");
@@ -807,8 +858,8 @@ async function tapeRender(suffix) {
     const n = coil.x.length;
     
     const vertices = [];
-    const indLine  = [];
-    const indPlain = [];
+    const indLine = [];
+    const indMesh = [];
 
     let Coils = 1
     if (mode == "first"){
@@ -843,13 +894,16 @@ async function tapeRender(suffix) {
             indLine .push(j * 2 - 2); indLine .push(j * 2 + 0);
             indLine .push(j * 2 - 1); indLine .push(j * 2 + 1);
 
-            indPlain.push(j * 2 - 2); indPlain.push(j * 2 - 1); indPlain.push(j * 2 + 0);
-            indPlain.push(j * 2 - 1); indPlain.push(j * 2 + 1); indPlain.push(j * 2 + 0);
+            indMesh.push(j * 2 - 2); indMesh.push(j * 2 - 1); indMesh.push(j * 2 + 0);
+            indMesh.push(j * 2 - 1); indMesh.push(j * 2 + 1); indMesh.push(j * 2 + 0);
         };
         fiShift += coil.fi[n - 1];
     };
 
-    return [vertices, indLine, indPlain];
+    window.animateTapeMeshIndices = mode === "first" ? Array.from(indMesh) : null;
+    window.animateTapeLineIndices = mode === "first" ? Array.from(indLine) : null;
+
+    return [vertices, indLine, indMesh];
 }
 
 
@@ -869,7 +923,7 @@ async function Winding(param = undefined){
             await layerPropSet("equidistantaInterpolated", res[1]);
             await layerPropSet("rolleyInterpolated"      , res[2]);
 
-            await tapeDraws();
+            // await tapeDraws();
             await animateInit();
             await meshesShow();
 
@@ -943,7 +997,7 @@ async function coilGet(suffix) {
 
     return coil;
 }
-window.coilGet = await coilGet
+window.coilGet = coilGet
 
 
 document.getElementById('coilCorrect').addEventListener('click', async () => {
@@ -989,7 +1043,7 @@ window.CNCExport = CNCExport
 // ALL
 
 async function allShow() {
-    clearScene();
+    meshClear();
 
     const layerId = await layerIdGet()
 
@@ -1043,8 +1097,8 @@ async function vesselloadFromURL(name) {
     loading();
 
     await layerAddIfNotExist()
-    await layerPropAllClear();
-    clearScene();
+    // await layerPropAllClear();
+    // meshClear();
 
     const url = './examples/' + name + '.yaml'
     let response = null;

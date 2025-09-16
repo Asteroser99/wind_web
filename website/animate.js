@@ -121,7 +121,7 @@ async function animateInit(){
     window.animateOn = window.animateReady;
 
     let coilInitial = await coilGet("Initial");
-    if (coilInitial) window.frameLine .visible = true;
+    if (coilInitial) meshes.frameLine.visible = true;
 
     document.getElementById("programBar").style.display = "none";
     document.getElementById("playerBar" ).style.display = "none";
@@ -129,26 +129,20 @@ async function animateInit(){
 
     if (!window.animateReady) return;
 
+    let mesh;
 
     { // tails
         window.angleStep = coil.fi[coil.fi.length-1]
 
-        removeMesh(window.tapeLineTail);
-        window.tapeLineTail          = window.tapeInterpolatedLine         .clone();
-        window.tapeLineTail.geometry = window.tapeInterpolatedLine.geometry.clone();
-        window.tapeLineTail.material = window.tapeInterpolatedLine.material.clone();
-        // window.tapeLineTail.material.color.set(0xffff00);
-        // window.tapeLineTail.geometry = window.tapeLineTail.geometry.toNonIndexed();
-        // window.tapeLineTail.material = dashedMaterial(window.tapeInterpolatedLine.material.color);
-        // window.tapeLineTail.computeLineDistances();
-        scene.scene.add(window.tapeLineTail);
+        mesh = meshes.tapeInterpolatedLine.clone()
+        mesh.geometry = mesh.geometry.clone()
+        mesh.material = mesh.material.clone()
+        meshSet("tapeTailLine", mesh)
 
-        removeMesh(window.tapeMeshTail);
-        window.tapeMeshTail          = window.tapeInterpolatedMesh         .clone();
-        window.tapeMeshTail.geometry = window.tapeInterpolatedMesh.geometry.clone();
-        window.tapeMeshTail.material = window.tapeInterpolatedMesh.material.clone();
-        // window.tapeMeshTail.material.color.set(0x00ffff);
-        scene.scene.add(window.tapeMeshTail);
+        mesh = meshes.tapeInterpolatedMesh.clone()
+        mesh.geometry = mesh.geometry.clone()
+        mesh.material = mesh.material.clone()
+        meshSet("tapeTailMesh", mesh)
     }
 
 
@@ -158,51 +152,32 @@ async function animateInit(){
     document.getElementById("animateSlider").max = window.animateCoil.x.length - 1;
     window.animateUpdateTime = 0;
 
-    { // tapeInterpolatedMesh
-        const mesh = window.tapeInterpolatedMesh
-        if (mesh)
-            window.animateTapeMeshIndices = Array.from(mesh.geometry.getIndex().array);
-    }
-    { // tapeInterpolatedLine
-        const mesh = window.tapeInterpolatedLine
-        if (mesh)
-            window.animateTapeLineIndices = Array.from(mesh.geometry.getIndex().array);
-    }
-
     { // equidLine
-        removeMesh(window.equidLine);
-        window.equidLine = addLine(getT(0, coil.x.length, true), eqdColor, true);
+        meshSet("equidLine", meshCreateLine(getT(0, coil.x.length, true), eqdColor, true));
     }
 
     { // freeLine
-        removeMesh(window.freeLine);
         const vertices = Array(6 * 3).fill(0);
         const indices = [0, 3,  1, 2,  4, 5];
-        window.freeLine = addLine([vertices, indices], 0xff0000);
+        meshSet("freeLine", meshCreateLine([vertices, indices], 0xff0000));
     };
 
     { // freeMesh
-        removeMesh(window.freeMesh);
         const vertices = Array(9 * (4 + 1)).fill(0);
         const indices = generateIndices(4);
-        window.freeMesh = addMesh([vertices, indices], freeColor);
+        meshSet("freeMesh", meshCreate([vertices, indices], freeColor));
     };
 
     { // rolleyMesh
-        removeMesh(window.rolleyMesh);
-  
         const band = await layerPropGet('band') / 2
         const rolleyMandrel = {
             x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
             r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
         };
-        
         const render = generatrixRender(rolleyMandrel, 8)
-  
-        const mesh = addMesh(render, 0xFFFFFF);
-        
-        window.rolleyMesh = mesh;
-        window.rolleyMesh.visible = false;
+        mesh = meshCreate(render, 0xFFFFFF);
+        mesh.visible = false;
+        meshSet("rolleyMesh", mesh);
     }
 
     // rolleyAnimate();
@@ -219,27 +194,27 @@ async function meshesShow(){
     document.getElementById("programBar").style.display = on ? "flex" : "none";
     document.getElementById("playerBar" ).style.display = on ? "flex" : "none";
 
-    if (window.standMesh ) window.standMesh .visible = on;
-    if (window.carretMesh) window.carretMesh.visible = on;
-    if (window.rolleyMesh) window.rolleyMesh.visible = on;
+    if (meshes.standMesh ) meshes.standMesh .visible = on;
+    if (meshes.carretMesh) meshes.carretMesh.visible = on;
+    if (meshes.rolleyMesh) meshes.rolleyMesh.visible = on;
 
-    const mesh = window.mandrelRawMesh;
+    const mesh = meshes.mandrelRawMesh
     if (mesh){
         const mandrelShow = await layerPropGet("mandrelShow")
         mesh.material.transparent = !mandrelShow;
         mesh.material.opacity     = !mandrelShow ? 0.1 : 1.;
     }
 
-    if (window.freeLine) window.freeLine      .visible = on && await layerPropGet("lineShow");
-    if (window.freeMesh) window.freeMesh      .visible = on && await layerPropGet("tapeShow");
+    if (meshes.freeLine) meshes.freeLine.visible = on && !!await layerPropGet("lineShow");
+    if (meshes.freeMesh) meshes.freeMesh.visible = on && !!await layerPropGet("tapeShow");
 
     await tapeVisibility("Initial")
     await tapeVisibility("Corrected")
     await tapeVisibility("Interpolated")
 
-    if (window.tapeLineTail) window.tapeLineTail.visible = on && await layerPropGet("tapeShow");
-    if (window.tapeMeshTail) window.tapeMeshTail.visible = on && await layerPropGet("tapeShow");
-    if (window.equidLine   ) window.equidLine   .visible = on && await layerPropGet("equidistantaShow");
+    if (meshes.tapeTailLine) meshes.tapeTailLine.visible = on && !!await layerPropGet("tapeShow");
+    if (meshes.tapeTailMesh) meshes.tapeTailMesh.visible = on && !!await layerPropGet("tapeShow");
+    if (meshes.equidLine   ) meshes.equidLine   .visible = on && !!await layerPropGet("equidistantaShow");
 }
 window.meshesShow = meshesShow
 
@@ -250,54 +225,62 @@ function rolleyAnimate(){
     const eqd = window.animateEqd
     const rolleyVert = getT(i)[0];
 
-    if (window.freeLine) { // freeLine
-        const pos = window.freeLine.geometry.attributes.position;
+    let mesh;
+
+    mesh = meshes.freeLine
+    if (mesh) { // freeLine
+        const pos = mesh.geometry.attributes.position;
         pos.array.set(rolleyVert);
         pos.needsUpdate = true;
     }
 
-    if (window.freeMesh) { // freeMesh
-        const geometry = window.freeMesh.geometry;
+    mesh = meshes.freeMesh
+    if (mesh) { // freeMesh
+        const geometry = mesh.geometry;
         // geometry.attributes.position.array.set(rolleyVert);
         interpolateVertices(geometry.attributes.position.array, rolleyVert, 4)
         geometry.attributes.position.needsUpdate = true;
         geometry.computeVertexNormals()
     }
 
-    if (window.rolleyMesh) { // rolleyMesh
-        window.rolleyMesh.rotation.z = eqd["al"][i];
-        window.rolleyMesh.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
+    mesh = meshes.rolleyMesh
+    if (mesh) { // rolleyMesh
+        mesh.rotation.z = eqd["al"][i];
+        mesh.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
     }
 
     const Xi = eqd.x[i]
     const Yi = 0;
     const Zi = eqd.r[i]
 
-    if (window.carretMesh) { // carretMesh
-        window.carretMesh.position.x = Xi * scale.factor;
-        window.carretMesh.position.z = Zi * scale.factor;
-        window.carretMesh.rotation.z = eqd["al"][i];
-
-        window.standMesh.position.x = Xi * scale.factor;
+    mesh = meshes.carretMesh
+    if (mesh) { // carretMesh
+        mesh.position.x = Xi * scale.factor;
+        mesh.position.z = Zi * scale.factor;
+        mesh.rotation.z = eqd["al"][i];
     }
 
+    mesh = meshes.standMesh
+    if (mesh) { // standMesh
+        mesh.position.x = Xi * scale.factor;
+    }
 }
 window.rolleyAnimate = rolleyAnimate;
 
 function tapeAnimate(prefix, fi){
     let mesh
 
-    mesh = window["coil" + prefix + "Line"]
+    mesh = meshes["coil" + prefix + "Line"]
     if (mesh){
         mesh.rotation.x = fi;
     }
 
-    mesh = window["tape" + prefix + "Mesh"]
+    mesh = meshes["tape" + prefix + "Mesh"]
     if (mesh){
         mesh.rotation.x = fi;
     }
 
-    mesh = window["tape" + prefix + "Line"]
+    mesh = meshes["tape" + prefix + "Line"]
     if (mesh){
         mesh.rotation.x = fi;
     }
@@ -308,19 +291,19 @@ async function tapeVisibility(prefix){
 
     const lineShow = !!await layerPropGet("lineShow")
 
-    mesh = window["coil" + prefix + "Line"]
+    mesh = meshes["coil" + prefix + "Line"]
     if (mesh){
         mesh.visible = lineShow;
     }
 
     const tapeShow = !!await layerPropGet("tapeShow")
 
-    mesh = window["tape" + prefix + "Mesh"]
+    mesh = meshes["tape" + prefix + "Mesh"]
     if (mesh){
         mesh.visible = tapeShow;
     }
 
-    mesh = window["tape" + prefix + "Line"]
+    mesh = meshes["tape" + prefix + "Line"]
     if (mesh){
         mesh.visible = tapeShow;
     }
@@ -365,44 +348,48 @@ function animate(timestamp) {
         tapeAnimate("Corrected", fi)
         tapeAnimate("Interpolated", fi)
 
-        if (window.animateTapeLineIndices) {
-            const mesh = window.tapeInterpolatedLine;
-            mesh.geometry.setIndex([
-                ...window.animateTapeLineIndices.slice(   i * 2 * 2)
-            ]);
+        let mesh, inds;
+
+        mesh = meshes.tapeInterpolatedLine
+        inds = window.animateTapeLineIndices
+        if (mesh && inds) {
+            mesh.geometry.setIndex([...inds.slice(   i * 2 * 2)]);
         }
-        if (window.tapeLineTail){
-            window.tapeLineTail.rotation.x = fi - window.angleStep;
-            const mesh = window.tapeLineTail;
-            mesh.geometry.setIndex([
-                ...window.animateTapeLineIndices.slice(0, i * 2 * 2),
-            ]);
+
+        mesh = meshes.tapeTailLine
+        inds = window.animateTapeLineIndices
+        if (mesh && inds) {
+            mesh.rotation.x = fi - window.angleStep;
+            mesh.geometry.setIndex([...inds.slice(0, i * 2 * 2),]);
         }
         
-        if (window.animateTapeMeshIndices) {
-            const mesh = window.tapeInterpolatedMesh;
-            mesh.geometry.setIndex([
-                ...window.animateTapeMeshIndices.slice(0, i * 2 * 3)
-            ]);
-        }
-        if (window.tapeMeshTail){
-             window.tapeMeshTail.rotation.x = fi + window.angleStep;
-            const mesh = window.tapeMeshTail;
-            mesh.geometry.setIndex([
-                ...window.animateTapeMeshIndices.slice(   i * 2 * 3),
-            ]);
+        mesh = meshes.tapeInterpolatedMesh
+        inds = window.animateTapeMeshIndices
+        if (mesh && inds) {
+            mesh.geometry.setIndex([...inds.slice(0, i * 2 * 3)]);
         }
 
-        if (window.equidLine) {
-            window.equidLine.rotation.x = fi;
+        mesh = meshes.tapeTailMesh
+        inds = window.animateTapeMeshIndices
+        if (mesh && inds) {
+            mesh.rotation.x = fi + window.angleStep;
+            mesh.geometry.setIndex([...inds.slice(   i * 2 * 3),]);
         }
 
-        if (window.freeLine)
-            window.freeLine.rotation.x = fi;
+        mesh = meshes.equidLine
+        if (mesh) {
+            mesh.rotation.x = fi;
+        }
 
-        if (window.freeMesh)
-            window.freeMesh.rotation.x = fi;
+        mesh = meshes.freeLine
+        if (mesh) {
+            mesh.rotation.x = fi;
+        }
 
+        mesh = meshes.freeMesh
+        if (mesh) {
+            mesh.rotation.x = fi;
+        }
     }
 
     scene.controls.update();

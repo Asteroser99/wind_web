@@ -10,6 +10,7 @@ layers:
     lineCount: 500
     LayerName: mesh
     LayerNumber: 1
+    tapeShow: true
     csvColumn: 1
     mandrelRaw:
       x:
@@ -71,7 +72,7 @@ layers:
         - 119.645094
         - 111.5
     page: vessel
-    windingMode: full
+    windingMode: round
     coilInitial:
       x:
         - -504.0377413805093
