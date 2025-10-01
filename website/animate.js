@@ -194,9 +194,13 @@ async function meshesShow(){
     document.getElementById("programBar").style.display = on ? "flex" : "none";
     document.getElementById("playerBar" ).style.display = on ? "flex" : "none";
 
-    if (meshes.standMesh ) meshes.standMesh .visible = on;
-    if (meshes.carretMesh) meshes.carretMesh.visible = on;
+    if (meshes.standMesh ) meshes.standMesh .visible = false;
+    if (meshes.carretMesh) meshes.carretMesh.visible = false;
     if (meshes.rolleyMesh) meshes.rolleyMesh.visible = on;
+
+    for (let i = 0; i < 4; i += 1) {
+        meshes["chain" + i].visible = on;
+    }
 
     const mesh = meshes.mandrelRawMesh
     if (mesh){
@@ -227,6 +231,49 @@ function rolleyAnimate(){
 
     let mesh;
 
+    const Xi = eqd.x[i] * scale.factor
+    const Ri = eqd.r[i] * scale.factor
+    const Ai = eqd.al[i]
+
+
+    // Machine
+
+    mesh = meshes.standMesh
+    if (mesh) { // standMesh
+        mesh.position.x = Xi;
+    }
+
+    mesh = meshes.carretMesh
+    if (mesh) { // carretMesh
+        mesh.position.x = Xi;
+        mesh.position.z = Ri;
+        mesh.rotation.z = Ai;
+    }
+
+    mesh = meshes.rolleyMesh
+    if (mesh) { // rolleyMesh
+        mesh.position.set(Xi, 0, Ri);
+        mesh.rotation.z = Ai;
+    }
+
+
+    // chain
+    for (let j = 0; j < 4; j += 1) {
+        mesh = meshes["chain" + j];
+        const ch = window.chain[j]
+        mesh.position.set(
+            ch.x[i] * scale.factor,
+            ch.z[i] * scale.factor,
+            ch.y[i] * -scale.factor
+        )
+
+        mesh.rotation.x = ch.rx[i];
+        mesh.rotation.y = ch.ry[i];
+        mesh.rotation.z = ch.rz[i];
+    }
+    
+    // Free tape
+
     mesh = meshes.freeLine
     if (mesh) { // freeLine
         const pos = mesh.geometry.attributes.position;
@@ -243,27 +290,6 @@ function rolleyAnimate(){
         geometry.computeVertexNormals()
     }
 
-    mesh = meshes.rolleyMesh
-    if (mesh) { // rolleyMesh
-        mesh.rotation.z = eqd["al"][i];
-        mesh.position.set(eqd["x"][i] * scale.factor, 0, eqd["r"][i] * scale.factor);
-    }
-
-    const Xi = eqd.x[i]
-    const Yi = 0;
-    const Zi = eqd.r[i]
-
-    mesh = meshes.carretMesh
-    if (mesh) { // carretMesh
-        mesh.position.x = Xi * scale.factor;
-        mesh.position.z = Zi * scale.factor;
-        mesh.rotation.z = eqd["al"][i];
-    }
-
-    mesh = meshes.standMesh
-    if (mesh) { // standMesh
-        mesh.position.x = Xi * scale.factor;
-    }
 }
 window.rolleyAnimate = rolleyAnimate;
 
@@ -342,7 +368,6 @@ function animate(timestamp) {
         document.querySelector(".program-p").textContent = animateText;
     
         rolleyAnimate();
-
 
         tapeAnimate("Initial", fi)
         tapeAnimate("Corrected", fi)
