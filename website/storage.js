@@ -1,6 +1,5 @@
 window.theVessel = {};
 window.theLayer = {};
-const db = new Dexie("WinderCAM");
 
 // local - obsolete
 
@@ -268,7 +267,29 @@ window.layerAddIfNotExist = layerAddIfNotExist;
 //
 
 async function storageOnLoad() {
-    db.version(1).stores({
+    let needRecreate = false;
+    try {
+        const SCHEMA_VERSION = "layers:[layer+id],id,layer|vessel:id,";
+        const dbTmp = new Dexie("WinderCAM");
+        await dbTmp.open();
+        const meta = dbTmp.tables.map(t => `${t.name}:${t.schema.primKey.src},${t.schema.indexes.map(i=>i.src).join(",")}`);
+        const current = meta.join("|");
+        if (current !== SCHEMA_VERSION) {
+            needRecreate = true;
+        }
+        await dbTmp.close();
+    } catch(e) {
+        needRecreate = true;
+    }
+
+    if (needRecreate) {
+        await Dexie.delete("WinderCAM");
+        console.log("Dexie WinderCAM database recreated");
+    }
+
+    window.db = new Dexie("WinderCAM");
+
+    window.db.version(1).stores({
         vessel: "&id",
         layers: "[layer+id], layer, id",
     });

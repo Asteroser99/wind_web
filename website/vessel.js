@@ -91,12 +91,14 @@ async function layersRenderTable() {
         row.innerHTML = `
             <td style="display:none">${item}</td>
             <td>${name}</td>
-             <td>
+            <td style="width:35px">
                 <div style="display:inline-block; vertical-align:middle; text-align:center; line-height:0">
-                    <button class="btn-up image-button very-small-half" title="Move up"><img src="./img/up.png"></button><br>
+                    <button class="btn-up   image-button very-small-half" title="Move up"><img src="./img/up.png"></button><br>
                     <button class="btn-down image-button very-small-half" title="Move down"><img src="./img/down.png"></button>
                 </div>
-                <button class="btn-delete image-button very-small" title="Remove layer"><img src="./img/minus.png"></button>
+                <div style="display:inline-block; vertical-align:middle; text-align:center; line-height:0">
+                    <button class="btn-delete image-button very-small" title="Remove layer"><img src="./img/minus.png"></button>
+                </div>
             </td>
         `;
         row.onclick = async () => {
