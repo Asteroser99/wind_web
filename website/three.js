@@ -93,11 +93,10 @@ async function frameInit(){
     ];
 
     const Rm = scale.y.max;
-    const SR = await layerPropGet("safetyR");
-    const Xn = scale.x.min - (Rm + SR);
-    const Xm = scale.x.max + (Rm + SR);
-    const Yd = + (Rm * 1.5 + SR);
-    const Zd = - (Rm * 2);
+    const Xn = scale.x.min - (Rm);
+    const Xm = scale.x.max + (Rm);
+    const Yd = + (Rm * 2.);
+    const Zd = - (Rm * 2.);
 
     const posVertices = [
       Xn, 0., 0.,
@@ -184,15 +183,10 @@ async function frameInit(){
 
 
   { // chain
-    const coilCorrected = await coilGet("Corrected");
-
     const TK = await coilGet     ("Interpolated"            );
     const TU = await layerPropGet("equidistantaInterpolated");
 
     window.chain = await lambdaCall("calc.chain", ["RPN", TK, TU, null, null])
-
-    console.log(window.chain)
-    console.log(scale)
 
     const i = 0
     for (let j = 0; j < 4; j += 1) {
@@ -202,28 +196,57 @@ async function frameInit(){
       const yD = ch.sz[i]
       const zD = ch.sy[i]
 
-      const vert = [];
-      vert.push(x0 - xD * 0.5,  y0,  z0 - zD * 0.5);
-      vert.push(x0 - xD * 0.5,  y0,  z0 + zD * 0.5);
-      vert.push(x0 + xD * 0.5,  y0,  z0 + zD * 0.5);
-      vert.push(x0 + xD * 0.5,  y0,  z0 - zD * 0.5);
+      // const vert = [];
+      // vert.push(x0 - xD * 0.5,  y0,  z0 - zD * 0.5);
+      // vert.push(x0 - xD * 0.5,  y0,  z0 + zD * 0.5);
+      // vert.push(x0 + xD * 0.5,  y0,  z0 + zD * 0.5);
+      // vert.push(x0 + xD * 0.5,  y0,  z0 - zD * 0.5);
 
-      vert.push(x0 - xD * 0.5,  y0 + yD,  z0 - zD * 0.5);
-      vert.push(x0 - xD * 0.5,  y0 + yD,  z0 + zD * 0.5);
-      vert.push(x0 + xD * 0.5,  y0 + yD,  z0 + zD * 0.5);
-      vert.push(x0 + xD * 0.5,  y0 + yD,  z0 - zD * 0.5);
+      // vert.push(x0 - xD * 0.5,  y0 + yD,  z0 - zD * 0.5);
+      // vert.push(x0 - xD * 0.5,  y0 + yD,  z0 + zD * 0.5);
+      // vert.push(x0 + xD * 0.5,  y0 + yD,  z0 + zD * 0.5);
+      // vert.push(x0 + xD * 0.5,  y0 + yD,  z0 - zD * 0.5);
       
-      const indices = [];
-      indices.push(0, 1, 2,  2, 3, 0);
-      indices.push(4, 5, 6,  6, 7, 4);
+      // const indices = [];
+      // indices.push(0, 1, 2,  2, 3, 0);
+      // indices.push(4, 5, 6,  6, 7, 4);
 
-      indices.push(0, 4, 5,  5, 1, 0);
-      indices.push(1, 5, 6,  6, 2, 1);
-      indices.push(2, 6, 7,  7, 3, 2);
-      indices.push(3, 7, 4,  4, 0, 3);
+      // indices.push(0, 4, 5,  5, 1, 0);
+      // indices.push(1, 5, 6,  6, 2, 1);
+      // indices.push(2, 6, 7,  7, 3, 2);
+      // indices.push(3, 7, 4,  4, 0, 3);
 
-      const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
+      // const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
+
+      const mesh = await meshCreateFromFile();
+
       mesh.visible = false;
+
+      // Bounding box
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+
+      // Масштаб по осям
+      const scaleX = (xD * scale.factor) / size.x;
+      const scaleY = (yD * scale.factor) / size.y;
+      const scaleZ = (zD * scale.factor) / size.z;
+
+      mesh.scale.set(scaleX, scaleY, scaleZ);
+
+      // После скейла надо пересчитать
+      const newBox = new THREE.Box3().setFromObject(mesh);
+      const newSize = new THREE.Vector3();
+      const newCenter = new THREE.Vector3();
+      newBox.getSize(newSize);
+      newBox.getCenter(newCenter);
+
+      // Сдвигаем: центр по XY → в (0,0), нижняя грань по Z → в 0
+      mesh.position.x -= newCenter.x;
+      mesh.position.y -= newCenter.y;
+      mesh.position.z -= newBox.min.z; // дно к нулю      
 
       meshSet("chain" + j, mesh);
     }
@@ -392,24 +415,20 @@ function meshCreateMeshLine([vertices, indices], color = 0xff0000) {
   return mesh;
 }
 
-function meshCreateFromFile() {
-  const loader = new GLTFLoader().setPath('img/');
-  loader.load('scene.gltf', (gltf) => {
-    const mesh = gltf.scene;
+async function meshCreateFromFile() {
+  const loader = new GLTFLoader().setPath('gltf/');
+  const gltf = await loader.loadAsync('stick.gltf'); // <-- правильный async-метод
+  const mesh = gltf.scene;
 
-    meshResize(mesh);
+  // meshResize(mesh);
 
-    mesh.position.set(0, 1.05, -1);
+  mesh.position.set(0, 1.05, -1);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
 
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
+  scene.scene.add(mesh);
 
-    scene.scene.add(mesh);
-  }, (xhr) => {
-    console.log(`loading ${xhr.loaded / xhr.total * 100}%`);
-  }, (error) => {
-    console.error(error);
-  });
+  return mesh;
 }
 
 function meshCreateBox() {
