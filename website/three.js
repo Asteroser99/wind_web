@@ -311,7 +311,7 @@ function meshCreate(render, color = 0x4444FF, transparent = 1., setScale = false
 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(0, 0, 0);
-  mesh.castShadow = false;
+  mesh.castShadow = true;
   mesh.receiveShadow = false;
   mesh.frustumCulled = false;
   scene.scene.add(mesh);
@@ -426,24 +426,31 @@ async function meshCreateFromFile() {
   mesh.castShadow = true;
   mesh.receiveShadow = true;
 
+  mesh.traverse((child) => {
+    if (child.isMesh) {
+      child.material = new THREE.MeshStandardMaterial({ color: 0x00ffff });
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+  
   scene.scene.add(mesh);
 
   return mesh;
 }
 
-function meshCreateBox() {
+function meshCreateBox(x, y, z) {
   const geometry = new THREE.BoxGeometry(2, 2, 2);
 
   const textureLoader = new THREE.TextureLoader();
 
-  const colorTexture = textureLoader.load('Pic.jpg');
-
-  colorTexture.wrapS = THREE.RepeatWrapping;
-  colorTexture.wrapT = THREE.RepeatWrapping;
-  colorTexture.repeat.set(2, 2);
+  // const colorTexture = textureLoader.load('Pic.jpg');
+  // colorTexture.wrapS = THREE.RepeatWrapping;
+  // colorTexture.wrapT = THREE.RepeatWrapping;
+  // colorTexture.repeat.set(2, 2);
 
   const material = new THREE.MeshStandardMaterial({
-    map: colorTexture,
+    // map: colorTexture,
     roughness: 0.3,
     metalness: 0.5,
   });
@@ -451,7 +458,7 @@ function meshCreateBox() {
   const cube = new THREE.Mesh(geometry, material);
   // cube.castShadow = true;
   // cube.receiveShadow = true;
-  cube.position.set(3, 2.0, -1);
+  cube.position.set(x, y, z);
 
   meshResize(cube);
 
@@ -549,23 +556,30 @@ function sceneOnLoad() {
   // Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
   // Третья координата (Z) → Вдоль глубины сцены (вперёд-назад)
 
-  const x = 20; // tetraedr
-  const sh = x / Math.sqrt(3);
-
+  const lr = 35; // tetraedr
   const lights = [
-    [-sh, x, 0],
-    [-sh, -x, 0],
-    [sh, 0, x],
-    [sh, 0, -x]
+    [0, 0, -lr],
+    [0, -2*Math.sqrt(2)/3 * lr,lr/3],
+    [ Math.sqrt(6)/3 * lr, Math.sqrt(2)/3 * lr, lr/3],
+    [-Math.sqrt(6)/3 * lr, Math.sqrt(2)/3 * lr, lr/3],
   ];
 
   lights.forEach(vertex => {
-    const light = new THREE.SpotLight(0xffffff, 5000, 30, 1.0, 2);
+    const light = new THREE.SpotLight(0xffffff, 5000, 1000, Math.PI / 4, 1.0, 2.0);
     light.position.set(...vertex);
     light.target.position.set(0, 0, 0);
     light.castShadow = true;
+
+//    light.shadow.mapSize.width = 1024;
+//    light.shadow.mapSize.height = 1024;
+//    light.shadow.camera.near = 0.5;
+//    light.shadow.camera.far = 500;
+    light.shadow.focus = 1.0; // влияет на чёткость
+
     scene.scene.add(light.target);
     scene.scene.add(light);
+
+    meshCreateBox(...vertex)
   });
 
   scene.controls = new OrbitControls(scene.camera, scene.renderer.domElement);
@@ -637,6 +651,8 @@ function floorOnLoad() {
   const mesh = new THREE.Mesh(geometry, material);
   mesh.rotation.x = -Math.PI / 2;
   mesh.position.y = 0;
+  mesh.castShadow = false;
+  mesh.receiveShadow = true;
 
   meshResize(mesh);
 
