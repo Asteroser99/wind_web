@@ -259,6 +259,9 @@ async function floorInit(){
   { // floorMesh
     floorMesh.position.y = -2 * scale.y.max * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
+
+    floorShadowMesh.position.y = floorMesh.position.y;
+    floorShadowMesh.position.x = floorMesh.position.x;
   }
 }
 window.floorInit = floorInit
@@ -545,12 +548,21 @@ function sceneOnLoad() {
   createGradientTexture();
 
 
+  const aspect = 1.;
+  const frustumSize = 500.;
+
   scene.camera = new THREE.OrthographicCamera(
-    -1, 1, 1, -1,
-    0.1, 1000
+    (frustumSize * aspect) / -2,
+    (frustumSize * aspect) /  2,
+    frustumSize / 2,
+    frustumSize / -2,
+    0.0001, 200
   );
-  scene.camera.position.set(10., 20., 20.);
+  scene.camera.position.set(40., 80., 80.);
   scene.camera.lookAt(0, 0, 0);
+
+  scene.camera.zoom = 0.6;
+  scene.camera.updateProjectionMatrix();
 
   // Первая координата (X) → Вдоль горизонтальной оси (вправо-влево)
   // Вторая координата (Y) → Вдоль вертикальной оси (вверх-вниз)
@@ -579,7 +591,7 @@ function sceneOnLoad() {
     scene.scene.add(light.target);
     scene.scene.add(light);
 
-    meshCreateBox(...vertex)
+    // meshCreateBox(...vertex)
   });
 
   scene.controls = new OrbitControls(scene.camera, scene.renderer.domElement);
@@ -600,6 +612,8 @@ function sceneOnLoad() {
 
 function floorOnLoad() {
 
+  let mesh
+
   // floor
   const vertexShader = `
   varying vec2 vUv;
@@ -614,6 +628,7 @@ function floorOnLoad() {
   uniform vec2 uCenter;
   uniform float uFade;
   uniform float uGridSize;
+  uniform float lineThickness;
 
   void main() {
       float dist = distance(vUv, uCenter); // main fading
@@ -621,9 +636,7 @@ function floorOnLoad() {
 
       // square grid
       vec2 grid = mod(vUv * uGridSize, 1.0);
-      float lineThickness = 0.02;
       float gridLines = max(step(grid.x, lineThickness), step(grid.y, lineThickness));
-
       float gridAlpha = gridLines * alpha; // main fading for grid
 
       vec3 baseColor = vec3( 72. / 256., 166. / 256., 167. / 256.);
@@ -640,25 +653,48 @@ function floorOnLoad() {
       fragmentShader,
       uniforms: {
           uCenter: { value: new THREE.Vector2(0.5, 0.5) },
-          uFade: { value: 4.0 },
-          uGridSize: { value: 70.0 },
-        },
+          uFade: { value: 5.0 },
+          uGridSize: { value: 60.0 },
+          lineThickness: { value: 0.015 },
+      },
       transparent: true
   });
   
   // create PlaneGeometry and apply shader
-  const geometry = new THREE.PlaneGeometry(100, 100, 10, 10);
-  const mesh = new THREE.Mesh(geometry, material);
+  mesh = new THREE.Mesh(
+    // new THREE.PlaneGeometry(100, 100, 10, 10),
+    new THREE.CircleGeometry(100, 32),
+    material
+  );
   mesh.rotation.x = -Math.PI / 2;
   mesh.position.y = 0;
   mesh.castShadow = false;
   mesh.receiveShadow = true;
+  mesh.frustumCulled = false;
 
   meshResize(mesh);
 
+  window.floorMesh = mesh;
   scene.scene.add(mesh);
 
-  window.floorMesh = mesh;
+
+  // Shadow plane
+  const shadowMat = new THREE.ShadowMaterial({ opacity: 0.025 }); 
+  shadowMat.polygonOffset = true;
+  shadowMat.polygonOffsetFactor = -1;
+  shadowMat.polygonOffsetUnits  = -1;
+
+  mesh = new THREE.Mesh(
+    new THREE.CircleGeometry(100, 32),
+    shadowMat
+  );
+
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.receiveShadow = true;
+  mesh.frustumCulled = false;
+
+  window.floorShadowMesh = mesh;
+  scene.scene.add(mesh);
 }
 
 async function threeOnLoad() {

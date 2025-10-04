@@ -214,7 +214,7 @@ window.vesselLoadOnFileOpen = vesselLoadOnFileOpen;
 
 async function vesselLoadOnFileRead(text, par = null) {
     const vessel = yamlToData(text)
-    if(!vessel.PartNumber){
+    if(!vessel?.PartNumber){
         showError("The file does not appear to be a session file.")
         loaded();
         return;
@@ -1120,7 +1120,9 @@ async function vesselloadFromURL(name) {
     // await allShow();
     // loaded();
 
-    await vesselLoadOnFileRead(await response.text())
+    const text = await response.text();
+
+    await vesselLoadOnFileRead(text)
 
 };
 window.vesselloadFromURL = vesselloadFromURL
