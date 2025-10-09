@@ -252,7 +252,7 @@
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
 
                     <div id="actions-patterns" class="floatingControl">
-                        <label for="convenience">Convenience:</label><br>
+                        <h3>Convenience</h3>
                         <input type="number" id="convenience" class="inputField" data-owner="layer"
                             min="1" max="999" step="1.0" 
                             value="4.0" pattern="\d{1,3}(\.\d{1,3})?" 
@@ -260,9 +260,9 @@
                             style="text-align: right;" 
                         ><br>
                         
-                        <div class="hPanel"><p class="p-button">Mesh structure</p><input class="inputField" data-owner="layer" type="checkbox" id="netStructure" title="Mesh structure" value=false></div><br>
+                        <div class="hPanel"><p class="p-button">Mesh structure</p><input class="inputField" data-owner="layer" type="checkbox" id="netStructure" title="Mesh structure" value=false></div>
 
-                        <label for="convenience">Select pattern:</label><br>
+                        <h3>Pattern</h3>
                         <div class="table-wrapper">
                             <table id="patterns-table">
                                 <thead>
@@ -284,6 +284,8 @@
                 <!-- Winding -->
                 <div id="tab-winding" class="tab-content">
                     <div id="actions-winding">
+                        <h3>Machine</h3>
+
                         <!-- <label for="testMode">Test mode:</label>
                         <input type="number" id="testMode" class="inputField" data-owner="layer"
                             min="0" max="9" step="1"
@@ -292,8 +294,16 @@
                             style="text-align: right;"
                         >
                         <br> -->
+                        <div class="table-wrapper">
+                            <table id="machines-table">
+                                <thead>
+                                    <tr><th>Geometry</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
 
-                        <label for="safetyR">Safety &Ropf;:</label><br>
+                        <label for="safetyR">Safety distance:</label><br>
                         <input type="number" id="safetyR" class="inputField" data-owner="layer"
                             min="0" max="999" step="0.1" 
                             value="50.0" pattern="\d{1,1}(\.\d{1,1})?"

@@ -1,4 +1,4 @@
-// Table
+// patterns-table
 
 async function fibboRenderTable() {
     const layerId = await layerIdGet()

@@ -60,17 +60,13 @@ function mirrorXYZ(pTR, mirror){
 window.mirrorXYZ = mirrorXYZ
 
 
-
-
-
-// layers
+// layers-table
 
 async function layerAddOnClick(){
     await layerAddNew()
     await allShow()
 };
 window.layerAddOnClick = layerAddOnClick;
-
 
 async function layersRenderTable() {
     const layers = await vesselPropGet("layers") || []
@@ -180,6 +176,57 @@ async function layersSelectRow(layerId) {
     }
 }
 window.layersSelectRow = layersSelectRow;
+
+
+// machines-table
+
+async function machinesRenderTable() {
+    const tableBody = document.querySelector("#machines-table tbody");
+
+    while (tableBody.firstChild) {
+        tableBody.removeChild(tableBody.firstChild);
+    }
+
+    const machines = [
+        ["RPN", "3-axis"],
+        ["WE" , "4-axis"]
+    ];
+
+    machines.forEach(([item, name], index) => {
+        const row = document.createElement("tr");
+        
+        row.innerHTML = `
+            <td style="display:none">${item}</td>
+            <td>${name}</td>
+        `;
+        row.onclick = async () => {
+            await layerPropSet("machine", item)
+            await machinesRenderTable()
+        };
+        row.dataset.index = item;
+        row.classList.add("clickable-row");
+
+        tableBody.appendChild(row);
+    });
+
+    await machinesSelectRow(await layerPropGet("machine"))
+}
+window.machinesRenderTable = machinesRenderTable;
+
+async function machinesSelectRow(machineId) {
+    const tableBody = document.querySelector("#machines-table tbody");
+
+    const selected = tableBody.querySelector(".selected");
+    if (selected) {
+        selected.classList.remove("selected");
+    }
+
+    const row = tableBody.querySelector(`tr[data-index='${machineId}']`);
+    if (row){
+        row.classList.add("selected");
+    }
+}
+window.machinesSelectRow = machinesSelectRow;
 
 
 /// vessel
@@ -919,11 +966,18 @@ async function Winding(param = undefined){
         return
     }
 
-    lambdaCall("calc.winding", [coilCorrected, await layerPropGet('safetyR'), await layerPropGet('lineCount'), await layerPropGet('band')])
+    lambdaCall("calc.winding", [
+        await layerPropGet('machine'),
+        coilCorrected,
+        await layerPropGet('safetyR'),
+        await layerPropGet('lineCount'),
+        await layerPropGet('band')
+    ])
         .then(async res => {
             await coilSet     ("Interpolated"            , res[0]);
             await layerPropSet("equidistantaInterpolated", res[1]);
-            await layerPropSet("rolleyInterpolated"      , res[2]);
+            await layerPropSet("MTU"                     , res[2]);
+            await layerPropSet("rolleyInterpolated"      , res[3]);
 
             // await tapeDraws();
             await animateInit();
@@ -1051,6 +1105,7 @@ async function allShow() {
 
     await inputUpdate(layerId)
     await layersRenderTable()
+    await machinesRenderTable()
     await fibboRenderTable()
     await appearShow()
     await modeShow(layerId)

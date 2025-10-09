@@ -104,14 +104,18 @@ async function animateInit(){
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
+    let machine = await layerPropGet("machine");
     let coil = await coilGet("Interpolated");
     let tape = await layerPropGet("tapeInterpolated");
     let eqd  = await layerPropGet("equidistantaInterpolated");
+    let mtu  = await layerPropGet("MTU");
     let roll = await layerPropGet("rolleyInterpolated");
-    window.animateCoil   = coil;
-    window.animateTape   = tape;
-    window.animateEqd    = eqd ;
-    window.animateRolley = roll;
+    window.animateMachine = machine;
+    window.animateCoil    = coil;
+    window.animateTape    = tape;
+    window.animateEqd     = eqd ;
+    window.animateMTU     = mtu ;
+    window.animateRolley  = roll;
 
     // scaleSet();
     await floorInit();
@@ -198,7 +202,7 @@ async function meshesShow(){
     if (meshes.carretMesh) meshes.carretMesh.visible = false;
     if (meshes.rolleyMesh) meshes.rolleyMesh.visible = on;
 
-    for (let i = 0; i < 4; i += 1) {
+    for (let i = 0; i < window.chain.length; i += 1) {
         meshes["chain" + i].visible = on;
     }
 
@@ -258,7 +262,7 @@ function rolleyAnimate(){
 
 
     // chain
-    for (let j = 0; j < 4; j += 1) {
+    for (let j = 0; j < window.chain.length; j += 1) {
         mesh = meshes["chain" + j];
         const ch = window.chain[j]
         mesh.position.set(
@@ -268,8 +272,8 @@ function rolleyAnimate(){
         )
 
         mesh.rotation.x = ch.rx[i];
-        mesh.rotation.y = ch.ry[i];
-        mesh.rotation.z = ch.rz[i];
+        mesh.rotation.y = ch.rz[i];
+        mesh.rotation.z = -ch.ry[i];
     }
     
     // Free tape
@@ -356,22 +360,29 @@ function animate(timestamp) {
         const r  = window.animateEqd.r [i]
         const fi = window.animateEqd.fi[i]
         const dl = window.animateEqd.al[i]
+
+        let FI
+        if (window.animateMachine == "RPN") {
+            FI = fi + 30. * Math.PI / 180.
+        } else {
+            FI = window.animateMTU[0].fi[i] + 10. * Math.PI / 180.
+        }
   
         // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
         const animateText = ""
             + `N ${i} | `
             + `x ${x .toFixed(1)} | `
             + `r ${r .toFixed(1)} | `
-            + `φ ${fi.toFixed(5)} | `
+            + `φ ${FI.toFixed(5)} | `
             + `δ ${(dl * 180. / Math.PI).toFixed(1)}°`
         ;
         document.querySelector(".program-p").textContent = animateText;
     
         rolleyAnimate();
 
-        tapeAnimate("Initial", fi)
-        tapeAnimate("Corrected", fi)
-        tapeAnimate("Interpolated", fi)
+        tapeAnimate("Initial", FI)
+        tapeAnimate("Corrected", FI)
+        tapeAnimate("Interpolated", FI)
 
         let mesh, inds;
 
@@ -384,7 +395,7 @@ function animate(timestamp) {
         mesh = meshes.tapeTailLine
         inds = window.animateTapeLineIndices
         if (mesh && inds) {
-            mesh.rotation.x = fi - window.angleStep;
+            mesh.rotation.x = FI - window.angleStep;
             mesh.geometry.setIndex([...inds.slice(0, i * 2 * 2),]);
         }
         
@@ -397,23 +408,23 @@ function animate(timestamp) {
         mesh = meshes.tapeTailMesh
         inds = window.animateTapeMeshIndices
         if (mesh && inds) {
-            mesh.rotation.x = fi + window.angleStep;
+            mesh.rotation.x = FI + window.angleStep;
             mesh.geometry.setIndex([...inds.slice(   i * 2 * 3),]);
         }
 
         mesh = meshes.equidLine
         if (mesh) {
-            mesh.rotation.x = fi;
+            mesh.rotation.x = FI;
         }
 
         mesh = meshes.freeLine
         if (mesh) {
-            mesh.rotation.x = fi;
+            mesh.rotation.x = FI;
         }
 
         mesh = meshes.freeMesh
         if (mesh) {
-            mesh.rotation.x = fi;
+            mesh.rotation.x = FI;
         }
     }
 

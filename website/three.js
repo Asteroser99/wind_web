@@ -183,14 +183,16 @@ async function frameInit(){
 
 
   { // chain
-    const TK   = await coilGet     ("Interpolated"            );
-    const TU   = await layerPropGet("equidistantaInterpolated");
-    const band = await layerPropGet("band")
+    const machine = await layerPropGet("machine");
+    const TK      = await coilGet     ("Interpolated"            );
+    const TS      = await layerPropGet("equidistantaInterpolated");
+    const MTU     = await layerPropGet("MTU");
+    const band    = await layerPropGet("band")
 
-    window.chain = await lambdaCall("calc.chain", ["RPN", TK, TU, null, null, band])
+    window.chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band])
 
     const i = 0
-    for (let j = 0; j < 4; j += 1) {
+    for (let j = 0; j < window.chain.length; j += 1) {
       const ch = window.chain[j]
       const x0 = 0; const y0 = 0; const z0 = 0;
       const xD = ch.sx[i]
