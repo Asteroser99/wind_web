@@ -17,7 +17,7 @@ function getT(begin=0, end=0, long=false){
         vertices.push(...pCoil);
   
         const jTapeL = j + 1;
-        const pTapeR = pointXYZ(window.animateTape, i, 0, thi, window.animateCoil);
+        const pTapeR = pointXYZ(window.animateTape, i, 0, thi, window.animateCoil)
         vertices.push(...pTapeR);
   
         const jTapeR = j + 2;
@@ -30,13 +30,15 @@ function getT(begin=0, end=0, long=false){
         vertices.push(...pEqd);
 
         const jRollL = j + 4;
-        const pRollR = pointXYZ(window.animateRolley, i);
-        vertices.push(...pRollR);
-  
-        const jRollR = j + 5;
-        const pRollL = mirrorXYZ(pRollR, pEqd)
+        // const pRollL = mirrorXYZ(pRollR, pEqd)
+        const pRollL = window.animateChainRolley[i][0]
         vertices.push(...pRollL);
 
+        const jRollR = j + 5;
+        // const pRollR = pointXYZ(window.animateRolley, i)
+        const pRollR = window.animateChainRolley[i][1]
+        vertices.push(...pRollR);
+  
         
         if (long && i > 0) {
             indices.push(jEqd - pN); indices.push(jEqd);
@@ -101,21 +103,28 @@ function generateIndices(rows) {
 }
 
 async function animateInit(){
+    // await setRolley()
+    
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
     let machine = await layerPropGet("machine");
-    let coil = await coilGet("Interpolated");
-    let tape = await layerPropGet("tapeInterpolated");
-    let eqd  = await layerPropGet("equidistantaInterpolated");
-    let mtu  = await layerPropGet("MTU");
-    let roll = await layerPropGet("rolleyInterpolated");
+    let coil  = await coilGet("Interpolated");
+    let tape  = await layerPropGet("tapeInterpolated");
+    let eqd   = await layerPropGet("equidistantaInterpolated");
+    let mtu   = await layerPropGet("MTU");
+    let chain = await layerPropGet("chain");
+    let roll  = await layerPropGet("rolleyInterpolated");
+    let chrl  = await layerPropGet("chainRolley");
+    
     window.animateMachine = machine;
     window.animateCoil    = coil;
     window.animateTape    = tape;
     window.animateEqd     = eqd ;
     window.animateMTU     = mtu ;
+    window.animateChain   = chain;
     window.animateRolley  = roll;
+    window.animateChainRolley = chrl;
 
     // scaleSet();
     await floorInit();
@@ -200,11 +209,12 @@ async function meshesShow(){
 
     if (meshes.standMesh ) meshes.standMesh .visible = false;
     if (meshes.carretMesh) meshes.carretMesh.visible = false;
-    if (meshes.rolleyMesh) meshes.rolleyMesh.visible = on;
+    if (meshes.rolleyMesh) meshes.rolleyMesh.visible = false;
 
-    for (let i = 0; i < window.chain.length; i += 1) {
+    for (let i = 0; i < window.animateChain.length; i += 1) {
         meshes["chain" + i].visible = on;
     }
+    // meshes["chain" + (window.animateChain.length-1)].visible = false;
 
     const mesh = meshes.mandrelRawMesh
     if (mesh){
@@ -262,9 +272,9 @@ function rolleyAnimate(){
 
 
     // chain
-    for (let j = 0; j < window.chain.length; j += 1) {
+    for (let j = 0; j < window.animateChain.length; j += 1) {
         mesh = meshes["chain" + j];
-        const ch = window.chain[j]
+        const ch = window.animateChain[j]
         mesh.position.set(
             ch.x[i] * scale.factor,
             ch.z[i] * scale.factor,

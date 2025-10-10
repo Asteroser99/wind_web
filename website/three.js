@@ -96,7 +96,7 @@ async function frameInit(){
     const Xn = scale.x.min - (Rm);
     const Xm = scale.x.max + (Rm);
     const Yd = + (Rm * 2.);
-    const Zd = - (Rm * 2.);
+    const Zd = - (Rm * 3.);
 
     const posVertices = [
       Xn, 0., 0.,
@@ -183,17 +183,9 @@ async function frameInit(){
 
 
   { // chain
-    const machine = await layerPropGet("machine");
-    const TK      = await coilGet     ("Interpolated"            );
-    const TS      = await layerPropGet("equidistantaInterpolated");
-    const MTU     = await layerPropGet("MTU");
-    const band    = await layerPropGet("band")
-
-    window.chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band])
-
     const i = 0
-    for (let j = 0; j < window.chain.length; j += 1) {
-      const ch = window.chain[j]
+    for (let j = 0; j < window.animateChain.length; j += 1) {
+      const ch = window.animateChain[j]
       const x0 = 0; const y0 = 0; const z0 = 0;
       const xD = ch.sx[i]
       const yD = ch.sz[i]
@@ -260,7 +252,7 @@ window.frameInit = frameInit
 
 async function floorInit(){
   { // floorMesh
-    floorMesh.position.y = -2 * scale.y.max * scale.factor;
+    floorMesh.position.y = -3 * scale.y.max * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
 
     floorShadowMesh.position.y = floorMesh.position.y;
@@ -699,6 +691,90 @@ function floorOnLoad() {
   window.floorShadowMesh = mesh;
   scene.scene.add(mesh);
 }
+
+async function setRolley() {
+    const chain = await layerPropGet("chain");
+    const rolley = chain[chain.length - 1]
+
+  const machine = await layerPropGet("machine");
+  const TS      = await layerPropGet("equidistantaInterpolated");
+  const MTU     = await layerPropGet("MTU");
+
+  const res = []
+  rolley.x.forEach((_, i) => {
+      const x  = rolley.x [i];
+      const y  = rolley.z [i];
+      const z  = -rolley.y [i];
+      const rx = rolley.rx[i];
+      const ry = rolley.rz[i];
+      const rz = -rolley.ry[i];
+      const sx = rolley.sx[i];
+      const sy = rolley.sz[i];
+      const sz = rolley.sy[i];
+
+// const x  = 0;
+// const y  = 0;
+// const z  = 0;
+// const rx = 0;
+// const ry = 0;
+// const rz = 0;
+// const sx = 10;
+// const sy = 20;
+// const sz = 30;
+
+    console.log(x, y, z, rx, ry, rz, sx, sy, sz);
+
+  let FI
+  if (machine == "RPN") {
+      FI = TS.fi[i] + 30. * Math.PI / 180.
+  } else {
+      FI = MTU[0].fi[i] + 10. * Math.PI / 180.
+  }
+  FI = - FI
+
+  const pos  = new THREE.Vector3(x, y, z);
+  const size = new THREE.Vector3(sx, sy, sz);
+  const rot  = new THREE.Euler(rx, ry, rz, 'XYZ');
+
+  // Центры боковых граней относительно точки x,y,z (нижняя грань)
+  const offsets = [
+    // new THREE.Vector3( size.x / 2, 0, size.z / 2), // правая
+    // new THREE.Vector3(-size.x / 2, 0, size.z / 2), // левая
+    new THREE.Vector3(-size.x * .5, size.y * .5, 0), // правая
+    new THREE.Vector3( size.x * .5, size.y * .5, 0), // левая
+    new THREE.Vector3(0, -size.y / 2, -size.z / 2), // передняя
+    new THREE.Vector3(0,  size.y / 2, -size.z / 2), // задняя
+  ];
+
+// Поворот бокса вокруг его центра
+const localRotMatrix = new THREE.Matrix4().makeRotationFromEuler(rot);
+
+// Поворот всей системы вокруг глобальной оси X
+const globalRotMatrix = new THREE.Matrix4().makeRotationX(FI);
+
+const faceCenters = offsets.map(offset => {
+  // локальный поворот + сдвиг
+  const localRotated = offset.clone().applyMatrix4(localRotMatrix).add(pos);
+  // глобальный поворот
+  const globalRotated = localRotated.clone().applyMatrix4(globalRotMatrix);
+  return globalRotated;
+});
+  // console.log(faceCenters);
+
+
+      const faceCenter0 = faceCenters[0]
+      const faceCenter1 = faceCenters[1]
+      res.push([
+        [faceCenter0.x, faceCenter0.y, faceCenter0.z],
+        [faceCenter1.x, faceCenter1.y, faceCenter1.z]
+      ]);
+  });
+
+
+
+  await layerPropSet("chainRolley", res)
+}
+window.setRolley = setRolley
 
 async function threeOnLoad() {
     sceneOnLoad();

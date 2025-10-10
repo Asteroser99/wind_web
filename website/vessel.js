@@ -979,6 +979,17 @@ async function Winding(param = undefined){
             await layerPropSet("MTU"                     , res[2]);
             await layerPropSet("rolleyInterpolated"      , res[3]);
 
+            const machine = await layerPropGet("machine");
+            const TK      = await coilGet     ("Interpolated"            );
+            const TS      = await layerPropGet("equidistantaInterpolated");
+            const MTU     = await layerPropGet("MTU");
+            const band    = await layerPropGet("band")
+
+            const chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band])
+            await layerPropSet("chain", chain);
+
+            await setRolley()
+
             // await tapeDraws();
             await animateInit();
             await meshesShow();
