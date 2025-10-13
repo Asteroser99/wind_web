@@ -130,7 +130,7 @@ async function animateInit(){
     await floorInit();
     await frameInit();
 
-    window.animateReady = coil != undefined && tape != undefined && eqd != undefined && roll != undefined
+    window.animateReady = coil != undefined && tape != undefined && eqd != undefined && chain != undefined && mtu != undefined
     window.animateOn = window.animateReady;
 
     let coilInitial = await coilGet("Initial");
@@ -211,8 +211,10 @@ async function meshesShow(){
     if (meshes.carretMesh) meshes.carretMesh.visible = false;
     if (meshes.rolleyMesh) meshes.rolleyMesh.visible = false;
 
-    for (let i = 0; i < window.animateChain.length; i += 1) {
-        meshes["chain" + i].visible = on;
+    if (window.animateChain) {
+        for (let i = 0; i < window.animateChain.length; i += 1) {
+            meshes["chain" + i].visible = on;
+        }
     }
     // meshes["chain" + (window.animateChain.length-1)].visible = false;
 
@@ -272,20 +274,22 @@ function rolleyAnimate(){
 
 
     // chain
-    for (let j = 0; j < window.animateChain.length; j += 1) {
-        mesh = meshes["chain" + j];
-        const ch = window.animateChain[j]
-        mesh.position.set(
-            ch.x[i] * scale.factor,
-            ch.z[i] * scale.factor,
-            ch.y[i] * -scale.factor
-        )
+    if (window.animateChain) {
+        for (let j = 0; j < window.animateChain.length; j += 1) {
+            mesh = meshes["chain" + j];
+            const ch = window.animateChain[j]
+            mesh.position.set(
+                ch.x[i] * scale.factor,
+                ch.z[i] * scale.factor,
+                ch.y[i] * -scale.factor
+            )
 
-        mesh.rotation.x = ch.rx[i];
-        mesh.rotation.y = ch.rz[i];
-        mesh.rotation.z = -ch.ry[i];
+            mesh.rotation.x = ch.rx[i];
+            mesh.rotation.y = ch.rz[i];
+            mesh.rotation.z = -ch.ry[i];
+        }
     }
-    
+
     // Free tape
 
     mesh = meshes.freeLine

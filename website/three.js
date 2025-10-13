@@ -182,7 +182,7 @@ async function frameInit(){
   };
 
 
-  { // chain
+  if (window.animateChain) { // chain
     const machine = await layerPropGet("machine");
 
     const i = 0
