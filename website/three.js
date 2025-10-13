@@ -183,6 +183,8 @@ async function frameInit(){
 
 
   { // chain
+    const machine = await layerPropGet("machine");
+
     const i = 0
     for (let j = 0; j < window.animateChain.length; j += 1) {
       const ch = window.animateChain[j]
@@ -213,7 +215,7 @@ async function frameInit(){
 
       // const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
 
-      const mesh = await meshCreateFromFile();
+      const mesh = await meshCreateFromFile(machine + "_" + j);
 
       mesh.visible = false;
 
@@ -413,9 +415,9 @@ function meshCreateMeshLine([vertices, indices], color = 0xff0000) {
   return mesh;
 }
 
-async function meshCreateFromFile() {
+async function meshCreateFromFile(fileName) {
   const loader = new GLTFLoader().setPath('gltf/');
-  const gltf = await loader.loadAsync('stick.gltf'); // <-- правильный async-метод
+  const gltf = await loader.loadAsync(fileName + '.gltf'); // <-- правильный async-метод
   const mesh = gltf.scene;
 
   // meshResize(mesh);
@@ -426,7 +428,7 @@ async function meshCreateFromFile() {
 
   mesh.traverse((child) => {
     if (child.isMesh) {
-      child.material = new THREE.MeshStandardMaterial({ color: 0x00ffff });
+      // child.material = new THREE.MeshStandardMaterial({ color: 0x00ffff });
       child.castShadow = true;
       child.receiveShadow = true;
     }
