@@ -95,8 +95,8 @@ async function frameInit(){
     const Rm = scale.y.max;
     const Xn = scale.x.min - (Rm);
     const Xm = scale.x.max + (Rm);
-    const Yd = + (Rm * 2.);
-    const Zd = - (Rm * 3.);
+    const Yd = + (Rm * 2.0);
+    const Zd = - (Rm * 1.5);
 
     const posVertices = [
       Xn, 0., 0.,
@@ -254,7 +254,7 @@ window.frameInit = frameInit
 
 async function floorInit(){
   { // floorMesh
-    floorMesh.position.y = -3 * scale.y.max * scale.factor;
+    floorMesh.position.y = -1.5 * scale.y.max * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
 
     floorShadowMesh.position.y = floorMesh.position.y;
