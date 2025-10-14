@@ -15,18 +15,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Raskladchik",
-			"rotation":[
-				-1,
-				0,
-				0,
-				4.371138828673793e-08
-			],
-			"translation":[
-				0.007499999832361937,
-				0.20000000298023224,
-				0.0029222199227660894
-			]
+			"name":"__________________________"
 		}
 	],
 	"materials":[
@@ -47,7 +36,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Raskladchik",
+			"name":"__________________________",
 			"primitives":[
 				{
 					"attributes":{
@@ -64,15 +53,15 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":180,
+			"count":48,
 			"max":[
 				-2.4492936844908204e-19,
 				0.20000000298023224,
-				0.005844440311193466
+				0.004999999888241291
 			],
 			"min":[
 				-0.014999999664723873,
-				-0.00822322629392147,
+				0,
 				-1.5920408173708508e-18
 			],
 			"type":"VEC3"
@@ -80,39 +69,39 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":180,
+			"count":48,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5123,
-			"count":504,
+			"count":84,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":2160,
+			"byteLength":576,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2160,
-			"byteOffset":2160,
+			"byteLength":576,
+			"byteOffset":576,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1008,
-			"byteOffset":4320,
+			"byteLength":168,
+			"byteOffset":1152,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":5328,
+			"byteLength":1320,
 			"uri":"RPN_2.bin"
 		}
 	]
