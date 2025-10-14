@@ -130,7 +130,7 @@ async function animateInit(){
     await floorInit();
     await frameInit();
 
-    window.animateReady = coil != undefined && tape != undefined && eqd != undefined && chain != undefined && mtu != undefined
+    window.animateReady = coil != undefined && tape != undefined && eqd != undefined && chain != undefined
     window.animateOn = window.animateReady;
 
     let coilInitial = await coilGet("Initial");

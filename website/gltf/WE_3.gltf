@@ -72,20 +72,27 @@
 				0.7071068286895752,
 				0,
 				0.7071067094802856
+			],
+			"translation":[
+				0,
+				-0.047098640352487564,
+				0
 			]
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"mat_0",
+			"name":"SharedColorMat",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.6038273572921753,
-					0.6038273572921753,
-					0.6038273572921753,
+					0,
+					0.6000000238418579,
+					1,
 					1
-				]
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.5
 			}
 		}
 	],

@@ -698,12 +698,12 @@ async function setRolley() {
     const chain = await layerPropGet("chain");
     const rolley = chain[chain.length - 1]
 
-  const machine = await layerPropGet("machine");
-  const TS      = await layerPropGet("equidistantaInterpolated");
-  const MTU     = await layerPropGet("MTU");
+    const machine = await layerPropGet("machine");
+    const TS      = await layerPropGet("equidistantaInterpolated");
+    const MTU     = await layerPropGet("MTU");
 
-  const res = []
-  rolley.x.forEach((_, i) => {
+    const res = []
+    rolley.x.forEach((_, i) => {
       const x  = rolley.x [i];
       const y  = rolley.z [i];
       const z  = -rolley.y [i];
@@ -714,55 +714,32 @@ async function setRolley() {
       const sy = rolley.sz[i];
       const sz = rolley.sy[i];
 
-// const x  = 0;
-// const y  = 0;
-// const z  = 0;
-// const rx = 0;
-// const ry = 0;
-// const rz = 0;
-// const sx = 10;
-// const sy = 20;
-// const sz = 30;
+      let FI
+      if (machine == "RPN") {
+          FI = TS.fi[i] + 30. * Math.PI / 180.
+      } else {
+          FI = MTU[0].fi[i] + 10. * Math.PI / 180.
+      }
+      FI = - FI
 
-    console.log(x, y, z, rx, ry, rz, sx, sy, sz);
+      const pos  = new THREE.Vector3(x, y, z);
+      const size = new THREE.Vector3(sx, sy, sz);
+      const rot  = new THREE.Euler(rx, ry, rz, 'XYZ');
 
-  let FI
-  if (machine == "RPN") {
-      FI = TS.fi[i] + 30. * Math.PI / 180.
-  } else {
-      FI = MTU[0].fi[i] + 10. * Math.PI / 180.
-  }
-  FI = - FI
+      const offsets = [
+        new THREE.Vector3(-size.x * .5, size.y * .5, 0),
+        new THREE.Vector3( size.x * .5, size.y * .5, 0),
+        new THREE.Vector3(0, -size.y / 2, -size.z / 2),
+        new THREE.Vector3(0,  size.y / 2, -size.z / 2),
+      ];
 
-  const pos  = new THREE.Vector3(x, y, z);
-  const size = new THREE.Vector3(sx, sy, sz);
-  const rot  = new THREE.Euler(rx, ry, rz, 'XYZ');
-
-  // Центры боковых граней относительно точки x,y,z (нижняя грань)
-  const offsets = [
-    // new THREE.Vector3( size.x / 2, 0, size.z / 2), // правая
-    // new THREE.Vector3(-size.x / 2, 0, size.z / 2), // левая
-    new THREE.Vector3(-size.x * .5, size.y * .5, 0), // правая
-    new THREE.Vector3( size.x * .5, size.y * .5, 0), // левая
-    new THREE.Vector3(0, -size.y / 2, -size.z / 2), // передняя
-    new THREE.Vector3(0,  size.y / 2, -size.z / 2), // задняя
-  ];
-
-// Поворот бокса вокруг его центра
-const localRotMatrix = new THREE.Matrix4().makeRotationFromEuler(rot);
-
-// Поворот всей системы вокруг глобальной оси X
-const globalRotMatrix = new THREE.Matrix4().makeRotationX(FI);
-
-const faceCenters = offsets.map(offset => {
-  // локальный поворот + сдвиг
-  const localRotated = offset.clone().applyMatrix4(localRotMatrix).add(pos);
-  // глобальный поворот
-  const globalRotated = localRotated.clone().applyMatrix4(globalRotMatrix);
-  return globalRotated;
-});
-  // console.log(faceCenters);
-
+      const localRotMatrix = new THREE.Matrix4().makeRotationFromEuler(rot); // local rot
+      const globalRotMatrix = new THREE.Matrix4().makeRotationX(FI); // global rot
+      const faceCenters = offsets.map(offset => {
+        const localRotated = offset.clone().applyMatrix4(localRotMatrix).add(pos);
+        const globalRotated = localRotated.clone().applyMatrix4(globalRotMatrix);
+        return globalRotated;
+      });
 
       const faceCenter0 = faceCenters[0]
       const faceCenter1 = faceCenters[1]
@@ -770,9 +747,7 @@ const faceCenters = offsets.map(offset => {
         [faceCenter0.x, faceCenter0.y, faceCenter0.z],
         [faceCenter1.x, faceCenter1.y, faceCenter1.z]
       ]);
-  });
-
-
+    });
 
   await layerPropSet("chainRolley", res)
 }
