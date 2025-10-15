@@ -114,7 +114,7 @@ async function animateInit(){
     let eqd   = await layerPropGet("equidistantaInterpolated");
     let mtu   = await layerPropGet("MTU");
     let chain = await layerPropGet("chain");
-    let roll  = await layerPropGet("rolleyInterpolated");
+    // let roll  = await layerPropGet("rolleyInterpolated");
     let chrl  = await layerPropGet("chainRolley");
     
     window.animateMachine = machine;
@@ -123,7 +123,7 @@ async function animateInit(){
     window.animateEqd     = eqd ;
     window.animateMTU     = mtu ;
     window.animateChain   = chain;
-    window.animateRolley  = roll;
+    // window.animateRolley  = roll;
     window.animateChainRolley = chrl;
 
     // scaleSet();

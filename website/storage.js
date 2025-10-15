@@ -210,6 +210,7 @@ async function layerAddNew(){
     await layerPropSet("windingMode", "first")
     await layerPropSet("mandrelShow", true)
     await layerPropSet("tapeShow", true)
+    await layerPropSet("machine", "RPN")
 }
 window.layerAddNew = layerAddNew;
 
