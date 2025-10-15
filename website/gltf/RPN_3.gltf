@@ -25,12 +25,7 @@
 		},
 		{
 			"mesh":0,
-			"name":"RolikWE353",
-			"translation":[
-				0.05427473783493042,
-				-0.2500884234905243,
-				0.0006666667759418488
-			]
+			"name":"RolikWE353"
 		},
 		{
 			"children":[
@@ -80,23 +75,23 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1228,
+			"count":1182,
 			"max":[
-				-0.04430854320526123,
-				0.27005457878112793,
-				0.059333331882953644
+				0.009966190904378891,
+				0.019966155290603638,
+				0.06000000238418579
 			],
 			"min":[
-				-0.06424093246459961,
-				0.2500884234905243,
-				-0.06066666543483734
+				-0.009966198354959488,
+				0,
+				-0.059999994933605194
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1228,
+			"count":1182,
 			"type":"VEC3"
 		},
 		{
@@ -109,26 +104,26 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":14736,
+			"byteLength":14184,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":14736,
-			"byteOffset":14736,
+			"byteLength":14184,
+			"byteOffset":14184,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":3816,
-			"byteOffset":29472,
+			"byteOffset":28368,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":33288,
+			"byteLength":32184,
 			"uri":"RPN_3.bin"
 		}
 	]
