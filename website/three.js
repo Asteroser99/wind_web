@@ -727,8 +727,8 @@ async function setRolley() {
       const rot  = new THREE.Euler(rx, ry, rz, 'XYZ');
 
       const offsets = [
-        new THREE.Vector3(-size.x * .5, size.y * .5, 0),
         new THREE.Vector3( size.x * .5, size.y * .5, 0),
+        new THREE.Vector3(-size.x * .5, size.y * .5, 0),
         new THREE.Vector3(0, -size.y / 2, -size.z / 2),
         new THREE.Vector3(0,  size.y / 2, -size.z / 2),
       ];
