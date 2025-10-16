@@ -377,9 +377,11 @@ function animate(timestamp) {
 
         let FI
         if (window.animateMachine == "RPN") {
-            FI = fi + 30. * Math.PI / 180.
+            const supportAngle = 15.
+            FI = fi + supportAngle * Math.PI / 180.
         } else {
-            FI = window.animateMTU[0].fi[i] + 10. * Math.PI / 180.
+            const supportAngle = 10.
+            FI = window.animateMTU[0].fi[i] + supportAngle * Math.PI / 180.
         }
   
         // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)

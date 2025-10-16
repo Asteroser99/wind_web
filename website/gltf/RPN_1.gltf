@@ -15,7 +15,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"SupportRPN"
+			"name":"SupportRPN_15"
 		}
 	],
 	"materials":[
@@ -36,7 +36,7 @@
 	],
 	"meshes":[
 		{
-			"name":"SupportRPN",
+			"name":"SupportRPN_15",
 			"primitives":[
 				{
 					"attributes":{
@@ -55,7 +55,7 @@
 			"componentType":5126,
 			"count":24,
 			"max":[
-				0.025000005960464478,
+				0.02500000409781933,
 				0.07999999821186066,
 				0.05000000447034836
 			],
