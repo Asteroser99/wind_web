@@ -971,7 +971,8 @@ async function Winding(param = undefined){
         coilCorrected,
         await layerPropGet('safetyR'),
         await layerPropGet('lineCount'),
-        await layerPropGet('band')
+        await layerPropGet('band'),
+        await layerPropGet('headSize')
     ])
         .then(async res => {
             await coilSet     ("Interpolated"            , res[0]);
@@ -979,13 +980,14 @@ async function Winding(param = undefined){
             await layerPropSet("MTU"                     , res[2]);
             // await layerPropSet("rolleyInterpolated"      , res[3]);
 
-            const machine = await layerPropGet("machine");
-            const TK      = await coilGet     ("Interpolated"            );
-            const TS      = await layerPropGet("equidistantaInterpolated");
-            const MTU     = await layerPropGet("MTU");
-            const band    = await layerPropGet("band")
+            const machine  = await layerPropGet("machine");
+            const TK       = await coilGet     ("Interpolated"            );
+            const TS       = await layerPropGet("equidistantaInterpolated");
+            const MTU      = await layerPropGet("MTU");
+            const band     = await layerPropGet("band")
+            const headSize = await layerPropGet('headSize')
 
-            const chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band])
+            const chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band, headSize])
             await layerPropSet("chain", chain);
 
             await setRolley()

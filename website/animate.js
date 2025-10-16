@@ -216,7 +216,6 @@ async function meshesShow(){
             meshes["chain" + i].visible = on;
         }
     }
-    // meshes["chain" + (window.animateChain.length-1)].visible = false;
 
     const mesh = meshes.mandrelRawMesh
     if (mesh){
