@@ -215,7 +215,8 @@ async function frameInit(){
 
       // const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
 
-      const mesh = await meshCreateFromFile(machine + "_" + j);
+      const opacity = j < window.animateChain.length - 1 ? .5 : 1.;
+      const mesh = await meshCreateFromFile(machine + "_" + j, opacity);
 
       mesh.visible = false;
 
@@ -270,7 +271,7 @@ function meshResize(mesh) {
   mesh.scale.set(scale.factor, scale.factor, scale.factor);
 }
 
-function meshCreate(render, color = 0x4444FF, transparent = 1., setScale = false) {
+function meshCreate(render, color = 0x4444FF, opacity = 1., setScale = false) {
   if (!render) return;
   const [vertices, indices] = render;
   if (vertices.length == 0) return;
@@ -303,9 +304,9 @@ function meshCreate(render, color = 0x4444FF, transparent = 1., setScale = false
     side: THREE.DoubleSide,
   });
 
-  if (transparent != 1.) {
+  if (opacity != 1.) {
     material.transparent = true;
-    material.opacity = transparent;
+    material.opacity = opacity;
   }
 
 
@@ -415,7 +416,7 @@ function meshCreateMeshLine([vertices, indices], color = 0xff0000) {
   return mesh;
 }
 
-async function meshCreateFromFile(fileName) {
+async function meshCreateFromFile(fileName, opacity = 1.) {
   const loader = new GLTFLoader().setPath('gltf/');
   const gltf = await loader.loadAsync(fileName + '.gltf'); // <-- правильный async-метод
   const mesh = gltf.scene;
@@ -430,7 +431,11 @@ async function meshCreateFromFile(fileName) {
     if (child.isMesh) {
       // child.material = new THREE.MeshStandardMaterial({ color: 0x00ffff });
       child.castShadow = true;
-      child.receiveShadow = true;
+      child.receiveShadow = false;
+      if (opacity != 1.) {
+        child.material.transparent = true;
+        child.material.opacity = opacity;
+      }
     }
   });
   
@@ -464,6 +469,32 @@ function meshCreateBox(x, y, z) {
 
   scene.scene.add(cube);
 }
+
+function meshRotate(mesh, rx, ry, rz) {
+    // =====
+    const globalRotMatrix = new THREE.Matrix4().makeRotationFromEuler(
+      new THREE.Euler(rx, rz, -ry, 'XYZ')
+    );
+    // потом:
+    mesh.setRotationFromMatrix(globalRotMatrix);
+
+    // =====
+    // mesh.setRotationFromEuler(new THREE.Euler(rx, rz, ry, 'XYZ'));
+
+    // =====
+    // const euler = new THREE.Euler(rx, rz, ry, 'XYZ');
+    // const rotMatrix = new THREE.Matrix4().makeRotationFromEuler(euler);
+    // mesh.matrix.identity()
+    // mesh.applyMatrix4(rotMatrix);  
+
+    // =====
+    // mesh.rotation.order = 'XZY';
+    // mesh.rotation.x =  rx;
+    // mesh.rotation.y =  rz;
+    // mesh.rotation.z =  ry;
+
+}
+window.meshRotate = meshRotate
 
 function meshSet(name, mesh) {
     meshRemove(name);
