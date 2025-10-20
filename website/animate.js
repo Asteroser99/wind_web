@@ -283,6 +283,9 @@ function rolleyAnimate(){
                 ch.y[i] * -scale.factor
             )
             meshRotate(mesh, ch.rx[i], ch.ry[i], ch.rz[i])
+            // mesh.rotation.x = ch.rx[i];
+            // mesh.rotation.y = ch.rz[i];
+            // mesh.rotation.z = -ch.ry[i];
         }
     }
 
