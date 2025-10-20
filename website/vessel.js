@@ -986,8 +986,9 @@ async function Winding(param = undefined){
             const MTU      = await layerPropGet("MTU");
             const band     = await layerPropGet("band")
             const headSize = await layerPropGet('headSize')
+            const safetyR  = await layerPropGet('safetyR')
 
-            const chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band, headSize])
+            const chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band, headSize, safetyR])
             await layerPropSet("chain", chain);
 
             await setRolley()
