@@ -732,6 +732,18 @@ function floorOnLoad() {
   scene.scene.add(mesh);
 }
 
+function rotateX(point, fi) {
+  const [ x, y, z ] = point;
+  const cos = Math.cos(fi);
+  const sin = Math.sin(fi);
+
+  return [
+    x,
+    y * cos - z * sin,
+    y * sin + z * cos
+  ];
+}
+
 async function setRolley() {
     const chain = await layerPropGet("chain");
     const rolley = chain[chain.length - 1]
@@ -742,15 +754,15 @@ async function setRolley() {
 
     const res = []
     rolley.x.forEach((_, i) => {
-      const x  = rolley.x [i];
-      const y  = rolley.z [i];
+      const x  =  rolley.x [i];
+      const y  =  rolley.z [i];
       const z  = -rolley.y [i];
-      const rx = rolley.rx[i];
-      const ry = rolley.rz[i];
-      const rz = -rolley.ry[i];
-      const sx = rolley.sx[i];
-      const sy = rolley.sz[i];
-      const sz = rolley.sy[i];
+      const rx =  rolley.rx[i];
+      const ry =  rolley.rz[i];
+      const rz =  rolley.ry[i];
+      const sx =  rolley.sx[i];
+      const sy =  rolley.sz[i];
+      const sz =  rolley.sy[i];
 
       let FI
       if (machine == "RPN") {
@@ -760,35 +772,17 @@ async function setRolley() {
           const supportAngle = 10.
           FI = MTU[0].fi[i] + supportAngle * Math.PI / 180.
       }
-      FI = - FI
 
-      const pos  = new THREE.Vector3(x, y, z);
-      const size = new THREE.Vector3(sx, sy, sz);
-      const rot  = new THREE.Euler(rx, ry, rz, 'XYZ');
+      const euler = new THREE.Euler(rx, ry, rz, 'XYZ');
+      const rotMatrix = new THREE.Matrix4().makeRotationFromEuler(euler);
 
-      const offsets = [
-        // new THREE.Vector3(-size.x * .5, size.y * .5, 0),
-        // new THREE.Vector3( size.x * .5, size.y * .5, 0),
-        new THREE.Vector3(-size.x * .5, 0, 0),
-        new THREE.Vector3( size.x * .5, 0, 0),
-        // new THREE.Vector3(0, -size.y / 2, -size.z / 2),
-        // new THREE.Vector3(0,  size.y / 2, -size.z / 2),
-      ];
+      const p1 = new THREE.Vector3(-sx * 0.5, 0, 0).applyMatrix4(rotMatrix);
+      const p2 = new THREE.Vector3( sx * 0.5, 0, 0).applyMatrix4(rotMatrix);
 
-      const localRotMatrix = new THREE.Matrix4().makeRotationFromEuler(rot); // local rot
-      const globalRotMatrix = new THREE.Matrix4().makeRotationX(FI); // global rot
-      const faceCenters = offsets.map(offset => {
-        const localRotated = offset.clone().applyMatrix4(localRotMatrix).add(pos);
-        const globalRotated = localRotated.clone().applyMatrix4(globalRotMatrix);
-        return globalRotated;
-      });
+      const r1 = rotateX([x + p1.x, y + p1.y, z + p1.z], -FI)
+      const r2 = rotateX([x + p2.x, y + p2.y, z + p2.z], -FI)
 
-      const faceCenter0 = faceCenters[0]
-      const faceCenter1 = faceCenters[1]
-      res.push([
-        [faceCenter0.x, faceCenter0.y, faceCenter0.z],
-        [faceCenter1.x, faceCenter1.y, faceCenter1.z]
-      ]);
+      res.push([r1, r2]);
     });
 
   await layerPropSet("chainRolley", res)
