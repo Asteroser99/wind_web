@@ -84,7 +84,7 @@ window.addEventListener('resize', () => {
 async function frameInit(){
   const Fr = scale.y.max;
   const Fd = Fr / 50;
-  const SR = await layerPropGet("safetyR");
+  const safetyR = await layerPropGet("safetyR");
 
   { // frameLine
     const vertices = Array(6 * 3).fill(0);
@@ -95,8 +95,8 @@ async function frameInit(){
     const Rm = scale.y.max;
     const Xn = scale.x.min - (Rm);
     const Xm = scale.x.max + (Rm);
-    const Yd = + (Rm * 2.0);
-    const Zd = - (Rm * 1.5);
+    const Yd = + ((Rm + safetyR) * 2.0);
+    const Zd = - ((Rm + safetyR) * 1.5);
 
     const posVertices = [
       Xn, 0., 0.,
@@ -123,7 +123,7 @@ async function frameInit(){
   { // standMesh
     const Xi = 0;
     const Yi = 0;
-    const Zi = Fr * 1.5 + SR;
+    const Zi = Fr * 1.5 + safetyR;
 
     const vert = [];
     vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
@@ -161,10 +161,10 @@ async function frameInit(){
       vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 4);
       vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 4);
 
-      vert.push(Xi - Fd * 2,  Yi - Fd,  Fr * 2 + SR);
-      vert.push(Xi - Fd * 2,  Yi + Fd,  Fr * 2 + SR);
-      vert.push(Xi + Fd * 2,  Yi + Fd,  Fr * 2 + SR);
-      vert.push(Xi + Fd * 2,  Yi - Fd,  Fr * 2 + SR);
+      vert.push(Xi - Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
+      vert.push(Xi - Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
+      vert.push(Xi + Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
+      vert.push(Xi + Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
       
       const indices = [];
       indices.push(0, 1, 2,  2, 3, 0);
@@ -254,8 +254,10 @@ async function frameInit(){
 window.frameInit = frameInit
 
 async function floorInit(){
+  const safetyR = await layerPropGet("safetyR");
+  
   { // floorMesh
-    floorMesh.position.y = -1.5 * scale.y.max * scale.factor;
+    floorMesh.position.y = -1.5 * (scale.y.max + safetyR) * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
 
     floorShadowMesh.position.y = floorMesh.position.y;
@@ -471,12 +473,17 @@ function meshCreateBox(x, y, z) {
 }
 
 function meshRotate(mesh, rx, ry, rz) {
+    // ===== недорабочий вариант
+    // const globalRotMatrix = new THREE.Matrix4().makeRotationFromEuler(
+    //   new THREE.Euler(rx, rz, -ry, 'XYZ')
+    // );
+    // mesh.setRotationFromMatrix(globalRotMatrix);
+
     // =====
-    const globalRotMatrix = new THREE.Matrix4().makeRotationFromEuler(
-      new THREE.Euler(rx, rz, -ry, 'XYZ')
-    );
-    // потом:
-    mesh.setRotationFromMatrix(globalRotMatrix);
+    // const globalRotMatrix = new THREE.Matrix4().makeRotationFromEuler(
+    //   new THREE.Euler(rx, rz, -ry, 'XYZ')
+    // );
+    // mesh.setRotationFromMatrix(globalRotMatrix);
 
     // =====
     // mesh.setRotationFromEuler(new THREE.Euler(rx, rz, ry, 'XYZ'));
@@ -488,10 +495,10 @@ function meshRotate(mesh, rx, ry, rz) {
     // mesh.applyMatrix4(rotMatrix);  
 
     // =====
-    // mesh.rotation.order = 'XZY';
-    // mesh.rotation.x =  rx;
-    // mesh.rotation.y =  rz;
-    // mesh.rotation.z =  ry;
+    mesh.rotation.order = 'XYZ';
+    mesh.rotation.x =  rx;
+    mesh.rotation.y =  rz;
+    mesh.rotation.z =  ry;
 
 }
 window.meshRotate = meshRotate
@@ -760,8 +767,10 @@ async function setRolley() {
       const rot  = new THREE.Euler(rx, ry, rz, 'XYZ');
 
       const offsets = [
-        new THREE.Vector3(-size.x * .5, size.y * .5, 0),
-        new THREE.Vector3( size.x * .5, size.y * .5, 0),
+        // new THREE.Vector3(-size.x * .5, size.y * .5, 0),
+        // new THREE.Vector3( size.x * .5, size.y * .5, 0),
+        new THREE.Vector3(-size.x * .5, 0, 0),
+        new THREE.Vector3( size.x * .5, 0, 0),
         // new THREE.Vector3(0, -size.y / 2, -size.z / 2),
         // new THREE.Vector3(0,  size.y / 2, -size.z / 2),
       ];
