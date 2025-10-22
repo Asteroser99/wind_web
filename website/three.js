@@ -6,6 +6,8 @@ window.scene = { scene: null, renderer: null, camera: null, controls: null, canv
 window.scale = { x: {}, y: {}, z: {}, factor: 1 };
 window.meshes = {}
 
+window.stanokScale = { y: 1.8, z: 1.5};
+
 function scaleSet(x = 0, y = 0, z = 0){
   if(x == 0) x = { size: 0, center: 0, max: 0, min: 0 }
   if(y == 0) y = { size: 0, center: 0, max: 0, min: 0 }
@@ -95,8 +97,8 @@ async function frameInit(){
     const Rm = scale.y.max;
     const Xn = scale.x.min - (Rm);
     const Xm = scale.x.max + (Rm);
-    const Yd = + ((Rm + safetyR) * 2.0);
-    const Zd = - ((Rm + safetyR) * 1.5);
+    const Yd = + ((Rm + safetyR) * stanokScale.y);
+    const Zd = - ((Rm + safetyR) * stanokScale.z);
 
     const posVertices = [
       Xn, 0., 0.,
@@ -123,7 +125,7 @@ async function frameInit(){
   { // standMesh
     const Xi = 0;
     const Yi = 0;
-    const Zi = Fr * 1.5 + safetyR;
+    const Zi = Fr * stanokScale.z + safetyR;
 
     const vert = [];
     vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
@@ -257,7 +259,7 @@ async function floorInit(){
   const safetyR = await layerPropGet("safetyR");
   
   { // floorMesh
-    floorMesh.position.y = -1.5 * (scale.y.max + safetyR) * scale.factor;
+    floorMesh.position.y = -stanokScale.z * (scale.y.max + safetyR) * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
 
     floorShadowMesh.position.y = floorMesh.position.y;
