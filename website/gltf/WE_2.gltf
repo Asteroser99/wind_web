@@ -35,9 +35,9 @@
 			"name":"SharedColorMat",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0,
-					0.6000000238418579,
-					1,
+					0.2646999955177307,
+					0.36469998955726624,
+					0.3481999933719635,
 					1
 				],
 				"metallicFactor":0,
