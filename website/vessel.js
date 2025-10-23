@@ -188,8 +188,8 @@ async function machinesRenderTable() {
     }
 
     const machines = [
-        ["RPN", "3-axis"],
-        ["WE" , "4-axis"]
+        ["RPN", "4-axis"],
+        ["WE" , "3-axis"]
     ];
 
     machines.forEach(([item, name], index) => {
