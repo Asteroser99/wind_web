@@ -406,12 +406,13 @@ function inputOnLoad(){
             }
         };
         
-        const listener = input.type === "checkbox" ? "click" : "input";
-        if (listener === "input")
-            input.oninput  = inputOnChange;
-        else 
-            input.onchange = inputOnChange;
-        ;
+        // const listener = input.type === "checkbox" ? "click" : "input";
+        // if (listener === "input")
+        //     input.oninput  = inputOnChange;
+        // else 
+        //     input.onchange = inputOnChange;
+        // ;
+        input.onchange = inputOnChange;
     }
 }
 
