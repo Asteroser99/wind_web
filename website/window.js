@@ -412,6 +412,7 @@ function inputOnLoad(){
         // else 
         //     input.onchange = inputOnChange;
         // ;
+        input.oninput  = inputOnChange;
         input.onchange = inputOnChange;
     }
 }
