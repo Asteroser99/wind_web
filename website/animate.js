@@ -276,6 +276,7 @@ function rolleyAnimate(){
     if (window.animateChain) {
         for (let j = 0; j < window.animateChain.length; j += 1) {
             mesh = meshes["chain" + j];
+            if (!mesh) continue
             const ch = window.animateChain[j]
             mesh.position.set(
                 ch.x[i] * scale.factor,
