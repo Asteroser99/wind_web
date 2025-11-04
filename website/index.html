@@ -23,7 +23,7 @@
 
     <link rel="canonical" href="https://WinderCAM.de/" />
 
-    <title>WinderCAM promo</title><!-- promo -->
+    <title>WinderCAM promo</title> <!-- promo -->
 
     <script type="importmap">
         {
@@ -33,6 +33,8 @@
             }
         }
     </script>
+    <script type="module" src="./three.js"></script>
+    <link rel="stylesheet" href="./three.css">
 
     <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
     <script type="module" src="./storage.js"></script>
@@ -42,7 +44,6 @@
     <link rel="stylesheet" href="./window.css">
 
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js/dist/amazon-cognito-identity.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script type="module" src="./cognito.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -51,10 +52,8 @@
     <script type="module" src="./chart.js"></script>
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
-
-    <script type="module" src="./three.js"></script>
-    <link rel="stylesheet" href="./three.css">
 
     <script type="module" src="./patterns.js"></script>
 
@@ -66,11 +65,15 @@
 <body>
     <div class="header">
         <div class="div-logo">
-            <button id="button-vessel" class="head-tab-link active" onclick="openTab('vessel'  )">
+            <button id="button-vessel" class="head-tab-link active" onclick="openTab('vessel')">
                 <img id="logo" src="./img/logo.gif" alt="Logo">
             </button>
         </div>
-        <div class="title"><h1>WinderCAM<!-- promo --><sub><small>promo</small></sub></h1></div>
+        <div class="title">
+            <h1>WinderCAM<!-- promo -->&nbsp;<i><small style="color: rgba(255, 0, 0, 0.53);">promo</small></i></h1>
+            <p style="font-size: 0.75rem; text-indent: 0; color: #777; margin: 0;">All rights reserved © 2025
+            </p>
+        </div>
         <div class="buttons">
             <button class="header-btn small toggle-button toggle-help" data-function="toggleHelp" ><img src="./img/help.png"><br>Help</button>
             <button id="loginToggle" class="header-btn small toggle-button" data-function="toggleLogin"><img id="logImg" src="./img/logOff.png"><br>Account</button>
@@ -97,7 +100,7 @@
                 <!-- Vessel -->
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
-                        <h3>Vessel</h3>
+                        <h2>Vessel</h2>
                         <label for="PartNumber">Part number:</label><br>
                         <input type="text" id="PartNumber" class="inputField" data-owner="vessel"
                             value="Part number"
@@ -105,7 +108,7 @@
                             style="text-align: left;"
                         ><br>
 
-                        <h3>Layers</h3>
+                        <h2>Layers</h2>
                         <div class="table-wrapper">
                             <table id="layers-table">
                                 <thead>
@@ -122,7 +125,7 @@
                     </div>
                     
                     <div id="file-vessel">
-                        <h3>Session</h3>
+                        <h2>Session</h2>
                         <button class="image-button function-button" data-function="vesselSave" title="Save session to file">Save&nbsp;<img src="./img/save.png"></button>
 
                         <button class="image-button function-button" data-function="vesselLoad" data-query="Do you want to load a session from a file? Your current session will be lost!" data-function="vesselLoad" title="Load session">Load&nbsp;<img src="./img/load.png"></button>
@@ -130,7 +133,7 @@
                         <button class="image-button function-button" data-function="vesselClear" data-query="Do you want to clear the session?" title="Clear session" >Clear&nbsp;<img src="./img/clear.png"></button>
                         <br>
 
-                        <h3>Layer</h3>
+                        <h2>Layer</h2>
                         <button class="image-button function-button" data-function="layerSave" title="Save layer to file">Save&nbsp;<img src="./img/save.png"></button>
 
                         <button class="image-button function-button" data-function="layerLoad" data-query="Do you want to load a layer from a file? Your current layer will be lost!" title="Load layer">Load&nbsp;<img src="./img/load.png"></button>
@@ -138,7 +141,7 @@
                         <button class="image-button function-button" data-function="layerClear" data-query="Do you want to clear the layer?" title="Clear layer" >Clear&nbsp;<img src="./img/clear.png"></button>
                         <br>
 
-                        <h3>Examples</h3>
+                        <h2>Examples</h2>
                         <div class="button-grid">
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="engine"    data-query="Would you like to load the example?" title="Engine"><img src="./examples/engine.png"></button>
                             <button class="image-button function-button" data-function="vesselloadFromURL" data-parameter="mesh"      data-query="Would you like to load the example?" title="Mesh"><img src="./examples/mesh.png"></button>
@@ -166,7 +169,7 @@
                 <!-- Mandrel -->
                 <div id="tab-mandrel" class="tab-content">
                     <div id="actions-mandrel">
-                        <h3>Layer</h3>
+                        <h2>Layer</h2>
                         <label for="LayerName">Layer name:</label><br>
                         <input type="text" id="LayerName" class="inputField" data-owner="layer"
                             value="Layer name"
@@ -184,11 +187,11 @@
                     </div>
 
                     <div id="file-mandrel">
-                        <h3>Import</h3>
+                        <h2>Import</h2>
                         <button class="image-button function-button" data-function="mandrelImportCSV"  data-parameter="Raw" title="Raw mandrel import">Import mandrel&nbsp;<img src="./img/load.png"></button>
                         <div id="mandrel-csvColumn"></div>
 
-                        <h3>Scale</h3>
+                        <h2>Scale</h2>
                         <label for="shift">Shift:</label>
                         <input type="number" id="shift"
                             min="0" max="999" step="1.0" 
@@ -209,7 +212,7 @@
                         <button class="image-button small function-button" data-function="mandrelMultiplyX" title="Multiply X">* X &nbsp;<img src="./img/transform.png"></button>
                         <button class="image-button small function-button" data-function="mandrelMultiplyR" title="Multiply R">* R &nbsp;<img src="./img/transform.png"></button><br>
 
-                        <h3>Transform</h3>
+                        <h2>Transform</h2>
                         <button class="image-button small function-button" data-function="mandrelSwap"      title="Swap R/X"  >Swap       &nbsp;<img src="./img/transform.png"></button><br>
                         <button class="image-button small function-button" data-function="mandrelMirror"    title="Mirror"    >Mirror     &nbsp;<img src="./img/transform.png"></button><br>
                         <button class="image-button small function-button" data-function="mandrelReverse"   title="Reverse"   >Reverse    &nbsp;<img src="./img/transform.png"></button><br>
@@ -252,7 +255,7 @@
                     <!-- <button id="patternsCalc" class="action-button">Get patterns</button> -->
 
                     <div id="actions-patterns" class="floatingControl">
-                        <h3>Convenience</h3>
+                        <h2>Convenience</h2>
                         <input type="number" id="convenience" class="inputField" data-owner="layer"
                             min="1" max="999" step="1.0" 
                             value="4.0" pattern="\d{1,3}(\.\d{1,3})?" 
@@ -262,7 +265,7 @@
                         
                         <div class="hPanel"><p class="p-button">Mesh structure</p><input class="inputField" data-owner="layer" type="checkbox" id="netStructure" title="Mesh structure" value=false></div>
 
-                        <h3>Pattern</h3>
+                        <h2>Pattern</h2>
                         <div class="table-wrapper">
                             <table id="patterns-table">
                                 <thead>
@@ -284,7 +287,7 @@
                 <!-- Winding -->
                 <div id="tab-winding" class="tab-content">
                     <div id="actions-winding">
-                        <h3>Machine</h3>
+                        <h2>Machine</h2>
 
                         <!-- <label for="testMode">Test mode:</label>
                         <input type="number" id="testMode" class="inputField" data-owner="layer"
@@ -350,7 +353,7 @@
 
                     <div id="file-thickness">
                         <div id="file-mandrel-import-export">
-                            <h3>Import/Export</h3>
+                            <h2>Import/Export</h2>
 
                             <div>
                                 <div id="thickness-csvColumn">
@@ -451,7 +454,7 @@
 
         <div id="loginContainer">
             <div id="loggedOffContainer">
-                <h3>Sign in</h3>
+                <h2>Sign in</h2>
                 <table>
                     <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/logOff.png">&nbsp;Signed out</div></td></tr>
                 </table>
@@ -467,7 +470,7 @@
             </div>
 
             <div id="loggedInContainer" class="vPanel">
-                <h3>Sign in</h3>
+                <h2>Sign in</h2>
                 <table>
                     <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/logIn.png">&nbsp;Signed in</div></td></tr>
                     <tr><td>E-mail:</td><td><div class="hPanel" id="cognitoEMail" class="user-logged"></div></td></tr>
@@ -482,14 +485,14 @@
 
                 <!-- promo -->
                 <div id="SubscriptionPromo" class="vPanel" style="display:none">
-                    <h3>Subscription</h3>
+                    <h2>Subscription</h2>
                     <table>
                         <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/subscribe.png">&nbsp;Promo: free mode</div></td></tr>
                     </table>
                 </div>
 
                 <div id="SubscriptionNotExist" class="vPanel" style="display:none">
-                    <h3>Subscription</h3>
+                    <h2>Subscription</h2>
                     <table>
                         <tr><td>Status:</td><td><div class="hPanel"><img class="icon-img small" src="./img/unSubscribe.png">&nbsp;Not active</div></td></tr>
                     </table>
@@ -507,7 +510,7 @@
 
                 <div id="SubscriptionExist" class="vPanel" style="display:none">
                     <div class="hPanel">
-                        <h3>Subscription</h3>
+                        <h2>Subscription</h2>
                     </div>
                     <div id="subscriptionDescription"></div>
                     <div id="reNewOn" class="hPanel center">

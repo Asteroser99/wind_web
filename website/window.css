@@ -17,15 +17,16 @@ h2 {
     color: #23486A;
     margin: 3px;
     margin-top: 10px;
+    font-size: 1.2em;
     font-weight: bold;
-    font-size: 1.3em;
 } 
   
 h3 {
-    font-weight: bold;
-    margin: 3px;
+    /* font-weight: bold; */
+    margin: 2px;
     margin-top: 6px;
-    /* font-weight: 75; */
+    font-size: 1.0em;
+    font-weight: bold;
 } 
 
 strong {
@@ -758,11 +759,12 @@ input {
 
 
 .button-grid {
-    display: grid;
+    display: inline-grid;
     grid-template-columns: auto auto auto;
     position: relative;
+    justify-content: start;
 }
 
-/* .button-grid > *:nth-child(2n) {
-    margin-top: 35px;
-} */
+.button-grid button{
+    padding: 5px 5px;
+}
