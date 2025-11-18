@@ -1,4 +1,4 @@
-page: winding
+page: vessel
 PartNumber: Tank
 layerId: layer0
 layerMax: 4
@@ -28684,7 +28684,7 @@ layers:
         - -9.690674969747821
         - -9.710833903008629
       al: []
-    safetyR: 30
+    safetyR: 17
     tapeCorrected:
       x:
         - -347.6959334741133
