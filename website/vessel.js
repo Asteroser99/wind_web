@@ -1089,22 +1089,24 @@ document.getElementById('coilCorrect').addEventListener('click', async () => {
         });
 });
 
-async function CNCGet(itpEqd) {
-    return await lambdaCall("CNC", [itpEqd]);
+async function CNCGet(pars) {
+    return await lambdaCall("CNC", pars);
 }
 
 async function CNCExport() {
     loading();
-    const itpEqd = await layerPropGet("equidistantaInterpolated");
+    const machine = await layerPropGet("machine");
+    const itpEqd  = await layerPropGet("equidistantaInterpolated");
+    const MTU     = await layerPropGet("MTU");
     if (!itpEqd) {
         showError("No interpolated equidistanta yet");
         loaded();
         return;
     }
 
-    const txt = await lambdaCall("CNC", [itpEqd]);
-    const filename = await layerPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + "_CNC.txt";
-    await saveFile(CNCGet, itpEqd, filename, "text/plain");
+    // const txt = await lambdaCall("CNC", [itpEqd, MTU]);
+    const filename = await vesselPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + "_CNC.txt";
+    await saveFile(CNCGet, [machine, itpEqd, MTU], filename, "text/plain");
     loaded();
 }
 window.CNCExport = CNCExport
