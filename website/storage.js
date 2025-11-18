@@ -1,3 +1,4 @@
+window.theCognito = {};
 window.theVessel = {};
 window.theLayer = {};
 
@@ -22,6 +23,41 @@ function storageLocalGet_Obsolete(table, id){
 async function storageLocalRemove_Obsolete(table, id){
     localStorage.removeItem(table + "_" + id);
 }
+
+
+// cognito
+
+async function cognitoPropAllGet() {
+    const entries = await db.cognito.toArray();
+    for (const entry of entries) {
+        theCognito[entry.id] = entry.value;
+    }
+}
+
+async function cognitoPropSet(id, value){
+    // console.log("cognitoPropSet", id, value)
+    theCognito[id] = value;
+
+    await db.cognito.put({ id, value });
+}
+window.cognitoPropSet = cognitoPropSet
+
+async function cognitoPropGet(id) {
+    // const entry = await db.cognito.get(id);
+    // return entry?.value;
+
+    if (Object.keys(theCognito).length === 0) {
+        cognitoPropAllGet()
+    }
+
+    return theCognito[id];
+}
+window.cognitoPropGet = cognitoPropGet
+
+async function cognitoPropRemove(id) {
+    await db.cognito.delete(id);
+}
+window.cognitoPropRemove = cognitoPropRemove
 
 
 // vessellAll
@@ -270,7 +306,7 @@ window.layerAddIfNotExist = layerAddIfNotExist;
 async function storageOnLoad() {
     let needRecreate = false;
     try {
-        const SCHEMA_VERSION = "layers:[layer+id],id,layer|vessel:id,";
+        const SCHEMA_VERSION = "cognito:id,|layers:[layer+id],id,layer|vessel:id,";
         const dbTmp = new Dexie("WinderCAM");
         await dbTmp.open();
         const meta = dbTmp.tables.map(t => `${t.name}:${t.schema.primKey.src},${t.schema.indexes.map(i=>i.src).join(",")}`);
@@ -291,6 +327,7 @@ async function storageOnLoad() {
     window.db = new Dexie("WinderCAM");
 
     window.db.version(1).stores({
+        cognito: "&id",
         vessel: "&id",
         layers: "[layer+id], layer, id",
     });

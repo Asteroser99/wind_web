@@ -59,6 +59,9 @@ function createGradientTexture() {
 }
 
 function resizeScene() {
+  if (!scene.canvas)
+    return
+  
   const parent = scene.canvas.parentElement;
 
   let width = Math.max(parent.offsetWidth - 1, 0);

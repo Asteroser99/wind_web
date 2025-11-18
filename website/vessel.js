@@ -343,7 +343,7 @@ async function lambdaCall(name, param) {
         path = 'http://127.0.0.1:5000/';   // local flask server
     }
 
-    const cognitoAccessToken = await vesselPropGet('cognitoAccessToken');
+    const cognitoAccessToken = await cognitoPropGet('accessToken');
     const headers = {
         headers: {
             auth: `Bearer ${cognitoAccessToken}`,
@@ -545,26 +545,28 @@ window.generatrixRender = generatrixRender
 
 async function mandrelTreeUpdate(name) {
     const mandrel = await mandrelGet(name);
-    if (!mandrel) return
-    
-    const render = generatrixRender(mandrel, 90)
+    if (mandrel) {
+        const render = generatrixRender(mandrel, 90)
 
-    let color;
-    let transpatent;
-    let setScale = false;
-    if        (name == "Raw"){
-        color = 0x2973B2;
-        transpatent = 1.;
-        setScale = true;
-    } else if (name == "Wound"){
-        color = 0x48A6A7;
-        transpatent = 0.5;
-    } else if (name == "Smoothed"){
-        color = 0x000000;
-        transpatent = 0.3;
+        let color;
+        let transpatent;
+        let setScale = false;
+        if        (name == "Raw"){
+            color = 0x2973B2;
+            transpatent = 1.;
+            setScale = true;
+        } else if (name == "Wound"){
+            color = 0x48A6A7;
+            transpatent = 0.5;
+        } else if (name == "Smoothed"){
+            color = 0x000000;
+            transpatent = 0.3;
+        }
+            
+        meshSet("mandrel" + name + "Mesh", meshCreate(render, color, transpatent, setScale));
+    } else {
+        meshRemove("mandrel" + name + "Mesh")
     }
-        
-    meshSet("mandrel" + name + "Mesh", meshCreate(render, color, transpatent, setScale));
 }
 window.mandrelTreeUpdate = mandrelTreeUpdate;
   
@@ -780,6 +782,8 @@ async function coilCalc() {
                 const [coil, meridian] = res
                 await coilSet("Initial", coil);
                 await layerPropSet("coilMeridian", meridian);
+                await animateInit();
+                await meshesShow();
 
                 loaded();
 
@@ -1039,6 +1043,9 @@ async function patternsCalc() {
 // Correct coils
 
 async function coilSet(suffix, coil) {
+    tapeRemove(suffix);
+    await layerPropSet("tape" + suffix, undefined)
+
     await layerPropSet("coil" + suffix, coil)
 
     if (suffix == "Initial") {
