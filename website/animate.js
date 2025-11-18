@@ -447,11 +447,15 @@ function animate(timestamp) {
 }
 window.animate = animate
 
+function animateButtonDraw(){
+    animateButton.classList.toggle("active", window.animateAuto);
+}
+
 async function animateOnLoad(){
     const animateButton = document.getElementById("animateButton");
     animateButton.onclick = () => {
         window.animateAuto = !window.animateAuto;
-        animateButton.classList.toggle("active", window.animateAuto);
+        animateButtonDraw()
     };
 
     document.addEventListener("keydown", function(event) {
@@ -463,6 +467,7 @@ async function animateOnLoad(){
 
 
     window.animateAuto = true;
+    animateButtonDraw();
 
     animate();
 }
