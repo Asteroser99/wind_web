@@ -48,8 +48,8 @@ function cognitoLogIn() {
 };
 window.cognitoLogIn = cognitoLogIn
 
-function cognitoLogOff() {
-  cognitoClear();
+async function cognitoLogOff() {
+  await cognitoClear();
 
   window.location.href = `${domain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(originURL)}`;
 }
@@ -78,11 +78,11 @@ function timeNow() {
   return new Date(Date.now());
 }
 
-function cognitoClear() {
-  cognitoPropSet('eMail', null);
-  cognitoPropSet('accessToken', null);
-  cognitoPropSet('authTime', null);
-  cognitoPropSet('expires', null);
+async function cognitoClear() {
+  await cognitoPropSet('eMail', null);
+  await cognitoPropSet('accessToken', null);
+  await cognitoPropSet('authTime', null);
+  await cognitoPropSet('expires', null);
 }
 
 async function cognitoCodeExchange(){
@@ -99,20 +99,20 @@ async function cognitoCodeExchange(){
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-    }).then((response) => {
+    }).then(async (response) => {
       const cognitoIdToken = decodeJwt(response.data.id_token);
-      cognitoPropSet('eMail', cognitoIdToken.email);
+      await cognitoPropSet('eMail', cognitoIdToken.email);
 
       const cognitoAccessToken = response.data.access_token;
-      cognitoPropSet('accessToken', cognitoAccessToken);
+      await cognitoPropSet('accessToken', cognitoAccessToken);
 
       const cognitoAccessTokenDecoded  = decodeJwt(cognitoAccessToken);
       const cognitoAuthTime = cognitoAccessTokenDecoded.auth_time
-      cognitoPropSet('authTime', cognitoAuthTime);
+      await cognitoPropSet('authTime', cognitoAuthTime);
       const cognitoExpires = cognitoAccessTokenDecoded.exp
-      cognitoPropSet('expires', cognitoExpires);
+      await cognitoPropSet('expires', cognitoExpires);
 
-      cognitoStatus();
+      await cognitoStatus();
 
       let delay = cognitoTime(cognitoExpires) - Date.now();
       setTimeout(cognitoExpire, delay);
@@ -138,7 +138,7 @@ async function cognitoCodeExchange(){
 async function cognitoExpire() {
     showError("Session expired. Please sign in again.");
 
-    // cognitoClear()
+    // await cognitoClear()
 
     await cognitoStatus();
 }
