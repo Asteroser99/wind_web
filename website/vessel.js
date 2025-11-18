@@ -1122,6 +1122,7 @@ window.CNCExport = CNCExport
 // ALL
 
 async function allShow() {
+    window.animateOn = false;
     meshClear();
 
     const layerId = await layerIdGet()

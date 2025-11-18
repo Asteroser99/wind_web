@@ -351,10 +351,6 @@ async function tapeVisibility(prefix){
 }
 
 function animate(timestamp) {
-    if(!window.animateCoil){
-        window.animateReady = false
-    }
-
     requestAnimationFrame(animate);
 
     if (window.animateOn && window.animateReady
