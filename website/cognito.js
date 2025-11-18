@@ -79,10 +79,10 @@ function timeNow() {
 }
 
 function cognitoClear() {
-  storageClear('cognito', 'EMail');
-  storageClear('cognito', 'AccessToken');
-  storageClear('cognito', 'AuthTime');
-  storageClear('cognito', 'Expires');
+  cognitoPropSet('eMail', null);
+  cognitoPropSet('accessToken', null);
+  cognitoPropSet('authTime', null);
+  cognitoPropSet('expires', null);
 }
 
 async function cognitoCodeExchange(){
