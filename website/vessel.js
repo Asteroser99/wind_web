@@ -192,6 +192,8 @@ async function machinesRenderTable() {
         ["WE" , "3-axis"]
     ];
 
+    const machine = await layerPropGet("machine")
+
     machines.forEach(([item, name], index) => {
         const row = document.createElement("tr");
         
@@ -209,7 +211,10 @@ async function machinesRenderTable() {
         tableBody.appendChild(row);
     });
 
-    await machinesSelectRow(await layerPropGet("machine"))
+    await machinesSelectRow(machine)
+
+    document.getElementById("headSize-wrapper").style.display =
+        machine === "WE" ? "block" : "none";
 }
 window.machinesRenderTable = machinesRenderTable;
 

@@ -314,13 +314,15 @@
                             style="text-align: right;"
                         ><br>
 
-                        <label for="headSize">Head size:</label><br>
-                        <input type="number" id="headSize" class="inputField" data-owner="layer"
-                            min="0" max="999" step="0.1" 
-                            value="25.0" pattern="\d{1,1}(\.\d{1,1})?"
-                            title="Enter head size"
-                            style="text-align: right;"
-                        ><br>
+                        <div id="headSize-wrapper">
+                            <label for="headSize">Head size:</label><br>
+                            <input type="number" id="headSize" class="inputField" data-owner="layer"
+                                min="0" max="999" step="0.1" 
+                                value="25.0" pattern="\d{1,1}(\.\d{1,1})?"
+                                title="Enter head size"
+                                style="text-align: right;"
+                            ><br>
+                        </div>
 
                         <label for="lineCount">G-code length:</label><br>
                         <input type="number" id="lineCount" class="inputField" data-owner="layer"
