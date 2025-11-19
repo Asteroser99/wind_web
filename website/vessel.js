@@ -483,7 +483,7 @@ async function saveCsvWithDialog(name) {
         showError("No mandrel data to save");
         return;
     }
-    const filename = await layerPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + "_" + name + ".csv";
+    const filename = await vesselPropGet("PartNumber") + "_" + await layerPropGet("LayerNumber") + "_" + name + ".csv";
     await saveFile(convertArrayToCsv, mandrel, filename, "text/csv");
 }
 window.saveCsvWithDialog = saveCsvWithDialog;
