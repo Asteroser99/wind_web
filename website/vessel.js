@@ -272,15 +272,17 @@ async function vesselLoadOnFileRead(text, par = null) {
         return;
     }
 
-
     await layersAllClear();
     const layers = []
     for (const [layerId, layer] of Object.entries(vessel.layers)) {
         layers.push(layerId);
         await layerPropAllSet(layer, layerId);
     }
+    
     vessel.layers = layers
     await vesselPropAllSet(vessel)
+
+    await layerPropAllGet()
 
     await allShow()
 
