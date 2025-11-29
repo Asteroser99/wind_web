@@ -1,6 +1,7 @@
 PartNumber: Convex
 layerId: layer0
 layerMax: 4
+machine: WE
 layers:
   layer0:
     LayerName: convex
@@ -99910,7 +99911,6 @@ layers:
     headSize: 30
     lineCount: 1000
     lineShow: true
-    machine: WE
     mandrelRaw:
       x:
         - -716.3513398443818

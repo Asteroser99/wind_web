@@ -1,6 +1,7 @@
 PartNumber: Engine
 layerId: layer0
 layerMax: 4
+machine: RPN
 layers:
   layer0:
     LayerName: engine
@@ -47021,7 +47022,6 @@ layers:
     fibboIndex: 3
     headSize: 25
     lineCount: 600
-    machine: RPN
     mandrelRaw:
       x:
         - 1.03281

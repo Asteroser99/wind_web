@@ -100,6 +100,27 @@
                 <!-- Vessel -->
                 <div id="tab-vessel" class="tab-content">
                     <div id="actions-vessel">
+                        <h2>Machine</h2>
+                        <div class="table-wrapper">
+                            <label for="machines-table">Geometry:</label><br>
+                            <table id="machines-table">
+                                <!-- <thead>
+                                    <tr><th>Geometry</th></tr>
+                                </thead> -->
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                        <div id="headSize-wrapper">
+                            <label for="headSize">Head size:</label><br>
+                            <input type="number" id="headSize" class="inputField" data-owner="vessel"
+                                min="0" max="999" step="0.1" 
+                                value="25.0" pattern="\d{1,1}(\.\d{1,1})?"
+                                title="Enter head size"
+                                style="text-align: right;"
+                            ><br>
+                        </div>
+
                         <h2>Vessel</h2>
                         <label for="PartNumber">Part number:</label><br>
                         <input type="text" id="PartNumber" class="inputField" data-owner="vessel"
@@ -122,6 +143,23 @@
                         <div style="text-align:right">
                             <button class="image-button very-small function-button" data-function="layerAddOnClick" title="Add layer">Add &nbsp;<img src="./img/plus.png"></button><br>
                         </div>
+                        <h2>Layer</h2>
+                        
+                        <label for="LayerNumber">№</label>
+                        <input type="number" id="LayerNumber" class="inputField" data-owner="layer"
+                            min="1" max="999" step="1" 
+                            value="1" pattern="\d{1,0}(\.\d{1,0})?" 
+                            title="Enter layer number"
+                            style="text-align: right; width: 30px;"
+                        >
+
+                        <label for="LayerName">Name:</label>
+                        <input type="text" id="LayerName" class="inputField" data-owner="layer"
+                            value="Layer name"
+                            title="Enter layer name"
+                            style="text-align: left; width: 70px;"
+                        >
+
                     </div>
                     
                     <div id="file-vessel">
@@ -169,21 +207,6 @@
                 <!-- Mandrel -->
                 <div id="tab-mandrel" class="tab-content">
                     <div id="actions-mandrel">
-                        <h2>Layer</h2>
-                        <label for="LayerName">Layer name:</label><br>
-                        <input type="text" id="LayerName" class="inputField" data-owner="layer"
-                            value="Layer name"
-                            title="Enter layer name"
-                            style="text-align: left;"
-                        ><br>
-
-                        <label for="LayerNumber">Layer number:</label><br>
-                        <input type="number" id="LayerNumber" class="inputField" data-owner="layer"
-                            min="1" max="999" step="1" 
-                            value="1" pattern="\d{1,0}(\.\d{1,0})?" 
-                            title="Enter layer number"
-                            style="text-align: right;"
-                        ><br>
                     </div>
 
                     <div id="file-mandrel">
@@ -213,9 +236,9 @@
                         <button class="image-button small function-button" data-function="mandrelMultiplyR" title="Multiply R">* R &nbsp;<img src="./img/transform.png"></button><br>
 
                         <h2>Transform</h2>
-                        <button class="image-button small function-button" data-function="mandrelSwap"      title="Swap R/X"  >Swap       &nbsp;<img src="./img/transform.png"></button><br>
+                        <button class="image-button small function-button" data-function="mandrelSwap"      title="Swap R/X"  >Swap       &nbsp;<img src="./img/transform.png"></button>
                         <button class="image-button small function-button" data-function="mandrelMirror"    title="Mirror"    >Mirror     &nbsp;<img src="./img/transform.png"></button><br>
-                        <button class="image-button small function-button" data-function="mandrelReverse"   title="Reverse"   >Reverse    &nbsp;<img src="./img/transform.png"></button><br>
+                        <button class="image-button small function-button" data-function="mandrelReverse"   title="Reverse"   >Reverse    &nbsp;<img src="./img/transform.png"></button>
                         <button class="image-button small function-button" data-function="mandrelRedirect"  title="Redirect"  >Redirect   &nbsp;<img src="./img/transform.png"></button><br>
                     </div>
                     <div id="help-mandrel"></div>
@@ -289,23 +312,6 @@
                     <div id="actions-winding">
                         <h2>Machine</h2>
 
-                        <!-- <label for="testMode">Test mode:</label>
-                        <input type="number" id="testMode" class="inputField" data-owner="layer"
-                            min="0" max="9" step="1"
-                            value="0" pattern="\d{1,0}"
-                            title="Enter test mode"
-                            style="text-align: right;"
-                        >
-                        <br> -->
-                        <div class="table-wrapper">
-                            <table id="machines-table">
-                                <thead>
-                                    <tr><th>Geometry</th></tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-
                         <label for="safetyR">Safety distance:</label><br>
                         <input type="number" id="safetyR" class="inputField" data-owner="layer"
                             min="0" max="999" step="0.1" 
@@ -313,16 +319,6 @@
                             title="Enter safety radius"
                             style="text-align: right;"
                         ><br>
-
-                        <div id="headSize-wrapper">
-                            <label for="headSize">Head size:</label><br>
-                            <input type="number" id="headSize" class="inputField" data-owner="layer"
-                                min="0" max="999" step="0.1" 
-                                value="25.0" pattern="\d{1,1}(\.\d{1,1})?"
-                                title="Enter head size"
-                                style="text-align: right;"
-                            ><br>
-                        </div>
 
                         <label for="lineCount">G-code length:</label><br>
                         <input type="number" id="lineCount" class="inputField" data-owner="layer"
@@ -368,26 +364,32 @@
                                     </div>
                                 </div>
 
-                                <div id="file-mandrel-import-export-raw">
+                                <div id="file-mandrel-import-export-raw" style="display: inline-block;">
                                     Raw
                                     <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="Raw" title="Raw mandrel import"><img src="./img/load.png"></button>
-                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Raw" title="Raw mandrel export"><img src="./img/save.png"></button>
-                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Raw" data-query="Do you want to clear the mandrel?" title="Raw mandrel clear" ><img src="./img/clear.png"></button>
-                                </div>
+                                    <div id="file-mandrel-export-raw" style="display: inline-block;">
+                                        <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Raw" title="Raw mandrel export"><img src="./img/save.png"></button>
+                                        <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Raw" data-query="Do you want to clear the mandrel?" title="Raw mandrel clear" ><img src="./img/clear.png"></button>
+                                    </div>
+                                </div><br>
 
-                                <div id="file-mandrel-import-export-thickness">
+                                <div id="file-mandrel-import-export-wound" style="display: inline-block;">
                                     Wound
                                     <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="Wound" title="Wound mandrel import"><img src="./img/load.png"></button>
-                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Wound" title="Wound mandrel export"><img src="./img/save.png"></button>
-                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Wound" data-query="Do you want to clear the mandrel?" title="Wound mandrel clear" ><img src="./img/clear.png"></button>
-                                </div>
+                                    <div id="file-mandrel-export-wound" style="display: inline-block;">
+                                        <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Wound" title="Wound mandrel export"><img src="./img/save.png"></button>
+                                        <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Wound" data-query="Do you want to clear the mandrel?" title="Wound mandrel clear" ><img src="./img/clear.png"></button>
+                                    </div>
+                                </div><br>
 
-                                <div id="file-mandrel-import-export-smoothed">
+                                <div id="file-mandrel-import-export-smoothed" style="display: inline-block;">
                                     Smoothed
                                     <button class="image-button small function-button" data-function="mandrelImportCSV"  data-parameter="Smoothed" title="Smoothed mandrel import"><img src="./img/load.png"></button>
-                                    <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Smoothed" title="Smoothed mandrel export"><img src="./img/save.png"></button>
-                                    <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Smoothed" data-query="Do you want to clear the mandrel?" title="Smoothed mandrel clear" ><img src="./img/clear.png"></button>
-                                </div>
+                                    <div id="file-mandrel-export-smoothed" style="display: inline-block;">
+                                        <button class="image-button small function-button" data-function="saveCsvWithDialog" data-parameter="Smoothed" title="Smoothed mandrel export"><img src="./img/save.png"></button>
+                                        <button class="image-button small function-button" data-function="mandrelClear"      data-parameter="Smoothed" data-query="Do you want to clear the mandrel?" title="Smoothed mandrel clear" ><img src="./img/clear.png"></button>
+                                    </div>
+                                </div><br>
 
                             </div>
                         </div>

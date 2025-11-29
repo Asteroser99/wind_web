@@ -1,5 +1,6 @@
 PartNumber: Long tank
 layerMax: 0
+machine: WE
 layers:
   layer0:
     LayerName: long tank
@@ -49064,7 +49065,6 @@ layers:
     fibboIndex: 1
     headSize: 12
     lineCount: 500
-    machine: WE
     mandrelRaw:
       x:
         - -599.9

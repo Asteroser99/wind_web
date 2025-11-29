@@ -188,7 +188,7 @@ async function frameInit(){
 
 
   if (window.animateChain) { // chain
-    const machine = await layerPropGet("machine");
+    const machine = await vesselPropGet("machine");
 
     const i = 0
     for (let j = 0; j < window.animateChain.length; j += 1) {
@@ -753,7 +753,7 @@ async function setRolley() {
     const chain = await layerPropGet("chain");
     const rolley = chain[chain.length - 1]
 
-    const machine = await layerPropGet("machine");
+    const machine = await vesselPropGet("machine");
     const TS      = await layerPropGet("equidistantaInterpolated");
     const MTU     = await layerPropGet("MTU");
 

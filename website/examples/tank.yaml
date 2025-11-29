@@ -2,6 +2,7 @@ page: vessel
 PartNumber: Tank
 layerId: layer0
 layerMax: 4
+machine: WE
 layers:
   layer0:
     LayerName: tank
@@ -25307,7 +25308,6 @@ layers:
     headSize: 20
     lineCount: 200
     lineShow: true
-    machine: WE
     mandrelRaw:
       x:
         - -350

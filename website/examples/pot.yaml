@@ -2,6 +2,7 @@ page: vessel
 PartNumber: Honey pot
 layerId: layer0
 layerMax: 4
+machine: WE
 layers:
   layer0:
     LayerName: honey pot
@@ -56331,7 +56332,6 @@ layers:
     headSize: 50
     lineCount: 700
     lineShow: false
-    machine: WE
     mandrelRaw:
       x:
         - -150

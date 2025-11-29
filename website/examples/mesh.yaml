@@ -2,6 +2,7 @@ page: vessel
 PartNumber: Mesh
 layerId: layer0
 layerMax: 4
+machine: WE
 layers:
   layer0:
     LayerName: mesh
@@ -52665,7 +52666,6 @@ layers:
     fibboIndex: 6
     headSize: 25
     lineCount: 500
-    machine: WE
     mandrelRaw:
       x:
         - -508.493459

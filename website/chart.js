@@ -22,6 +22,7 @@ function mandrelConfig() {
           pointRadius: function (context) {
             return context.dataIndex === 0 ? 3 : 0;
           },
+          // hidden: true,
         },
         {
           label: "Smoothed",
@@ -116,8 +117,7 @@ function mandrelConfig() {
   };
 }
 
-async function mandrelChartUpdate(name){
-  const mandrel = await mandrelGet(name);
+function mandrelChartUpdate(name, mandrel){
   const {x, r} = mandrel ? mandrel : {x: [], r: []};
 
   const data = x.map((value, index) => ({ 
@@ -151,7 +151,6 @@ function chartOnLoad() {
   Chart.register(ChartZoom);
 
   const ctx = document.getElementById('mandrel-canvas').getContext('2d');
-
   window.mandrelChart = new Chart(ctx, mandrelConfig());
 }
 window.chartOnLoad = chartOnLoad

@@ -108,7 +108,7 @@ async function animateInit(){
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 
-    let machine = await layerPropGet("machine");
+    let machine = await vesselPropGet("machine");
     let coil  = await coilGet("Interpolated");
     let tape  = await layerPropGet("tapeInterpolated");
     let eqd   = await layerPropGet("equidistantaInterpolated");

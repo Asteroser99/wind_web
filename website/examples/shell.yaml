@@ -1,6 +1,7 @@
 PartNumber: Shell
 layerId: layer0
 layerMax: 4
+machine: RPN
 layers:
   layer0:
     LayerName: shell
@@ -87506,7 +87507,6 @@ layers:
     headSize: 20
     lineCount: 1200
     lineShow: false
-    machine: RPN
     mandrelRaw:
       x:
         - -519

@@ -2,6 +2,7 @@ page: vessel
 PartNumber: Sphere
 layerId: layer0
 layerMax: 4
+machine: RPN
 layers:
   layer0:
     LayerName: sphere
@@ -93730,7 +93731,6 @@ layers:
     fibboIndex: 3
     headSize: 0
     lineCount: 600
-    machine: RPN
     mandrelRaw:
       x:
         - -1497.040093

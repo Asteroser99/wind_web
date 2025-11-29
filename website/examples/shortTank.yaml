@@ -2,6 +2,7 @@ page: vessel
 PartNumber: Short tank
 layerId: layer0
 layerMax: 5
+machine: WE
 layers:
   layer0:
     LayerName: layer 1
@@ -33902,7 +33903,6 @@ layers:
     fibboIndex: 19
     headSize: 25
     lineCount: 400
-    machine: WE
     mandrelRaw:
       x:
         - -181.2796280423585
@@ -45907,7 +45907,6 @@ layers:
     csvColumn: 1
     headSize: 25
     lineCount: 1500
-    machine: WE
     mandrelRaw:
       r:
         - 5.001317521396224

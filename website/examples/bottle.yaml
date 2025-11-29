@@ -1,6 +1,7 @@
 PartNumber: Bottle
 layerId: layer0
 layerMax: 4
+machine: WE
 layers:
   layer0:
     LayerName: bottle
@@ -36109,7 +36110,6 @@ layers:
     headSize: 40
     lineCount: 400
     lineShow: true
-    machine: WE
     mandrelRaw:
       x:
         - -405.14462731779366

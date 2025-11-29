@@ -192,7 +192,7 @@ async function machinesRenderTable() {
         ["WE" , "3-axis"]
     ];
 
-    const machine = await layerPropGet("machine")
+    const machine = await vesselPropGet("machine")
 
     machines.forEach(([item, name], index) => {
         const row = document.createElement("tr");
@@ -202,7 +202,7 @@ async function machinesRenderTable() {
             <td>${name}</td>
         `;
         row.onclick = async () => {
-            await layerPropSet("machine", item)
+            await vesselPropSet("machine", item)
             await machinesRenderTable()
         };
         row.dataset.index = item;
@@ -550,8 +550,7 @@ function generatrixRender(mandrel, resolution) {
 }
 window.generatrixRender = generatrixRender
 
-async function mandrelTreeUpdate(name) {
-    const mandrel = await mandrelGet(name);
+function mandrelTreeUpdate(name, mandrel) {
     if (mandrel) {
         const render = generatrixRender(mandrel, 90)
 
@@ -590,18 +589,22 @@ async function mandrelSet(name, xOrMandrel, r = null){
     if (r) mandrel = { x: xOrMandrel, r: r };
     await layerPropSet("mandrel" + name, mandrel);
     if (name == "Raw") setPole();
-    mandrelDraw(name);
+    await mandrelDraw(name);
 }
 
-function mandrelDraw(name) {
-    mandrelTreeUpdate (name);
-    mandrelChartUpdate(name);
+async function mandrelDraw(name) {
+    const mandrel = await mandrelGet(name);
+    document.getElementById("file-mandrel-export-" + name.toLowerCase()).style.display =
+        mandrel ? "inline-block" : "none";
+
+    mandrelTreeUpdate (name, mandrel);
+    mandrelChartUpdate(name, mandrel);
 }
 
-function mandrelsDraw() {
-    mandrelDraw("Raw")
-    mandrelDraw("Wound")
-    mandrelDraw("Smoothed")
+async function mandrelsDraw() {
+    await mandrelDraw("Raw")
+    await mandrelDraw("Wound")
+    await mandrelDraw("Smoothed")
 }
 
 async function mandrelClear(name) {
@@ -733,7 +736,7 @@ async function mandrelSmooth() {
         return;
     }
 
-    lambdaCall("smooth_full", [mandrel])
+    lambdaCall("smooth.smooth", [mandrel])
         .then(async (res) => {
             await mandrelSet("Smoothed", res);
             loaded();
@@ -978,12 +981,12 @@ async function Winding(param = undefined){
     }
 
     lambdaCall("calc.winding", [
-        await layerPropGet('machine'),
+        await vesselPropGet('machine'),
         coilCorrected,
         await layerPropGet('safetyR'),
         await layerPropGet('lineCount'),
         await layerPropGet('band'),
-        await layerPropGet('headSize')
+        await vesselPropGet('headSize')
     ])
         .then(async res => {
             await coilSet     ("Interpolated"            , res[0]);
@@ -991,12 +994,12 @@ async function Winding(param = undefined){
             await layerPropSet("MTU"                     , res[2]);
             // await layerPropSet("rolleyInterpolated"      , res[3]);
 
-            const machine  = await layerPropGet("machine");
+            const machine  = await vesselPropGet("machine");
             const TK       = await coilGet     ("Interpolated"            );
             const TS       = await layerPropGet("equidistantaInterpolated");
             const MTU      = await layerPropGet("MTU");
             const band     = await layerPropGet("band")
-            const headSize = await layerPropGet('headSize')
+            const headSize = await vesselPropGet('headSize')
             const safetyR  = await layerPropGet('safetyR')
 
             const chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band, headSize, safetyR])
@@ -1109,7 +1112,7 @@ async function CNCGet(pars) {
 
 async function CNCExport() {
     loading();
-    const machine = await layerPropGet("machine");
+    const machine = await vesselPropGet("machine");
     const itpEqd  = await layerPropGet("equidistantaInterpolated");
     const MTU     = await layerPropGet("MTU");
     if (!itpEqd) {
@@ -1145,7 +1148,7 @@ async function allShow() {
 
     if(layerId){
         await setPole()
-        mandrelsDraw()
+        await mandrelsDraw()
         await tapeDraws()
         await patternDraw()
     }

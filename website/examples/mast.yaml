@@ -2,6 +2,7 @@ page: vessel
 PartNumber: Mast
 layerId: layer0
 layerMax: 4
+machine: RPN
 layers:
   layer0:
     LayerName: mast
@@ -86402,7 +86403,6 @@ layers:
     headSize: 7
     lineCount: 1200
     lineShow: false
-    machine: RPN
     mandrelRaw:
       x:
         - -1003.71808657

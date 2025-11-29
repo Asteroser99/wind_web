@@ -1,6 +1,7 @@
 PartNumber: Integral
 layerId: layer0
 layerMax: 4
+machine: RPN
 layers:
   layer0:
     LayerName: integral
@@ -52845,7 +52846,6 @@ layers:
     fibboIndex: 0
     headSize: 0
     lineCount: 800
-    machine: RPN
     mandrelRaw:
       x:
         - -126.843
