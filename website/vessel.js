@@ -442,6 +442,8 @@ function mandrelFromCSV(csvText, colNum = 0) {
 async function saveFile(fun, par, suggestedName, type = "text/plain") {
     try {
         if (window.showSaveFilePicker) {
+            console.log("saveFile: open dialog")
+
             const handle = await window.showSaveFilePicker({
                 suggestedName,
                 types: [
@@ -452,11 +454,19 @@ async function saveFile(fun, par, suggestedName, type = "text/plain") {
                 ]
             });
 
+            console.log("saveFile: getting data")
             const data = await fun(par);
 
+            console.log("saveFile: create writable")
             const writable = await handle.createWritable();
+
+            console.log("saveFile: writing data")
             await writable.write(data);
+
+            console.log("saveFile: closing file")
             await writable.close();
+
+            console.log("saveFile: done")
 
         } else { // Fallback: trigger file download
             const blob = new Blob([data], { type });
