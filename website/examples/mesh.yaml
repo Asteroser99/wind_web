@@ -52666,6 +52666,7 @@ layers:
     fibboIndex: 6
     headSize: 25
     lineCount: 500
+    lineShow: true
     mandrelRaw:
       x:
         - -508.493459
@@ -75164,3 +75165,4 @@ layers:
       al: []
     tapeShow: true
     windingMode: round
+headSize: 25
