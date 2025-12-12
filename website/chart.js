@@ -1,4 +1,4 @@
-function mandrelConfig() {
+function chartConfig() {
   return {
     type: "line", // or "scatter"
     data: {
@@ -117,7 +117,7 @@ function mandrelConfig() {
   };
 }
 
-function mandrelChartUpdate(name, mandrel){
+function chartUpdate(name, mandrel){
   const {x, r} = mandrel ? mandrel : {x: [], r: []};
 
   const data = x.map((value, index) => ({ 
@@ -145,13 +145,20 @@ function mandrelChartUpdate(name, mandrel){
     transition: true
   });
 }
-window.mandrelChartUpdate = mandrelChartUpdate;
+window.chartUpdate = chartUpdate;
+
+async function chartsUpdate() {
+    chartUpdate("Raw"     , await mandrelGet("Raw"))
+    chartUpdate("Wound"   , await mandrelGet("Wound"))
+    chartUpdate("Smoothed", await mandrelGet("Smoothed"))
+}
+window.chartsUpdate = chartsUpdate;
 
 function chartOnLoad() {
   Chart.register(ChartZoom);
 
   const ctx = document.getElementById('mandrel-canvas').getContext('2d');
-  window.mandrelChart = new Chart(ctx, mandrelConfig());
+  window.mandrelChart = new Chart(ctx, chartConfig());
 }
 window.chartOnLoad = chartOnLoad
 

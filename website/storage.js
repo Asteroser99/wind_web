@@ -213,6 +213,27 @@ const layerPropGet = async (key) => {
 };
 window.layerPropGet = layerPropGet
 
+// prop
+
+async function propSet(owner, layerId, id, value){
+    if (owner == "vessel") {
+        await vesselPropSet(id, value);
+    } else if (owner == "layer") {
+        if (!layerId) return
+        await layerPropSet(id, value);
+    }
+}
+window.propSet = propSet
+
+async function propGet(owner, layerId, id){
+    if (owner == "vessel") {
+        return await vesselPropGet(id);
+    } else if (owner == "layer") {
+        if (!layerId) return null
+        return await layerPropGet(id);
+    }
+}
+window.propGet = propGet
 
 // layers
 
@@ -232,22 +253,6 @@ async function layerAdd(){
     return layerId
 }
 window.layerAdd = layerAdd;
-
-async function layerAddNew(){
-    let layerId = await layerAdd();
-
-    await layerIdSet(layerId)
-    await layerPropAllGet()
-
-    const layers = await vesselPropGet("layers")
-    await layerPropSet("LayerName", "layer " + layers.length)
-    await layerPropSet("LayerNumber", layers.length)
-
-    await layerPropSet("windingMode", "first")
-    await layerPropSet("mandrelShow", true)
-    await layerPropSet("tapeShow", true)
-}
-window.layerAddNew = layerAddNew;
 
 async function layerDelete(layerToDelete){
     // console.log("layerDelete", layerToDelete)
@@ -280,6 +285,7 @@ window.layerDelete = layerDelete;
 async function layerIdSet(layerIdValue){
     // console.log("layerIdSet", layerIdValue)
     await vesselPropSet("layerId", layerIdValue)
+    await layerPropAllGet();
 }
 window.layerIdSet = layerIdSet;
 
@@ -289,16 +295,6 @@ async function layerIdGet(){
     return layerIdValue
 }
 window.layerIdGet = layerIdGet;
-
-async function layerAddIfNotExist(){
-    let layerId = await layerIdGet()
-    if (!layerId) {
-        layerId = await layerAdd()
-        await layerIdSet(layerId);
-    }
-}
-window.layerAddIfNotExist = layerAddIfNotExist;
-
 
 //
 

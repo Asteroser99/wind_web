@@ -101,7 +101,6 @@ async function layersRenderTable() {
             loading();
 
             await layerIdSet(item);
-            await layerPropAllGet();
 
             await allShow()
 
@@ -149,7 +148,6 @@ async function layersRenderTable() {
             const layerToSelect = await layerDelete(item);
             if(curLayer == item){
                 await layerIdSet(layerToSelect)
-                await layerPropAllGet();
                 await allShow()
             } else {
                 await layersRenderTable()
@@ -297,7 +295,11 @@ async function vesselClear() {
             await layerPropAllClear(layerId);
         }
 
-    await vesselPropAllClear();
+    await vesselPropAllClear()
+
+    inputClear()
+
+    await vesselPropSet("machine", "WE")
 
     await allShow();
 }
@@ -332,13 +334,50 @@ async function layerLoadOnFileLoad(text, par) {
 };
 window.layerLoadOnFileLoad = layerLoadOnFileLoad;
 
-// layerClear
+async function propSetFromInputDefaults(layerId){
+    const inputs = document.querySelectorAll(".inputField");
+    for (const input of inputs) {
+        const owner = input.dataset.owner;
+        const id = input.id;
+        const inputValue = inputGet(input.id, true);
+        // console.log("def to val", id, storedValue, initialValue);
+        await propSet(owner, layerId, id, inputValue);
+    }
+}
+
+async function layerSetDefaults(layerId) {
+    await layerPropAllClear(layerId);
+    await propSetFromInputDefaults(layerId)
+
+    const layers = await vesselPropGet("layers")
+
+    const index = layers.indexOf(layerId) + 1;
+
+    await layerPropSet("LayerName", "layer " + index)
+    await layerPropSet("LayerNumber", index)
+
+    await layerPropSet("windingMode", "first")
+    await layerPropSet("mandrelShow", true)
+    await layerPropSet("tapeShow", true)
+}
+window.layerSetDefaults = layerSetDefaults
+
 async function layerClear() {
-    await layerPropAllClear();
-    await allShow();
+    const layerId = await layerIdGet()
+    await layerSetDefaults(layerId)
+    await allShow()
 }
 window.layerClear = layerClear
 
+async function layerAddNew(){
+    let layerId = await layerAdd();
+    await layerIdSet(layerId)
+    
+    await layerSetDefaults(layerId)
+
+    return layerId
+}
+window.layerAddNew = layerAddNew;
 
 // lambdaCall
 
@@ -395,14 +434,20 @@ async function mandrelImportCSVOnFileRead(text, prefix) {
 
     let mandrel
     try {
-        if (prefix == "Raw")
-            await layerPropAllClear();
-
         mandrel = mandrelFromCSV(text, colNum);
-        await mandrelSet(prefix, mandrel)
     } catch (error) {
         showError(`Error importing file: ${error}`);
     }
+
+    await layerAddIfNotExist()
+
+    if (prefix == "Raw"){
+        const layerId = await layerIdGet()
+        await layerSetDefaults(layerId);
+    }
+
+    await mandrelSet(prefix, mandrel)
+
     loaded();
 };
 window.mandrelImportCSVOnFileRead = mandrelImportCSVOnFileRead;
@@ -549,7 +594,7 @@ function generatrixRender(mandrel, resolution) {
 }
 window.generatrixRender = generatrixRender
 
-function mandrelTreeUpdate(name, mandrel) {
+function mandrelMeshUpdate(name, mandrel) {
     if (mandrel) {
         const render = generatrixRender(mandrel, 90)
 
@@ -573,7 +618,7 @@ function mandrelTreeUpdate(name, mandrel) {
         meshRemove("mandrel" + name + "Mesh")
     }
 }
-window.mandrelTreeUpdate = mandrelTreeUpdate;
+window.mandrelMeshUpdate = mandrelMeshUpdate;
   
 async function setPole() {
     const mandrel = await mandrelGet("Raw")
@@ -596,8 +641,8 @@ async function mandrelDraw(name) {
     document.getElementById("file-mandrel-export-" + name.toLowerCase()).style.display =
         mandrel ? "inline-block" : "none";
 
-    mandrelTreeUpdate (name, mandrel);
-    mandrelChartUpdate(name, mandrel);
+    mandrelMeshUpdate(name, mandrel);
+    chartUpdate(name, mandrel);
 }
 
 async function mandrelsDraw() {
@@ -1132,7 +1177,7 @@ window.CNCExport = CNCExport
 
 async function allShow() {
     window.animateOn = false;
-    meshClear();
+    meshClear()
 
     const layerId = await layerIdGet()
 
@@ -1153,8 +1198,18 @@ async function allShow() {
     }
 
     await animateInit()
+    await chartsUpdate()
     await meshesShow()
 }
+
+async function layerAddIfNotExist(){
+    let layerId = await layerIdGet()
+    if (!layerId) {
+        layerId = await layerAddNew()
+        await allShow()
+    }
+}
+window.layerAddIfNotExist = layerAddIfNotExist;
 
 
 // vesselPrint
@@ -1186,7 +1241,7 @@ async function coilLoadOnFileRead(text, prefix) {
 async function vesselloadFromURL(name) {
     loading();
 
-    await layerAddIfNotExist()
+    // await layerAddIfNotExist()
     // await layerPropAllClear();
     // meshClear();
 

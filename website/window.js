@@ -342,24 +342,6 @@ window.appearShow = appearShow
 
 // inputField
 
-async function inputAnySet(owner, layerId, id, value){
-    if (owner == "vessel") {
-        await vesselPropSet(id, value);
-    } else if (owner == "layer") {
-        if (!layerId) return
-        await layerPropSet(id, value);
-    }
-}
-
-async function inputAnyGet(owner, layerId, id){
-    if (owner == "vessel") {
-        return await vesselPropGet(id);
-    } else if (owner == "layer") {
-        if (!layerId) return null
-        return await layerPropGet(id);
-    }
-}
-
 async function inputSet(id, value) {
     const input = document.getElementById(id);
     if (input) {
@@ -391,13 +373,13 @@ async function inputOnChange(event){
     const value = inputGet(input.id);
     const owner = input.dataset.owner;
 
-    await inputAnySet(owner, layerId, input.id, value);
+    await propSet(owner, layerId, input.id, value);
 
     if (input.id == "LayerName")
         await layersRenderTable();
 }
 
-function inputOnLoad(){
+function inputClear(){
     const inputs = document.querySelectorAll(".inputField");
     for (const input of inputs) {
         input.onkeydown = (event) => {
@@ -416,6 +398,7 @@ function inputOnLoad(){
         input.onchange = inputOnChange;
     }
 }
+window.inputClear = inputClear
 
 async function inputUpdate(layerId){
     const inputs = document.querySelectorAll(".inputField");
@@ -423,15 +406,18 @@ async function inputUpdate(layerId){
         const id = input.id;
 
         const owner = input.dataset.owner;
-        let storedValue = await inputAnyGet(owner, layerId, id);
+        let storedValue = await propGet(owner, layerId, id);
 
-        if (storedValue == undefined || storedValue == null) {
-            storedValue = inputGet(input.id, true);
-            if(layerId){
-                // console.log("def to val", id, storedValue, initialValue);
-                await inputAnySet(owner, layerId, id, storedValue);
-            }
-        }
+        // if (storedValue == undefined || storedValue == null) {
+        //     storedValue = inputGet(input.id, true);
+        //     if(!(owner == "layer" && !layerId)){
+        //         // console.log("def to val", id, storedValue, initialValue);
+        //         await propSet(owner, layerId, id, storedValue);
+        //     }
+        // }
+
+        if (storedValue == undefined || storedValue == null)
+            continue
 
         // console.log("val to form", id, inputGet(id), "->", storedValue);
         if (input.type === "checkbox") {
@@ -543,7 +529,7 @@ async function windowOnLoad(){
     loadContent("winding"  , "help-winding");
     loadContent("thickness", "help-thickness");
 
-    inputOnLoad()
+    inputClear()
     funcOnLoad();
     toggleOnLoad();
     modeOnLoad();
