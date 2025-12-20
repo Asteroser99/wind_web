@@ -213,7 +213,7 @@ async function machinesRenderTable() {
     await machinesSelectRow(machine)
 
     document.getElementById("headSize-wrapper").style.display =
-        machine === "WE" ? "block" : "none";
+        machine === "WE" | machine === "WEA" ? "block" : "none";
 }
 window.machinesRenderTable = machinesRenderTable;
 
