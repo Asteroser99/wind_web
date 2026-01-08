@@ -773,6 +773,9 @@ async function setRolley() {
       if (machine == "RPN") {
           const supportAngle = 15.
           FI = TS.fi[i] + supportAngle * Math.PI / 180.
+      } else if (machine == "Roth") {
+          const supportAngle = 0.
+          FI = MTU[0][0][i] + supportAngle * Math.PI / 180.
       } else {
           const supportAngle = 10.
           FI = MTU[0].fi[i] + supportAngle * Math.PI / 180.

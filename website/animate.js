@@ -377,6 +377,10 @@ function animate(timestamp) {
             const supportAngle = 15.
             FI = fi + supportAngle * Math.PI / 180.
             dl = window.animateEqd.al[i]
+        } else if (window.animateMachine == "Roth") {
+            const supportAngle = 0.
+            FI = fi + supportAngle * Math.PI / 180.
+            dl = window.animateEqd.al[i]
         } else {
             const supportAngle = 10.
             FI = window.animateMTU[0].fi[i] + supportAngle * Math.PI / 180.
