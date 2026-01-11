@@ -500,7 +500,7 @@ function meshRotate(mesh, rx, ry, rz) {
     // mesh.applyMatrix4(rotMatrix);  
 
     // =====
-    mesh.rotation.order = 'XYZ';
+    mesh.rotation.order = 'XZY';
     mesh.rotation.x =  rx;
     mesh.rotation.y =  rz;
     mesh.rotation.z =  ry;
