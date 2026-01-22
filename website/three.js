@@ -769,20 +769,19 @@ async function setRolley() {
       const sy =  rolley.sz[i];
       const sz =  rolley.sy[i];
 
-      let FI
+      let FI = TS.fi[i]
+      let supportAngle = 0.
       if (machine == "Test") {
-          const supportAngle = 0.
-          FI = TS.fi[i] + supportAngle * Math.PI / 180.
       } else if (machine == "RPN") {
-          const supportAngle = 15.
-          FI = TS.fi[i] + supportAngle * Math.PI / 180.
+          supportAngle = 15.
       } else if (machine == "WE" || machine == "WEA") {
-          const supportAngle = 10.
-          FI = MTU[0].fi[i] + supportAngle * Math.PI / 180.
+          supportAngle = 10.
+          FI = MTU[0].fi[i]
       } else if (machine == "Roth" || machine == "RoC0") {
-          const supportAngle = 0.
-          FI = MTU[0][0][i] + supportAngle * Math.PI / 180.
+          // supportAngle = 180.
+          // FI = MTU[0][0][i]
       }
+      FI = FI + supportAngle * Math.PI / 180.
 
       const euler = new THREE.Euler(rx, ry, rz, 'XZY');
       const rotMatrix = new THREE.Matrix4().makeRotationFromEuler(euler);
