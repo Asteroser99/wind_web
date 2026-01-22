@@ -186,11 +186,12 @@ async function machinesRenderTable() {
     }
 
     const machines = [
-        ["RPN", "4-axis"],
-        ["WE" , "3-axis"],
-        ["WEA", "3-axis, arc"],
+        ["Test", "Test"],
+        ["RPN" , "4-axis"],
+        ["WE"  , "3-axis"],
+        ["WEA" , "3-axis, arc"],
         ["Roth", "5-axis"],
-        ["Roth", "5-axis, C=0"]
+        ["RoC0", "5-axis, C=0"]
     ];
 
     const machine = await vesselPropGet("machine")
@@ -215,7 +216,7 @@ async function machinesRenderTable() {
     await machinesSelectRow(machine)
 
     document.getElementById("headSize-wrapper").style.display =
-        machine === "WE" | machine === "WEA" ? "block" : "none";
+        machine === "Test" | machine === "WE" | machine === "WEA" ? "block" : "none";
 }
 window.machinesRenderTable = machinesRenderTable;
 

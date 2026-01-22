@@ -373,18 +373,22 @@ function animate(timestamp) {
 
         let FI
         let dl
-        if (window.animateMachine == "RPN") {
-            const supportAngle = 15.
-            FI = fi + supportAngle * Math.PI / 180.
-            dl = window.animateEqd.al[i]
-        } else if (window.animateMachine == "Roth") {
+        if (window.animateMachine == "Test") {
             const supportAngle = 0.
             FI = fi + supportAngle * Math.PI / 180.
             dl = window.animateEqd.al[i]
-        } else {
+        } else if (window.animateMachine == "RPN") {
+            const supportAngle = 15.
+            FI = fi + supportAngle * Math.PI / 180.
+            dl = window.animateEqd.al[i]
+        } else if (window.animateMachine == "WE" || window.animateMachine == "WEA") {
             const supportAngle = 10.
             FI = window.animateMTU[0].fi[i] + supportAngle * Math.PI / 180.
             dl = window.animateMTU[0].al[i]
+        } else if (window.animateMachine == "Roth" || window.animateMachine == "RoC0") {
+            const supportAngle = 0.
+            FI = fi + supportAngle * Math.PI / 180.
+            dl = window.animateEqd.al[i]
         }
   
         // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)

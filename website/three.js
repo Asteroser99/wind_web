@@ -503,7 +503,7 @@ function meshRotate(mesh, rx, ry, rz) {
     mesh.rotation.order = 'XZY';
     mesh.rotation.x =  rx;
     mesh.rotation.y =  rz;
-    mesh.rotation.z =  ry;
+    mesh.rotation.z =  -ry;
 
 }
 window.meshRotate = meshRotate
@@ -764,24 +764,27 @@ async function setRolley() {
       const z  = -rolley.y [i];
       const rx =  rolley.rx[i];
       const ry =  rolley.rz[i];
-      const rz =  rolley.ry[i];
+      const rz = -rolley.ry[i];
       const sx =  rolley.sx[i];
       const sy =  rolley.sz[i];
       const sz =  rolley.sy[i];
 
       let FI
-      if (machine == "RPN") {
+      if (machine == "Test") {
+          const supportAngle = 0.
+          FI = TS.fi[i] + supportAngle * Math.PI / 180.
+      } else if (machine == "RPN") {
           const supportAngle = 15.
           FI = TS.fi[i] + supportAngle * Math.PI / 180.
-      } else if (machine == "Roth") {
-          const supportAngle = 0.
-          FI = MTU[0][0][i] + supportAngle * Math.PI / 180.
-      } else {
+      } else if (machine == "WE" || machine == "WEA") {
           const supportAngle = 10.
           FI = MTU[0].fi[i] + supportAngle * Math.PI / 180.
+      } else if (machine == "Roth" || machine == "RoC0") {
+          const supportAngle = 0.
+          FI = MTU[0][0][i] + supportAngle * Math.PI / 180.
       }
 
-      const euler = new THREE.Euler(rx, ry, rz, 'XYZ');
+      const euler = new THREE.Euler(rx, ry, rz, 'XZY');
       const rotMatrix = new THREE.Matrix4().makeRotationFromEuler(euler);
 
       const p1 = new THREE.Vector3(-sx * 0.5, 0, 0).applyMatrix4(rotMatrix);
