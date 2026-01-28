@@ -778,7 +778,7 @@ async function setRolley() {
           supportAngle = 10.
           FI = MTU[0].fi[i]
       } else if (machine == "Roth" || machine == "RoC0") {
-          // supportAngle = 180.
+          supportAngle = 180.
           // FI = MTU[0][0][i]
       }
       FI = FI + supportAngle * Math.PI / 180.

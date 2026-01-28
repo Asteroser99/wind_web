@@ -382,6 +382,7 @@ function animate(timestamp) {
             FI = window.animateMTU[0].fi[i]
             dl = window.animateMTU[0].al[i]
         } else if (window.animateMachine == "Roth" || window.animateMachine == "RoC0") {
+            supportAngle = 180.
         }
         FI = FI + supportAngle * Math.PI / 180.
   
