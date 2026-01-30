@@ -116,15 +116,22 @@ async function animateInit(){
     let chain = await layerPropGet("chain");
     // let roll  = await layerPropGet("rolleyInterpolated");
     let chrl  = await layerPropGet("chainRolley");
+
+    let geom  = await layerPropGet("geometry");
+    const TSFIindex = geom?.TSFIindex ?? 0;
     
     window.animateMachine = machine;
     window.animateCoil    = coil;
     window.animateTape    = tape;
-    window.animateEqd     = eqd ;
     window.animateMTU     = mtu ;
     window.animateChain   = chain;
     // window.animateRolley  = roll;
     window.animateChainRolley = chrl;
+    window.animateGeometry = geom;
+
+    window.animateEqd    = eqd;
+    window.animateEqd.fi = mtu[TSFIindex]
+    window.animateEqd.al = null
 
     // scaleSet();
     await floorInit();
@@ -181,17 +188,17 @@ async function animateInit(){
         meshSet("freeMesh", meshCreate([vertices, indices], freeColor));
     };
 
-    { // rolleyMesh
-        const band = await layerPropGet('band') / 2
-        const rolleyMandrel = {
-            x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
-            r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
-        };
-        const render = generatrixRender(rolleyMandrel, 8)
-        mesh = meshCreate(render, 0xFFFFFF);
-        mesh.visible = false;
-        meshSet("rolleyMesh", mesh);
-    }
+    // { // rolleyMesh
+    //     const band = await layerPropGet('band') / 2
+    //     const rolleyMandrel = {
+    //         x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
+    //         r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
+    //     };
+    //     const render = generatrixRender(rolleyMandrel, 8)
+    //     mesh = meshCreate(render, 0xFFFFFF);
+    //     mesh.visible = false;
+    //     meshSet("rolleyMesh", mesh);
+    // }
 
     // rolleyAnimate();
 }
@@ -207,9 +214,9 @@ async function meshesShow(){
     document.getElementById("programBar").style.display = on ? "flex" : "none";
     document.getElementById("playerBar" ).style.display = on ? "flex" : "none";
 
-    if (meshes.standMesh ) meshes.standMesh .visible = false;
-    if (meshes.carretMesh) meshes.carretMesh.visible = false;
-    if (meshes.rolleyMesh) meshes.rolleyMesh.visible = false;
+    // if (meshes.standMesh ) meshes.standMesh .visible = false;
+    // if (meshes.carretMesh) meshes.carretMesh.visible = false;
+    // if (meshes.rolleyMesh) meshes.rolleyMesh.visible = false;
 
     if (window.animateChain) {
         for (let i = 0; i < window.animateChain.length; i += 1) {
@@ -248,28 +255,28 @@ function rolleyAnimate(){
 
     const Xi = eqd.x[i] * scale.factor
     const Ri = eqd.r[i] * scale.factor
-    const Ai = eqd.al[i]
+    // const Ai = 0. // ???????????????????????????????
 
 
     // Machine
 
-    mesh = meshes.standMesh
-    if (mesh) { // standMesh
-        mesh.position.x = Xi;
-    }
+    // mesh = meshes.standMesh
+    // if (mesh) { // standMesh
+    //     mesh.position.x = Xi;
+    // }
 
-    mesh = meshes.carretMesh
-    if (mesh) { // carretMesh
-        mesh.position.x = Xi;
-        mesh.position.z = Ri;
-        mesh.rotation.z = Ai;
-    }
+    // mesh = meshes.carretMesh
+    // if (mesh) { // carretMesh
+    //     mesh.position.x = Xi;
+    //     mesh.position.z = Ri;
+    //     mesh.rotation.z = Ai;
+    // }
 
-    mesh = meshes.rolleyMesh
-    if (mesh) { // rolleyMesh
-        mesh.position.set(Xi, 0, Ri);
-        mesh.rotation.z = Ai;
-    }
+    // mesh = meshes.rolleyMesh
+    // if (mesh) { // rolleyMesh
+    //     mesh.position.set(Xi, 0, Ri);
+    //     mesh.rotation.z = Ai;
+    // }
 
 
     // chain
@@ -369,23 +376,28 @@ function animate(timestamp) {
 
         const x  = window.animateEqd.x [i]
         const r  = window.animateEqd.r [i]
-        const fi = window.animateEqd.fi[i]
+        // const fi = window.animateEqd.fi[i]
 
-        let FI = fi
-        let supportAngle = 0.
-        let dl = window.animateEqd.al[i]
-        if (window.animateMachine == "Test") {
-        } else if (window.animateMachine == "RPN") {
-            supportAngle = 15.
-        } else if (window.animateMachine == "WE" || window.animateMachine == "WEA") {
-            supportAngle = 10.
-            FI = window.animateMTU[0].fi[i]
-            dl = window.animateMTU[0].al[i]
-        } else if (window.animateMachine == "Roth" || window.animateMachine == "RoC0") {
-            supportAngle = 180.
-        }
+        let FI = window.animateMTU[0][i]
+        const supportAngle = window.animateGeometry?.angle ?? 0.
+        // if (window.animateMachine == "Test") {
+        // } else if (window.animateMachine == "RPN") {
+        //     // FI = window.animateMTU[0][i]
+        //     // dl = window.animateMTU[1][i]
+        //     // supportAngle = 15.
+        // } else if (window.animateMachine == "WE" || window.animateMachine == "WEA") {
+        //     // supportAngle = 10.
+        //     // FI = window.animateMTU[0][i]
+        //     // dl = window.animateMTU[3][i]
+        // } else if (window.animateMachine == "Roth" || window.animateMachine == "RoC0") {
+        //     // supportAngle = 180.
+        //     // FI = window.animateMTU[0][i]
+        // }
         FI = FI + supportAngle * Math.PI / 180.
-  
+
+        const deltaIndex = window.animateGeometry?.deltaIndex ?? 0
+        const dl = window.animateMTU[deltaIndex][i]
+
         // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
         const animateText = ""
             + `N ${i} | `

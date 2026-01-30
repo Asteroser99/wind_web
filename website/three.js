@@ -125,66 +125,66 @@ async function frameInit(){
     meshSet("frameLine", mesh);
   }
 
-  { // standMesh
-    const Xi = 0;
-    const Yi = 0;
-    const Zi = Fr * stanokScale.z + safetyR;
+  // { // standMesh
+  //   const Xi = 0;
+  //   const Yi = 0;
+  //   const Zi = Fr * stanokScale.z + safetyR;
 
-    const vert = [];
-    vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
-    vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-    vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-    vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
+  //   const vert = [];
+  //   vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
+  //   vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
+  //   vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
+  //   vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
 
-    vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
-    vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-    vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-    vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
+  //   vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
+  //   vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
+  //   vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
+  //   vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
     
-    const indices = [];
-    indices.push(0, 1, 2,  2, 3, 0);
-    indices.push(4, 5, 6,  6, 7, 4);
+  //   const indices = [];
+  //   indices.push(0, 1, 2,  2, 3, 0);
+  //   indices.push(4, 5, 6,  6, 7, 4);
 
-    indices.push(0, 4, 5,  5, 1, 0);
-    indices.push(1, 5, 6,  6, 2, 1);
-    indices.push(2, 6, 7,  7, 3, 2);
-    indices.push(3, 7, 4,  4, 0, 3);
+  //   indices.push(0, 4, 5,  5, 1, 0);
+  //   indices.push(1, 5, 6,  6, 2, 1);
+  //   indices.push(2, 6, 7,  7, 3, 2);
+  //   indices.push(3, 7, 4,  4, 0, 3);
 
-    const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
-    mesh.visible = false;
-    meshSet("standMesh", mesh);
-  }
+  //   const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
+  //   mesh.visible = false;
+  //   meshSet("standMesh", mesh);
+  // }
 
-  { // carretMesh
-      const Xi = 0;
-      const Yi = 0;
-      const Zi = Fr * 2;
+  // { // carretMesh
+  //     const Xi = 0;
+  //     const Yi = 0;
+  //     const Zi = Fr * 2;
 
-      const vert = [];
-      vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 4);
-      vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 4);
-      vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 4);
-      vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 4);
+  //     const vert = [];
+  //     vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 4);
+  //     vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 4);
+  //     vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 4);
+  //     vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 4);
 
-      vert.push(Xi - Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
-      vert.push(Xi - Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
-      vert.push(Xi + Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
-      vert.push(Xi + Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
+  //     vert.push(Xi - Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
+  //     vert.push(Xi - Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
+  //     vert.push(Xi + Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
+  //     vert.push(Xi + Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
       
-      const indices = [];
-      indices.push(0, 1, 2,  2, 3, 0);
-      indices.push(4, 5, 6,  6, 7, 4);
+  //     const indices = [];
+  //     indices.push(0, 1, 2,  2, 3, 0);
+  //     indices.push(4, 5, 6,  6, 7, 4);
 
-      indices.push(0, 4, 5,  5, 1, 0);
-      indices.push(1, 5, 6,  6, 2, 1);
-      indices.push(2, 6, 7,  7, 3, 2);
-      indices.push(3, 7, 4,  4, 0, 3);
+  //     indices.push(0, 4, 5,  5, 1, 0);
+  //     indices.push(1, 5, 6,  6, 2, 1);
+  //     indices.push(2, 6, 7,  7, 3, 2);
+  //     indices.push(3, 7, 4,  4, 0, 3);
 
-      const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
-      mesh.position.z = Zi * scale.factor
-      mesh.visible = false;
-      meshSet("carretMesh", mesh);
-  };
+  //     const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
+  //     mesh.position.z = Zi * scale.factor
+  //     mesh.visible = false;
+  //     meshSet("carretMesh", mesh);
+  // };
 
 
   if (window.animateChain) { // chain
@@ -754,8 +754,9 @@ async function setRolley() {
     const rolley = chain[chain.length - 1]
 
     const machine = await vesselPropGet("machine");
-    const TS      = await layerPropGet("equidistantaInterpolated");
+    // const TS      = await layerPropGet("equidistantaInterpolated");
     const MTU     = await layerPropGet("MTU");
+    const geom  = await layerPropGet("geometry");
 
     const res = []
     rolley.x.forEach((_, i) => {
@@ -769,18 +770,19 @@ async function setRolley() {
       const sy =  rolley.sz[i];
       const sz =  rolley.sy[i];
 
-      let FI = TS.fi[i]
-      let supportAngle = 0.
-      if (machine == "Test") {
-      } else if (machine == "RPN") {
-          supportAngle = 15.
-      } else if (machine == "WE" || machine == "WEA") {
-          supportAngle = 10.
-          FI = MTU[0].fi[i]
-      } else if (machine == "Roth" || machine == "RoC0") {
-          supportAngle = 180.
-          // FI = MTU[0][0][i]
-      }
+      let FI = MTU[0][i]
+      const supportAngle = geom?.angle ?? 0;
+      // if (machine == "Test") {
+      // } else if (machine == "RPN") {
+      //     supportAngle = 15.
+      //     // FI = MTU[0][i]
+      // } else if (machine == "WE" || machine == "WEA") {
+      //     supportAngle = 10.
+      //     // FI = MTU[0][i]
+      // } else if (machine == "Roth" || machine == "RoC0") {
+      //     supportAngle = 180.
+      //     // FI = MTU[0][i]
+      // }
       FI = FI + supportAngle * Math.PI / 180.
 
       const euler = new THREE.Euler(rx, ry, rz, 'XZY');

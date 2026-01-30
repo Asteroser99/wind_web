@@ -835,8 +835,10 @@ async function coilCalc() {
     const mandrel = await mandrelGet("Raw");
     if (!mandrel) return null;
 
+    const reverse = (await vesselPropGet("machine")) === "Roth" ? true : false;
+
     try {
-        return lambdaCall("vitok.vitok", [mandrel, await layerPropGet("poleR"), await layerPropGet("band")])
+        return lambdaCall("vitok.vitok", [mandrel, await layerPropGet("poleR"), await layerPropGet("band"), reverse])
             .then(async (res) => {
                 const [coil, meridian] = res
                 await coilSet("Initial", coil);
@@ -1038,9 +1040,10 @@ async function Winding(param = undefined){
         await vesselPropGet('headSize')
     ])
         .then(async res => {
-            await coilSet     ("Interpolated"            , res[0]);
-            await layerPropSet("equidistantaInterpolated", res[1]);
-            await layerPropSet("MTU"                     , res[2]);
+            await layerPropSet("geometry"                , res[0]);
+            await coilSet     ("Interpolated"            , res[1]);
+            await layerPropSet("equidistantaInterpolated", res[2]);
+            await layerPropSet("MTU"                     , res[3]);
             // await layerPropSet("rolleyInterpolated"      , res[3]);
 
             const machine  = await vesselPropGet("machine");
