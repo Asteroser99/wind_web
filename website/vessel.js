@@ -529,7 +529,7 @@ async function saveFile(fun, par, suggestedName, type = "text/plain") {
 }
 
 async function saveCsvWithDialog(name) {
-    const mandrel = await layerPropGet("mandrel" + name);
+    const mandrel = await mandrelGet(name);
     if (!mandrel) {
         showError("No mandrel data to save");
         return;
@@ -1040,13 +1040,13 @@ async function Winding(param = undefined){
         await vesselPropGet('headSize')
     ])
         .then(async res => {
-            await layerPropSet("geometry"                , res[0]);
-            await coilSet     ("Interpolated"            , res[1]);
-            await layerPropSet("equidistantaInterpolated", res[2]);
-            await layerPropSet("MTU"                     , res[3]);
+            await coilSet     ("Interpolated"            , res[0]);
+            await layerPropSet("equidistantaInterpolated", res[1]);
+            await layerPropSet("MTU"                     , res[2]);
             // await layerPropSet("rolleyInterpolated"      , res[3]);
 
             const machine  = await vesselPropGet("machine");
+            const mandrel  = await mandrelGet("Raw")
             const TK       = await coilGet     ("Interpolated"            );
             const TS       = await layerPropGet("equidistantaInterpolated");
             const MTU      = await layerPropGet("MTU");
@@ -1054,16 +1054,22 @@ async function Winding(param = undefined){
             const headSize = await vesselPropGet('headSize')
             const safetyR  = await layerPropGet('safetyR')
 
-            const chain = await lambdaCall("calc.chain", [machine, TK, TS, MTU, band, headSize, safetyR])
-            await layerPropSet("chain", chain);
+            lambdaCall("calc.chain", [machine, mandrel, TK, TS, MTU, band, headSize, safetyR]).then(async res => {
+                await layerPropSet("geometry", res[0]);
+                await layerPropSet("chain"   , res[1]);
 
-            await setRolley()
+                await setRolley()
 
-            // await tapeDraws();
-            await animateInit();
-            await meshesShow();
+                // await tapeDraws();
+                await animateInit();
+                await meshesShow();
 
-            loaded();
+                loaded();
+
+            })
+            .catch(error => {
+                showError(error);
+            });
         })
         .catch(error => {
             showError(error);

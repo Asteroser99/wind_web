@@ -103,8 +103,6 @@ function generateIndices(rows) {
 }
 
 async function animateInit(){
-    // await setRolley()
-    
     let eqdColor  = 0x9ACBD0
     let freeColor = 0xffff00
 

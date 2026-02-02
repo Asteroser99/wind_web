@@ -97,11 +97,10 @@ async function frameInit(){
       0, 1,  1, 2,  2, 3,  3, 4,  4, 5,  5, 0,
     ];
 
-    const Rm = scale.y.max;
-    const Xn = scale.x.min - (Rm);
-    const Xm = scale.x.max + (Rm);
-    const Yd = + ((Rm + safetyR) * stanokScale.y);
-    const Zd = - ((Rm + safetyR) * stanokScale.z);
+    const Xn =   animateGeometry.frameX0;
+    const Xm =   animateGeometry.frameX1;
+    const Yd = + animateGeometry.frameY ;
+    const Zd = - animateGeometry.frameZ ;
 
     const posVertices = [
       Xn, 0., 0.,
@@ -262,7 +261,8 @@ async function floorInit(){
   const safetyR = await layerPropGet("safetyR");
   
   { // floorMesh
-    floorMesh.position.y = -stanokScale.z * (scale.y.max + safetyR) * scale.factor;
+    // floorMesh.position.y = -stanokScale.z * (scale.y.max + safetyR) * scale.factor;
+    floorMesh.position.y = -animateGeometry.frameZ * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
 
     floorShadowMesh.position.y = floorMesh.position.y;
