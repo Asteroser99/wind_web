@@ -112,7 +112,6 @@ async function animateInit(){
     let eqd   = await layerPropGet("equidistantaInterpolated");
     let mtu   = await layerPropGet("MTU");
     let chain = await layerPropGet("chain");
-    // let roll  = await layerPropGet("rolleyInterpolated");
     let chrl  = await layerPropGet("chainRolley");
 
     let geom  = await layerPropGet("geometry");

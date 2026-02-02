@@ -1043,7 +1043,6 @@ async function Winding(param = undefined){
             await coilSet     ("Interpolated"            , res[0]);
             await layerPropSet("equidistantaInterpolated", res[1]);
             await layerPropSet("MTU"                     , res[2]);
-            // await layerPropSet("rolleyInterpolated"      , res[3]);
 
             const machine  = await vesselPropGet("machine");
             const mandrel  = await mandrelGet("Raw")
