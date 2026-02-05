@@ -30,12 +30,10 @@ function getT(begin=0, end=0, long=false){
         vertices.push(...pEqd);
 
         const jRollL = j + 4;
-        // const pRollL = mirrorXYZ(pRollR, pEqd)
         const pRollL = window.animateChainRolley[i][0]
         vertices.push(...pRollL);
 
         const jRollR = j + 5;
-        // const pRollR = pointXYZ(window.animateRolley, i)
         const pRollR = window.animateChainRolley[i][1]
         vertices.push(...pRollR);
   
@@ -114,37 +112,34 @@ async function animateInit(){
     let chain = await layerPropGet("chain");
     let chrl  = await layerPropGet("chainRolley");
 
-    let geom  = await layerPropGet("geometry");
-    const TSFIindex = geom?.TSFIindex ?? 0;
-    
     window.animateMachine = machine;
     window.animateCoil    = coil;
     window.animateTape    = tape;
     window.animateMTU     = mtu ;
     window.animateChain   = chain;
-    // window.animateRolley  = roll;
     window.animateChainRolley = chrl;
-    window.animateGeometry = geom;
 
-    window.animateEqd    = eqd;
-    window.animateEqd.fi = mtu[TSFIindex]
-    window.animateEqd.al = null
+    let geom  = await layerPropGet("geometry");
+    window.animateGeometry = geom;
+    
 
     // scaleSet();
     await floorInit();
     await frameInit();
 
-    window.animateReady = coil != undefined && tape != undefined && eqd != undefined && chain != undefined
-    window.animateOn = window.animateReady;
-
-    let coilInitial = await coilGet("Initial");
-    if (coilInitial) meshes.frameLine.visible = true;
-
     document.getElementById("programBar").style.display = "none";
     document.getElementById("playerBar" ).style.display = "none";
 
 
+    window.animateReady = coil != undefined && tape != undefined && eqd != undefined && chain != undefined
+    window.animateOn = window.animateReady;
     if (!window.animateReady) return;
+
+
+    const TSFIindex = geom?.TSFIindex ?? 0;
+    window.animateEqd    = eqd;
+    window.animateEqd.fi = mtu[TSFIindex]
+    window.animateEqd.al = null
 
     let mesh;
 
@@ -184,20 +179,6 @@ async function animateInit(){
         const indices = generateIndices(4);
         meshSet("freeMesh", meshCreate([vertices, indices], freeColor));
     };
-
-    // { // rolleyMesh
-    //     const band = await layerPropGet('band') / 2
-    //     const rolleyMandrel = {
-    //         x: [-band * 1.05, -band, -band * 0.6, -band * 0.3,  0, band * 0.3,  band * 0.6,  band,  band * 1.05],
-    //         r: [ 0  ,  2,  1.3,  1.1,  1,  1.1,  1.3,  2,  0 ],
-    //     };
-    //     const render = generatrixRender(rolleyMandrel, 8)
-    //     mesh = meshCreate(render, 0xFFFFFF);
-    //     mesh.visible = false;
-    //     meshSet("rolleyMesh", mesh);
-    // }
-
-    // rolleyAnimate();
 }
 window.animateInit = animateInit;
 
@@ -250,33 +231,10 @@ function rolleyAnimate(){
 
     let mesh;
 
-    const Xi = eqd.x[i] * scale.factor
-    const Ri = eqd.r[i] * scale.factor
-    // const Ai = 0. // ???????????????????????????????
+    // const Xi = eqd.x[i] * scale.factor
+    // const Ri = eqd.r[i] * scale.factor
 
-
-    // Machine
-
-    // mesh = meshes.standMesh
-    // if (mesh) { // standMesh
-    //     mesh.position.x = Xi;
-    // }
-
-    // mesh = meshes.carretMesh
-    // if (mesh) { // carretMesh
-    //     mesh.position.x = Xi;
-    //     mesh.position.z = Ri;
-    //     mesh.rotation.z = Ai;
-    // }
-
-    // mesh = meshes.rolleyMesh
-    // if (mesh) { // rolleyMesh
-    //     mesh.position.set(Xi, 0, Ri);
-    //     mesh.rotation.z = Ai;
-    // }
-
-
-    // chain
+    // Machine chain
     if (window.animateChain) {
         for (let j = 0; j < window.animateChain.length; j += 1) {
             mesh = meshes["chain" + j];
@@ -303,7 +261,6 @@ function rolleyAnimate(){
     mesh = meshes.freeMesh
     if (mesh) { // freeMesh
         const geometry = mesh.geometry;
-        // geometry.attributes.position.array.set(rolleyVert);
         interpolateVertices(geometry.attributes.position.array, rolleyVert, 4)
         geometry.attributes.position.needsUpdate = true;
         geometry.computeVertexNormals()

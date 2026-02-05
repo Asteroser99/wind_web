@@ -87,6 +87,8 @@ window.addEventListener('resize', () => {
 });
 
 async function frameInit(){
+  if (!animateGeometry) return
+
   const Fr = scale.y.max;
   const Fd = Fr / 50;
   const safetyR = await layerPropGet("safetyR");
@@ -123,68 +125,6 @@ async function frameInit(){
 
     meshSet("frameLine", mesh);
   }
-
-  // { // standMesh
-  //   const Xi = 0;
-  //   const Yi = 0;
-  //   const Zi = Fr * stanokScale.z + safetyR;
-
-  //   const vert = [];
-  //   vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
-  //   vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-  //   vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi - Fd * 4);
-  //   vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi - Fd * 4);
-
-  //   vert.push(Xi - Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
-  //   vert.push(Xi - Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-  //   vert.push(Xi + Fd * 8,  Yi + Fd * 8,  Zi + Fd * 4);
-  //   vert.push(Xi + Fd * 8,  Yi - Fr * 2,  Zi + Fd * 4);
-    
-  //   const indices = [];
-  //   indices.push(0, 1, 2,  2, 3, 0);
-  //   indices.push(4, 5, 6,  6, 7, 4);
-
-  //   indices.push(0, 4, 5,  5, 1, 0);
-  //   indices.push(1, 5, 6,  6, 2, 1);
-  //   indices.push(2, 6, 7,  7, 3, 2);
-  //   indices.push(3, 7, 4,  4, 0, 3);
-
-  //   const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
-  //   mesh.visible = false;
-  //   meshSet("standMesh", mesh);
-  // }
-
-  // { // carretMesh
-  //     const Xi = 0;
-  //     const Yi = 0;
-  //     const Zi = Fr * 2;
-
-  //     const vert = [];
-  //     vert.push(Xi - Fd * 2,  Yi - Fd,  Fd * 4);
-  //     vert.push(Xi - Fd * 2,  Yi + Fd,  Fd * 4);
-  //     vert.push(Xi + Fd * 2,  Yi + Fd,  Fd * 4);
-  //     vert.push(Xi + Fd * 2,  Yi - Fd,  Fd * 4);
-
-  //     vert.push(Xi - Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
-  //     vert.push(Xi - Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
-  //     vert.push(Xi + Fd * 2,  Yi + Fd,  Fr * 2 + safetyR);
-  //     vert.push(Xi + Fd * 2,  Yi - Fd,  Fr * 2 + safetyR);
-      
-  //     const indices = [];
-  //     indices.push(0, 1, 2,  2, 3, 0);
-  //     indices.push(4, 5, 6,  6, 7, 4);
-
-  //     indices.push(0, 4, 5,  5, 1, 0);
-  //     indices.push(1, 5, 6,  6, 2, 1);
-  //     indices.push(2, 6, 7,  7, 3, 2);
-  //     indices.push(3, 7, 4,  4, 0, 3);
-
-  //     const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
-  //     mesh.position.z = Zi * scale.factor
-  //     mesh.visible = false;
-  //     meshSet("carretMesh", mesh);
-  // };
-
 
   if (window.animateChain) { // chain
     const machine = await vesselPropGet("machine");
@@ -258,15 +198,19 @@ async function frameInit(){
 window.frameInit = frameInit
 
 async function floorInit(){
-  const safetyR = await layerPropGet("safetyR");
-  
-  { // floorMesh
+
+  if (animateGeometry) { // != undefined
     // floorMesh.position.y = -stanokScale.z * (scale.y.max + safetyR) * scale.factor;
     floorMesh.position.y = -animateGeometry.frameZ * scale.factor;
     floorMesh.position.x = scale.x.center * scale.factor;
+    floorMesh.visible = true;
 
     floorShadowMesh.position.y = floorMesh.position.y;
     floorShadowMesh.position.x = floorMesh.position.x;
+    floorShadowMesh.visible = true;
+  } else {
+    floorMesh.visible = false;
+    floorShadowMesh.visible = false;
   }
 }
 window.floorInit = floorInit
