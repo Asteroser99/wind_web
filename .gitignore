@@ -6,3 +6,4 @@ website/.vscode/settings.json
 /backup
 /blend
 debug.log
+website/.vscode/launch.json
