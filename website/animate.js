@@ -136,9 +136,8 @@ async function animateInit(){
     if (!window.animateReady) return;
 
 
-    const TSFIindex = geom?.TSFIindex ?? 0;
     window.animateEqd    = eqd;
-    window.animateEqd.fi = mtu[TSFIindex]
+    window.animateEqd.fi = mtu[0]
     window.animateEqd.al = null
 
     let mesh;

@@ -159,7 +159,7 @@ async function frameInit(){
 
       // const mesh = meshCreate([vert, indices], 0x00ffff, 0.3);
 
-      const opacity = j < window.animateChain.length - 1 ? .5 : 1.;
+      const opacity = j < window.animateChain.length - 2 ? .5 : 1.;
       const mesh = await meshCreateFromFile(machine + "_" + j, opacity);
 
       mesh.visible = false;

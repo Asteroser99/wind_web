@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.3.47",
+		"generator":"Khronos glTF Blender I/O v5.0.21",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -15,15 +15,15 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Rolik006"
+			"name":"Rolik006.001"
 		},
 		{
 			"mesh":1,
-			"name":"Rolik007"
+			"name":"Rolik007.001"
 		},
 		{
 			"mesh":2,
-			"name":"Rolik5"
+			"name":"Rolik5.001"
 		},
 		{
 			"children":[
@@ -31,18 +31,18 @@
 				1,
 				2
 			],
-			"name":"Unnamed"
+			"name":"Unnamed.001"
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"SharedColorMat",
+			"name":"SharedColorMat.001",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
+					0.016807377338409424,
+					0.5271152257919312,
 					1,
-					0,
-					0,
 					1
 				],
 				"metallicFactor":0,
@@ -52,7 +52,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Rolik006",
+			"name":"Rolik006.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -65,7 +65,7 @@
 			]
 		},
 		{
-			"name":"Rolik007",
+			"name":"Rolik007.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -78,7 +78,7 @@
 			]
 		},
 		{
-			"name":"RPN_4",
+			"name":"RPN_4.001",
 			"primitives":[
 				{
 					"attributes":{
