@@ -135,10 +135,11 @@ async function animateInit(){
     window.animateOn = window.animateReady;
     if (!window.animateReady) return;
 
-
-    window.animateEqd    = eqd;
-    window.animateEqd.fi = mtu[0]
-    window.animateEqd.al = null
+    if (!eqd.fi || (Array.isArray(eqd.fi) && eqd.fi.length === 0)) {
+        eqd.fi = mtu[0];
+    }
+    eqd.al = null
+    window.animateEqd = eqd;
 
     let mesh;
 
