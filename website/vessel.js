@@ -186,12 +186,12 @@ async function machinesRenderTable() {
     }
 
     const machines = [
-        ["Test", "Test"],
+        // ["Test", "Test"],
         ["RPN" , "4-axis"],
         ["WE"  , "3-axis"],
         ["WEA" , "3-axis, arc"],
         ["Roth", "5-axis"],
-        ["RoC0", "5-axis, C=0"]
+        // ["RoC0", "5-axis, C=0"]
     ];
 
     const machine = await vesselPropGet("machine")
