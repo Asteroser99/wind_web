@@ -328,40 +328,43 @@ function animate(timestamp) {
         }
         window.animateIndex = i;
 
-        const x  = window.animateEqd.x [i]
-        const r  = window.animateEqd.r [i]
-        // const fi = window.animateEqd.fi[i]
-
         let FI = window.animateMTU[0][i]
         const supportAngle = window.animateGeometry?.angle ?? 0.
-        // if (window.animateMachine == "Test") {
-        // } else if (window.animateMachine == "RPN") {
-        //     // FI = window.animateMTU[0][i]
-        //     // dl = window.animateMTU[1][i]
-        //     // supportAngle = 15.
-        // } else if (window.animateMachine == "WE" || window.animateMachine == "WEA") {
-        //     // supportAngle = 10.
-        //     // FI = window.animateMTU[0][i]
-        //     // dl = window.animateMTU[3][i]
-        // } else if (window.animateMachine == "Roth" || window.animateMachine == "RoC0") {
-        //     // supportAngle = 180.
-        //     // FI = window.animateMTU[0][i]
-        // }
         FI = FI + supportAngle * Math.PI / 180.
 
-        const deltaIndex = window.animateGeometry?.deltaIndex ?? 0
-        const dl = window.animateMTU[deltaIndex][i]
-
-        // &Delta; &delta; &phi; &varphi; &Oslash; &oslash; &#10667; (Ø, ⊘, ⦻)
-        const animateText = ""
+        let animateText = ""
             + `N ${i} | `
-            + `x ${x .toFixed(1)} | `
-            + `r ${r .toFixed(1)} | `
-            + `φ ${FI.toFixed(5)} | `
-            + `δ ${(dl * 180. / Math.PI).toFixed(1)}°`
+            + `A ${(FI * 180. / Math.PI).toFixed(1)}° | `
         ;
+
+        let x, r
+        if (window.animateMachine != "RPN") {
+            x  = window.animateMTU[1][i]
+            r  = window.animateMTU[2][i]
+        } else {
+            x  = window.animateEqd.x [i]
+            r  = window.animateEqd.r [i]
+        }
+        animateText += ""
+            + `X ${x.toFixed(1)} | `
+            + `Y ${r.toFixed(1)} | `
+        ;
+
+        if (window.animateMachine == "Test") {
+        } else if (window.animateMachine == "RPN") {
+            animateText += ""
+                + `B ${(window.animateMTU[1][i] * 180. / Math.PI).toFixed(1)}° | `
+            ;
+        } else if (window.animateMachine == "WE" || window.animateMachine == "WEA") {
+        } else if (window.animateMachine == "Roth" || window.animateMachine == "RoC0") {
+            animateText += ""
+                + `B ${(window.animateMTU[3][i] * 180. / Math.PI).toFixed(1)}° | `
+                + `C ${(window.animateMTU[4][i] * 180. / Math.PI).toFixed(1)}° | `
+            ;
+        }
+
         document.querySelector(".program-p").textContent = animateText;
-    
+        
         rolleyAnimate();
 
         tapeAnimate("Initial", FI)
