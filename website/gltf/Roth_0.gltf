@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.3.47",
+		"generator":"Khronos glTF Blender I/O v5.0.21",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -8,7 +8,8 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0
+				0,
+				1
 			]
 		}
 	],
@@ -16,12 +17,16 @@
 		{
 			"mesh":0,
 			"name":"winder_chassis0"
+		},
+		{
+			"mesh":1,
+			"name":"Cylinder_D20_L2500_X.002"
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"mat_0.019",
+			"name":"mat_0.003",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
 					0.6038273572921753,
@@ -34,7 +39,7 @@
 	],
 	"meshes":[
 		{
-			"name":"winder_chassis0.004",
+			"name":"winder_chassis0.002",
 			"primitives":[
 				{
 					"attributes":{
@@ -43,6 +48,19 @@
 					},
 					"indices":2,
 					"material":0
+				}
+			]
+		},
+		{
+			"name":"\u0426\u0438\u043b\u0438\u043d\u0434\u0440.005",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":3,
+						"NORMAL":4,
+						"TEXCOORD_0":5
+					},
+					"indices":6
 				}
 			]
 		}
@@ -75,6 +93,40 @@
 			"componentType":5123,
 			"count":15192,
 			"type":"SCALAR"
+		},
+		{
+			"bufferView":3,
+			"componentType":5126,
+			"count":192,
+			"max":[
+				1.25,
+				0.5571845173835754,
+				0.18976999819278717
+			],
+			"min":[
+				-1.25,
+				0.5371754765510559,
+				0.1697699874639511
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":4,
+			"componentType":5126,
+			"count":192,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":5,
+			"componentType":5126,
+			"count":192,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":6,
+			"componentType":5123,
+			"count":372,
+			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
@@ -95,11 +147,35 @@
 			"byteLength":30384,
 			"byteOffset":228168,
 			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":2304,
+			"byteOffset":258552,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":2304,
+			"byteOffset":260856,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1536,
+			"byteOffset":263160,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":744,
+			"byteOffset":264696,
+			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":258552,
+			"byteLength":265440,
 			"uri":"Roth_0.bin"
 		}
 	]
