@@ -358,8 +358,8 @@ function animate(timestamp) {
         } else if (window.animateMachine == "WE" || window.animateMachine == "WEA") {
         } else if (window.animateMachine == "Roth" || window.animateMachine == "RoC0") {
             animateText += ""
-                + `B ${(window.animateMTU[3][i] * 180. / Math.PI).toFixed(1)}° | `
-                + `C ${(window.animateMTU[4][i] * 180. / Math.PI).toFixed(1)}° | `
+                + `C ${(window.animateMTU[3][i] * 180. / Math.PI).toFixed(1)}° | `
+                + `B ${(window.animateMTU[4][i] * 180. / Math.PI).toFixed(1)}° | `
             ;
         }
 
