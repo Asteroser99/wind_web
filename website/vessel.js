@@ -217,6 +217,9 @@ async function machinesRenderTable() {
 
     document.getElementById("headSize-wrapper").style.display =
         machine === "Test" | machine === "WE" | machine === "WEA" | machine === "Roth" ? "block" : "none";
+
+    document.getElementById("bandTwist-wrapper").style.display =
+        machine === "Test" | machine === "Roth" ? "block" : "none";
 }
 window.machinesRenderTable = machinesRenderTable;
 
@@ -1031,29 +1034,25 @@ async function Winding(param = undefined){
         return
     }
 
-    lambdaCall("calc.winding", [
-        await vesselPropGet('machine'),
-        coilCorrected,
-        await layerPropGet('safetyR'),
-        await layerPropGet('lineCount'),
-        await layerPropGet('band'),
-        await vesselPropGet('headSize')
-    ])
+    const machine   = await vesselPropGet("machine")
+    const safetyR   = await layerPropGet ('safetyR')
+    const headSize  = await vesselPropGet('headSize')
+    const bandTwist = await layerPropGet ('bandTwist')
+    const lineCount = await layerPropGet ('lineCount')
+
+    lambdaCall("calc.winding", [machine, coilCorrected, safetyR, headSize, bandTwist, lineCount])
         .then(async res => {
             await coilSet     ("Interpolated"            , res[0]);
             await layerPropSet("equidistantaInterpolated", res[1]);
             await layerPropSet("MTU"                     , res[2]);
 
-            const machine  = await vesselPropGet("machine");
-            const mandrel  = await mandrelGet("Raw")
-            const TK       = await coilGet     ("Interpolated"            );
-            const TS       = await layerPropGet("equidistantaInterpolated");
-            const MTU      = await layerPropGet("MTU");
-            const band     = await layerPropGet("band")
-            const headSize = await vesselPropGet('headSize')
-            const safetyR  = await layerPropGet('safetyR')
+            const mandrel   = await mandrelGet   ("Raw")
+            const band      = await layerPropGet ("band")
+            const TK        = await coilGet      ("Interpolated")
+            const TS        = await layerPropGet ("equidistantaInterpolated")
+            const MTU       = await layerPropGet ("MTU")
 
-            lambdaCall("calc.chain", [machine, mandrel, TK, TS, MTU, band, headSize, safetyR]).then(async res => {
+            lambdaCall("calc.chain", [machine, mandrel, band, TK, TS, MTU, safetyR, headSize]).then(async res => {
                 await layerPropSet("geometry", res[0]);
                 await layerPropSet("chain"   , res[1]);
 
