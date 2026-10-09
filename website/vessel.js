@@ -1052,7 +1052,7 @@ async function Winding(param = undefined){
             const TS        = await layerPropGet ("equidistantaInterpolated")
             const MTU       = await layerPropGet ("MTU")
 
-            lambdaCall("calc.chain", [machine, mandrel, band, TK, TS, MTU, safetyR, headSize]).then(async res => {
+            lambdaCall("calc.chain", [machine, mandrel, TK, TS, MTU, band, headSize, safetyR]).then(async res => {
                 await layerPropSet("geometry", res[0]);
                 await layerPropSet("chain"   , res[1]);
 
